@@ -107,7 +107,7 @@
     "numeral": "V",
     "name": "Formalisation",
     "reportName": "Physlib Formalisation Report",
-    "summary": "For adding physics results, proofs and examples to Physlib.",
+    "summary": "For adding new lemmas and definitions to Physlib or PhyslibAlpha.",
     "description": "For adding to Physlib: stating and proving results from physics, building on the existing definitions, and adding worked examples. This includes many small additions across different areas, as well as one larger result.",
     "criteria": [
       "The work added new results, proofs or examples to Physlib, rather than restructuring existing code or setting up the basic definitions of an area.",
