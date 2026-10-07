@@ -69,6 +69,13 @@ DIAGRAMS = {
     # The fundamental vertex everything else is built from.
     "foundations": lambda: fermion(110, 245, 200, 245) + fermion(290, 165, 200, 245)
     + wave(200, 245, 290, 245, periods=4) + dot(200, 245),
+    # Building on what is there: two particles exchanging a photon (t-channel).
+    "formalisation": lambda: fermion(110, 160, 200, 160) + fermion(200, 160, 290, 160)
+    + fermion(110, 250, 200, 250) + fermion(200, 250, 290, 250)
+    + wave(200, 160, 200, 250, periods=3, amp=8) + dot(200, 160) + dot(200, 250),
+    # Passing the word on: a particle emits a photon (bremsstrahlung).
+    "documentation": lambda: fermion(110, 245, 200, 215) + fermion(200, 215, 290, 245)
+    + wave(200, 215, 285, 150, periods=4) + dot(200, 215),
     # Test submissions: a free particle passing straight through; nothing happens.
     "test": lambda: fermion(110, 205, 290, 205),
 }

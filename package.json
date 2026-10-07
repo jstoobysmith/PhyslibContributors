@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Physlib Contributions: signed Open Badges 3.0 awards for reviewing, maintenance, refactoring and foundational work on Physlib.",
+  "description": "Physlib Contributions: signed Open Badges 3.0 reports for reviewing, maintenance, refactoring, foundational work, formalisation and documentation on Physlib.",
   "scripts": {
     "dev": "npm run static && vite",
     "build": "npm run static && npm run typecheck && vite build && cp dist/index.html dist/404.html",

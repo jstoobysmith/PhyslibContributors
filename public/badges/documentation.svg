@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400" role="img" aria-label="Physlib Documentation Report">
+  <title>Physlib Documentation Report</title>
+  <defs>
+    <path id="top" d="M 62,200 A 138,138 0 0 1 338,200"/>
+    <path id="bottom" d="M 52,200 A 148,148 0 0 0 348,200"/>
+  </defs>
+  <circle cx="200" cy="200" r="194" fill="#ffffff" stroke="#01010d" stroke-width="4"/>
+  <circle cx="200" cy="200" r="176" fill="none" stroke="#007bac" stroke-width="1.5"/>
+  <circle cx="200" cy="200" r="118" fill="none" stroke="#01010d" stroke-opacity="0.12" stroke-width="1.5"/>
+  <text font-family="Menlo, Consolas, 'Courier New', monospace" font-size="17" font-weight="600" letter-spacing="4" fill="#01010d" text-anchor="middle">
+    <textPath href="#top" startOffset="50%">PHYSLIB · CONTRIBUTIONS</textPath>
+  </text>
+  <text font-family="Menlo, Consolas, 'Courier New', monospace" font-size="15" font-weight="500" letter-spacing="3" fill="#007bac" text-anchor="middle">
+    <textPath href="#bottom" startOffset="50%">SECTION VI · DOCUMENTATION</textPath>
+  </text>
+  <text x="200" y="128" font-family="Georgia, 'Times New Roman', serif" font-size="30" font-style="italic" fill="#01010d" text-anchor="middle">VI</text>
+  <g><line x1="110" y1="245" x2="200" y2="215" stroke="#01010d" stroke-width="4" stroke-linecap="round"/><path d="M165.4,226.5 L141.8,225.1 L147.3,241.8 Z" fill="#01010d"/><line x1="200" y1="215" x2="290" y2="245" stroke="#01010d" stroke-width="4" stroke-linecap="round"/><path d="M255.4,233.5 L237.3,218.2 L231.8,234.9 Z" fill="#01010d"/><path d="M200.0,215.0 L201.8,215.9 L203.6,216.8 L205.3,217.6 L206.9,218.1 L208.3,218.5 L209.4,218.5 L210.4,218.3 L211.1,217.8 L211.6,216.9 L211.8,215.8 L211.9,214.4 L211.7,212.7 L211.4,210.9 L211.1,208.9 L210.6,206.9 L210.2,204.8 L209.8,202.9 L209.5,201.0 L209.4,199.4 L209.4,198.0 L209.7,196.8 L210.1,196.0 L210.9,195.4 L211.8,195.2 L213.0,195.3 L214.4,195.6 L215.9,196.2 L217.6,196.9 L219.4,197.8 L221.2,198.8 L223.1,199.7 L224.9,200.6 L226.6,201.3 L228.1,201.9 L229.5,202.2 L230.7,202.3 L231.6,202.1 L232.4,201.5 L232.8,200.7 L233.1,199.5 L233.1,198.1 L233.0,196.5 L232.7,194.6 L232.3,192.7 L231.9,190.6 L231.4,188.6 L231.1,186.6 L230.8,184.8 L230.6,183.1 L230.7,181.7 L230.9,180.6 L231.4,179.7 L232.1,179.2 L233.1,179.0 L234.2,179.0 L235.6,179.4 L237.2,179.9 L238.9,180.7 L240.7,181.6 L242.5,182.5 L244.3,183.4 L246.1,184.3 L247.8,185.1 L249.4,185.6 L250.8,186.0 L251.9,186.0 L252.9,185.8 L253.6,185.3 L254.1,184.4 L254.3,183.3 L254.4,181.9 L254.2,180.2 L253.9,178.4 L253.6,176.4 L253.1,174.4 L252.7,172.3 L252.3,170.4 L252.0,168.5 L251.9,166.9 L251.9,165.5 L252.2,164.3 L252.6,163.5 L253.4,162.9 L254.3,162.7 L255.5,162.8 L256.9,163.1 L258.4,163.7 L260.1,164.4 L261.9,165.3 L263.8,166.2 L265.6,167.2 L267.4,168.1 L269.1,168.8 L270.6,169.4 L272.0,169.7 L273.2,169.8 L274.1,169.6 L274.9,169.0 L275.3,168.2 L275.6,167.0 L275.6,165.6 L275.5,164.0 L275.2,162.1 L274.8,160.2 L274.4,158.1 L273.9,156.1 L273.6,154.1 L273.3,152.3 L273.1,150.6 L273.2,149.2 L273.4,148.1 L273.9,147.2 L274.6,146.7 L275.6,146.5 L276.7,146.5 L278.1,146.9 L279.7,147.4 L281.4,148.2 L283.2,149.1 L285.0,150.0" fill="none" stroke="#007bac" stroke-width="4" stroke-linecap="round"/><circle cx="200" cy="215" r="5" fill="#01010d"/></g>
+  <circle cx="44" cy="200" r="3.5" fill="#01010d"/>
+  <circle cx="356" cy="200" r="3.5" fill="#01010d"/>
+</svg>

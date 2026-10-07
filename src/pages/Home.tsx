@@ -16,7 +16,7 @@ export default function Home() {
         <h1 className="sr-only">{SITE.title}</h1>
         <p className="max-w-3xl font-serif text-[1.0625rem] leading-relaxed">
           <strong>{SITE.title}</strong> publishes short, citable reports on work for <a href={SITE.physlib.site}>Physlib</a>{' '}
-          that papers do not capture: reviewing, maintenance, refactoring and foundational definitions. Anyone can submit a
+          that papers rarely capture: reviewing, maintenance, refactoring, foundational definitions, the many smaller additions, and documentation. Anyone can submit a
           report on their own work or someone else’s. The Physlib maintainers check each submission in public, and accepted
           reports are digitally signed so that anyone can confirm they are genuine.
         </p>

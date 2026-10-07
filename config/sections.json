@@ -103,6 +103,57 @@
     ]
   },
   {
+    "id": "formalisation",
+    "numeral": "V",
+    "name": "Formalisation",
+    "reportName": "Physlib Formalisation Report",
+    "summary": "For adding physics results, proofs and examples to Physlib.",
+    "description": "For adding to Physlib: stating and proving results from physics, building on the existing definitions, and adding worked examples. This includes many small additions across different areas, as well as one larger result.",
+    "criteria": [
+      "The work added new results, proofs or examples to Physlib, rather than restructuring existing code or setting up the basic definitions of an area.",
+      "The work was merged and follows the library’s conventions.",
+      "Links to the relevant pull requests are given as evidence."
+    ],
+    "guidance": "One report usually covers several pull requests over a period of time, possibly across different areas, or one substantial result.",
+    "examples": [
+      "Contributed 10 pull requests across electromagnetism, thermodynamics and quantum mechanics",
+      "Formalised the Lorentz force law and its first consequences",
+      "Added 30 lemmas on the quantum harmonic oscillator",
+      "Proved anomaly cancellation for a new family of gauge theories"
+    ],
+    "evidenceKinds": [
+      "pull-request",
+      "module",
+      "commit",
+      "other"
+    ]
+  },
+  {
+    "id": "documentation",
+    "numeral": "VI",
+    "name": "Documentation",
+    "reportName": "Physlib Documentation Report",
+    "summary": "For explaining Physlib: docstrings, module overviews, guides and tutorials.",
+    "description": "For making Physlib easier to understand and use: writing docstrings and module overviews, explaining the physics behind definitions, and writing guides and tutorials for newcomers.",
+    "criteria": [
+      "The work documented Physlib, for example docstrings, module overviews, explanations of the physics, guides or tutorials.",
+      "The documentation was merged or published, and is accurate and clear.",
+      "Links to the relevant pull requests or published pages are given as evidence."
+    ],
+    "guidance": "One report usually covers documenting one area thoroughly, or one substantial guide or tutorial.",
+    "examples": [
+      "Wrote the documentation for the Lorentz group modules",
+      "Added docstrings explaining the physics throughout the quantum mechanics files",
+      "Wrote a getting-started tutorial for new Physlib contributors",
+      "Documented the conventions used for tensors and index notation"
+    ],
+    "evidenceKinds": [
+      "pull-request",
+      "module",
+      "other"
+    ]
+  },
+  {
     "id": "test",
     "numeral": "T",
     "name": "Test",
