@@ -155,9 +155,19 @@ export default function About() {
             anyone can check the signature, here or with any other Open Badges 3.0 verifier.
           </p>
           <p>
-            Reports are currently signed with a temporary key while the site is being set up. The permanent key will be
-            published in the DNS of physlib.io (at <code className="font-mono text-sm">{SITE.dns.txtName}</code>), which ties it
-            to the Physlib project independently of this website. When a key is replaced, existing reports are signed again with
+            {SIGNING_KEY?.status === 'temporary' ? (
+              <>
+                Reports are currently signed with a temporary key while the site is being set up. The permanent key will be
+                published in the DNS of physlib.io (at <code className="font-mono text-sm">{SITE.dns.txtName}</code>), which ties
+                it to the Physlib project independently of this website.
+              </>
+            ) : (
+              <>
+                The key is also published in the DNS of physlib.io (at <code className="font-mono text-sm">{SITE.dns.txtName}</code>
+                ), which ties it to the Physlib project independently of this website.
+              </>
+            )}{' '}
+            When a key is replaced, existing reports are signed again with
             the new key without changing their content. If a key were ever compromised, it would be removed from the DID
             document, so that nothing it signed would verify, and the affected reports would be signed again.
           </p>
