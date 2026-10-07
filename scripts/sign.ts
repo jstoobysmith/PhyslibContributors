@@ -2,7 +2,7 @@
  * Signs accepted submissions: every submission merged into the main branch
  * that does not yet have a credential is turned into an Open Badges 3.0
  * credential, signed with the Physlib Contributions key, and given the next
- * report number.
+ * report number (test submissions are signed but not numbered).
  *
  * In GitHub Actions the key comes from the OB_SIGNING_KEY secret and the review
  * record (pull request, approvals, merger) from the GitHub API. A report is only
@@ -20,6 +20,7 @@ import { join } from 'node:path';
 import {
   canSign,
   isoSeconds,
+  isTestSection,
   type Revocation,
   KEYS,
   SITE,
@@ -131,6 +132,10 @@ async function signSubmission(slug: string, file: string, submission: Submission
     return false;
   }
   writeJson(path, await sign(buildCredential(slug, submission, record), { secretKeyMultibase, verificationMethod }));
+  if (isTestSection(submission.section)) {
+    console.log(`signed ${slug} (a test report, not numbered)`);
+    return true;
+  }
   numbers[slug] ??= nextReportNumber(numbers);
   writeJson(REPORT_NUMBERS_FILE, numbers); // saved with each report, in case a later one fails
   console.log(`signed ${slug} as report no. ${numbers[slug]}`);

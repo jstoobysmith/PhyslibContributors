@@ -1,16 +1,18 @@
 /**
  * Part 7: what the public sees. The site is up, publishes the DID document
- * with the right keys and the revocation list, lists the reports, and its
+ * with the right keys (and the private key matches the public key it shows),
+ * publishes the revocation list, lists the reports, and its
  * reports verify online exactly as a verifier elsewhere would check them.
  */
-import { didWebDocumentUrl, issuerDidDocument, ISSUER_DID, SITE_URL, SPECIMEN_SLUG, urls, type Revocation } from '../../src/lib/config';
-import type { JsonObject } from '../../src/lib/dataIntegrity';
+import { didWebDocumentUrl, issuerDidDocument, ISSUER_DID, isTestSection, SITE_URL, SPECIMEN_SLUG, urls, type Revocation } from '../../src/lib/config';
+import { publicKeyFor, type JsonObject } from '../../src/lib/dataIntegrity';
+import { sectionIdOf } from '../../src/lib/credential';
 import type { ReportsIndex } from '../../src/lib/reports';
 import { verifyCredential } from '../../src/lib/verify';
 import { listCredentials, readJson, ROOT } from '../lib/files';
 import { join } from 'node:path';
 import { definePart, fail, listing, pass, plural, warn } from './checks';
-import { fetchUrl } from './context';
+import { fetchUrl, IN_ACTIONS, SECRETS, secretNotHere } from './context';
 
 const DEPLOY_FIX = 'Wait for “Sign and deploy” to finish, or run it from the Actions tab.';
 
@@ -32,9 +34,10 @@ export default definePart({
     });
 
     let liveRevocations: Revocation[] = [];
+    let liveDid: ReturnType<typeof issuerDidDocument> | undefined;
     await check('7.2', 'DID document (the public keys)', async () => {
       const url = didWebDocumentUrl(ISSUER_DID);
-      const doc = await json<ReturnType<typeof issuerDidDocument>>(url);
+      const doc = (liveDid = await json<ReturnType<typeof issuerDidDocument>>(url));
       if (!doc) return fail(`${url} is not published, so no report can be verified.`, DEPLOY_FIX);
       const expected = issuerDidDocument();
       const keysOf = (d: typeof doc) => d.verificationMethod.map((v) => `${v.id.split('#')[1]}=${v.publicKeyMultibase}`).sort().join();
@@ -43,7 +46,35 @@ export default definePart({
       return pass(`${url} lists ${plural(expected.verificationMethod.length, 'key')}, as in config/keys.json.`);
     });
 
-    await check('7.3', 'Revocation list', async () => {
+    await check('7.3', 'Public key on the site matches the private key', async () => {
+      if (!SECRETS.signingKey) return IN_ACTIONS ? fail('There is no OB_SIGNING_KEY secret to compare with (see 3.3).') : secretNotHere('OB_SIGNING_KEY');
+      let publicKey: string;
+      try {
+        publicKey = publicKeyFor((JSON.parse(SECRETS.signingKey) as { secretKeyMultibase: string }).secretKeyMultibase);
+      } catch {
+        return fail('OB_SIGNING_KEY is not a key file written by npm run keygen (see 3.3).');
+      }
+      if (!liveDid) return fail('The DID document is not published (see 7.2).', DEPLOY_FIX);
+      // What verifiers use: the DID document's keys that may sign (assertionMethod).
+      const method = liveDid.verificationMethod.find((v) => v.publicKeyMultibase === publicKey);
+      if (!method || !liveDid.assertionMethod.includes(method.id)) {
+        return fail(
+          `The private key's public half is not in ${didWebDocumentUrl(ISSUER_DID)}, so reports signed now would not verify.`,
+          'Store the secret of the active key in config/keys.json as OB_SIGNING_KEY (see 3.3), or deploy the current config/keys.json.',
+        );
+      }
+      // What people see: the key shown on the verify and about pages, which is built into the site's script.
+      const home = await fetchUrl(`${SITE_URL}/`);
+      const scripts = [...home.text.matchAll(/<script[^>]+src="([^"]+\.js)"/g)].map((m) => new URL(m[1], `${SITE_URL}/`).href);
+      let shown = false;
+      for (const src of scripts) shown ||= (await fetchUrl(src)).text.includes(publicKey);
+      const keyId = method.id.split('#')[1];
+      return shown
+        ? pass(`The private key (OB_SIGNING_KEY) belongs to ${keyId}, which the live site publishes in did.json and shows on /verify: ${publicKey}.`)
+        : warn(`The private key belongs to ${keyId} in did.json, but the verify page does not show that key.`, DEPLOY_FIX);
+    });
+
+    await check('7.4', 'Revocation list', async () => {
       const live = await json<Revocation[]>(`${SITE_URL}/revocations.json`);
       if (!live) return fail(`${SITE_URL}/revocations.json is not published.`, DEPLOY_FIX);
       liveRevocations = live;
@@ -53,10 +84,10 @@ export default definePart({
     });
 
     let index: ReportsIndex | undefined;
-    await check('7.4', 'List of reports', async () => {
+    await check('7.5', 'List of reports', async () => {
       index = await json<ReportsIndex>(`${SITE_URL}/data/reports.json`);
       if (!index) return fail(`${SITE_URL}/data/reports.json is not published, so the site lists nothing.`, DEPLOY_FIX);
-      const local = listCredentials().filter(({ slug }) => slug !== SPECIMEN_SLUG).length;
+      const local = listCredentials().filter(({ credential }) => !isTestSection(sectionIdOf(credential))).length;
       const online = index.published.length;
       return online === local
         ? pass(`${plural(online, 'published report')} and ${index.pending.length} awaiting signature, as in the repository.`)
@@ -71,14 +102,14 @@ export default definePart({
       return { ok: r.valid, why: r.checks.filter((c) => c.status === 'fail').map((c) => c.label.toLowerCase()).join(', ') };
     };
 
-    await check('7.5', 'Specimen report verifies online', async () => {
+    await check('7.6', 'Specimen report verifies online', async () => {
       const r = await verifyOnline(urls.credential(SPECIMEN_SLUG));
       return r.ok
         ? pass(`${urls.credential(SPECIMEN_SLUG)} is genuine, checked against the published DID document.`)
         : fail(`${urls.credential(SPECIMEN_SLUG)}: ${r.why}.`, DEPLOY_FIX);
     });
 
-    await check('7.6', 'Published reports verify online', async () => {
+    await check('7.7', 'Published reports verify online', async () => {
       const published = index?.published ?? [];
       if (published.length === 0) return pass('No reports published yet.');
       const bad: string[] = [];
@@ -92,7 +123,7 @@ export default definePart({
         : pass(`All ${plural(published.length, 'published report')} are genuine, checked against the published DID document.`);
     });
 
-    await check('7.7', 'Submission schema', async () =>
+    await check('7.8', 'Submission schema', async () =>
       (await json(urls.submissionSchema()))
         ? pass(`${urls.submissionSchema()} is published, for people writing submissions by hand.`)
         : warn(`${urls.submissionSchema()} is not published.`, DEPLOY_FIX),

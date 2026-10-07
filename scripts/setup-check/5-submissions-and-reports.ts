@@ -5,8 +5,8 @@
  */
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { issuerDidDocument, ISSUER_DID, SIGNING_KEY, SPECIMEN_SLUG, type Revocation } from '../../src/lib/config';
-import type { OpenBadgeCredential } from '../../src/lib/credential';
+import { issuerDidDocument, ISSUER_DID, isTestSection, SIGNING_KEY, SPECIMEN_SLUG, type Revocation } from '../../src/lib/config';
+import { sectionIdOf, type OpenBadgeCredential } from '../../src/lib/credential';
 import type { JsonObject } from '../../src/lib/dataIntegrity';
 import { verifyCredential } from '../../src/lib/verify';
 import { CREDENTIALS_DIR, listCredentials, listSubmissionFiles, loadSubmission, readJson, readReportNumbers, ROOT } from '../lib/files';
@@ -83,7 +83,8 @@ export default definePart({
     });
 
     await check('5.4', 'Report numbers', () => {
-      const missing = credentials.filter(({ slug }) => numbers[slug] === undefined).map((c) => c.slug);
+      // Test reports are not numbered.
+      const missing = credentials.filter(({ slug, credential }) => numbers[slug] === undefined && !isTestSection(sectionIdOf(credential))).map((c) => c.slug);
       const values = Object.values(numbers);
       const duplicates = values.filter((n, i) => values.indexOf(n) !== i);
       const orphans = Object.keys(numbers).filter((slug) => !credentials.some((c) => c.slug === slug));
@@ -94,7 +95,7 @@ export default definePart({
         );
       }
       if (orphans.length) return warn(`Numbers for reports that do not exist: ${listing(orphans)}.`, 'Restore the missing files in public/credentials/ from git history.');
-      return pass(credentials.length ? `Reports are numbered 1 to ${Math.max(...values)}, with no gaps or repeats.` : 'No reports numbered yet.');
+      return pass(values.length ? `Reports are numbered 1 to ${Math.max(...values)}, with no repeats.` : 'No reports numbered yet.');
     });
 
     await check('5.5', 'Reports match submissions', () => {

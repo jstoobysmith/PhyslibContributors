@@ -5,7 +5,7 @@
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { EVIDENCE_KINDS, ISSUER_DID, MAINTAINERS, SECTION_IDS, SECTIONS, SITE, SITE_URL, type Revocation } from '../../src/lib/config';
+import { ALL_SECTIONS, EVIDENCE_KINDS, ISSUER_DID, MAINTAINERS, SECTION_IDS, SITE, SITE_URL, type Revocation } from '../../src/lib/config';
 import { readJson, ROOT } from '../lib/files';
 import { definePart, fail, listing, pass, plural, skip, warn } from './checks';
 import { github, IN_ACTIONS, REPO } from './context';
@@ -44,10 +44,11 @@ export default definePart({
     });
 
     await check('2.3', 'Sections', () => {
-      const ids = SECTIONS.map((s) => s.id);
+      const ids = ALL_SECTIONS.map((s) => s.id);
       const problems: string[] = [];
       if (ids.join() !== SECTION_IDS.join()) problems.push(`the sections are ${ids.join(', ')}; the code expects ${SECTION_IDS.join(', ')}`);
-      for (const s of SECTIONS) {
+      if (ALL_SECTIONS.filter((s) => s.test).length !== 1) problems.push('there must be exactly one test section');
+      for (const s of ALL_SECTIONS) {
         if (!s.name || !s.reportName || !s.criteria?.length) problems.push(`${s.id} needs a name, reportName and criteria`);
         const unknown = (s.evidenceKinds ?? []).filter((k) => !(k in EVIDENCE_KINDS));
         if (unknown.length) problems.push(`${s.id} has unknown evidence kinds (${unknown.join(', ')})`);
@@ -55,7 +56,7 @@ export default definePart({
       }
       return problems.length
         ? fail(`config/sections.json: ${problems.join('; ')}.`, 'Fix config/sections.json (and redraw badges with python3 scripts/draw-badges.py).')
-        : pass(`${SECTIONS.map((s) => `${s.numeral}. ${s.name}`).join(', ')}; each has criteria and a badge.`);
+        : pass(`${ALL_SECTIONS.map((s) => `${s.numeral}. ${s.name}`).join(', ')}; each has criteria and a badge.`);
     });
 
     await check('2.4', 'Maintainers', () => {

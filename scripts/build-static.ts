@@ -12,7 +12,7 @@
 import { rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { z } from 'zod';
-import { issuerDidDocument, SECTIONS, SITE_URL, urls, type Revocation } from '../src/lib/config';
+import { ALL_SECTIONS, issuerDidDocument, SITE_URL, urls, type Revocation } from '../src/lib/config';
 import { achievement, issuerProfile, OB_CONTEXT } from '../src/lib/credential';
 import { buildReportsIndex } from '../src/lib/reports';
 import { submissionSchema } from '../src/lib/submission';
@@ -28,7 +28,7 @@ writeJson(out('.well-known/did.json'), didDocument);
 // --- OB 3.0 Profile and Achievements --------------------------------------------
 writeJson(out('issuer.json'), { '@context': OB_CONTEXT, ...issuerProfile() });
 rmSync(out('achievements'), { recursive: true, force: true }); // no stale files from renamed series
-for (const section of SECTIONS) {
+for (const section of ALL_SECTIONS) {
   writeJson(out(`achievements/${section.id}.json`), { '@context': OB_CONTEXT, ...achievement(section) });
 }
 

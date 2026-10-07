@@ -12,7 +12,7 @@
 #   4 GitHub settings              (Pages, environment, rules on main, SIGNING_DEPLOY_KEY, workflows)
 #   5 Submissions and signed reports
 #   6 Dry run of a submission      (form → approval rules → signed, verified, baked report)
-#   7 Live site                    (DID document, report list, reports verify online)
+#   7 Live site                    (DID document, public key matches OB_SIGNING_KEY, report list, reports verify online)
 # The results are on the run's summary page; failures and warnings are also
 # shown as annotations there.
 name: Setup check

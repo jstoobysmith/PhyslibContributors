@@ -45,17 +45,26 @@ function KeyPanel() {
   const dns = useAsync(() => (SIGNING_KEY ? checkDnsAnchor(SIGNING_KEY.publicKeyMultibase) : Promise.reject(new Error('no key'))), []);
   return (
     <div id="key" className="panel scroll-mt-4 text-sm">
-      <div className="panel-title">The signing key</div>
-      <p className="px-3 pt-2">
-        Reports are signed with a key published by this site
-        {SIGNING_KEY?.status === 'temporary' ? '. It is a temporary key, used while the site is being set up.' : '.'}
-      </p>
+      <div className="panel-title">The public signing key</div>
+      <div className="space-y-2 px-3 pt-2">
+        <p>
+          Reports are signed with a private key that only the signing workflow can use
+          {SIGNING_KEY?.status === 'temporary' ? '. It is a temporary key, used while the site is being set up' : ''}. Anyone can check
+          a signature with the matching public key:
+        </p>
+        {SIGNING_KEY && (
+          <p>
+            <span className="font-bold">Public key</span> <span className="text-muted">({SIGNING_KEY.id}, Ed25519)</span>
+            <code className="mt-1 block break-all bg-shade p-1.5 font-mono text-xs">{SIGNING_KEY.publicKeyMultibase}</code>
+          </p>
+        )}
+      </div>
       <details className="px-3 py-2">
         <summary className="cursor-pointer text-xs text-link">Technical details</summary>
         <div className="mt-2 space-y-3">
           <p>
             Reports are signed by <code className="break-all font-mono text-xs">{ISSUER_DID}</code>, whose public keys are listed in
-            its <a href={asset('did.json')}>DID document</a>.
+            its <a href={asset('did.json')}>DID document</a>, the standard form that verifiers read.
           </p>
           <ul className="space-y-2">
             {KEYS.filter((k) => k.status !== 'revoked').map((k) => (

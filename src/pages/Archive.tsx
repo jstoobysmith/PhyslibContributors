@@ -4,7 +4,7 @@ import { ReportList } from '../components/ReportListing';
 import { buttonClass, Container, inputClass, PageTitle, Spinner } from '../components/ui';
 import { SECTIONS, sectionById, SPECIMEN_SLUG } from '../lib/config';
 import { formatDate, useReports, useUnderReview } from '../site/data';
-import type { ReportEntry } from '../lib/reports';
+import type { ReportEntry, TestEntry } from '../lib/reports';
 import { useTitle } from '../site/useTitle';
 
 /** Open submission pull requests. Shown only when GitHub can be reached. */
@@ -29,6 +29,30 @@ function UnderReview() {
             ))}
           </ul>
         )}
+      </div>
+    </div>
+  );
+}
+
+/** Submissions to the test section: not reports, so listed apart, and only when there are some. */
+function TestReports({ tests }: { tests: TestEntry[] }) {
+  if (tests.length === 0) return null;
+  return (
+    <div className="panel">
+      <div className="panel-title">Test reports</div>
+      <div className="px-3 py-2">
+        <p className="mb-2 text-xs text-muted">Tests of the submission and signing; not records of real work.</p>
+        <ul className="space-y-1">
+          {tests.map((t) => (
+            <li key={t.slug}>
+              {t.signed ? <Link to={`/reports/${t.slug}`}>{t.title}</Link> : t.title}
+              <span className="block text-xs text-muted">
+                {t.recipient.name}
+                {t.signed ? '' : '; awaiting signature'}
+              </span>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
@@ -166,6 +190,7 @@ export default function Archive() {
           </div>
         </div>
         <UnderReview />
+        <TestReports tests={reports.status === 'ready' ? (reports.data.tests ?? []) : []} />
       </aside>
     </Container>
   );

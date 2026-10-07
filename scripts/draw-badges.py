@@ -1,4 +1,4 @@
-"""Draws the four section badges as Feynman diagrams, echoing the Physlib logo.
+"""Draws the section badges (and the test badge) as Feynman diagrams, echoing the Physlib logo.
 
     python3 scripts/draw-badges.py   # writes public/badges/<section>.svg
 """
@@ -69,12 +69,14 @@ DIAGRAMS = {
     # The fundamental vertex everything else is built from.
     "foundations": lambda: fermion(110, 245, 200, 245) + fermion(290, 165, 200, 245)
     + wave(200, 245, 290, 245, periods=4) + dot(200, 245),
+    # Test submissions: a free particle passing straight through; nothing happens.
+    "test": lambda: fermion(110, 205, 290, 205),
 }
 
 
 def badge(section):
     sid, numeral, name = section["id"], section["numeral"], section["name"]
-    bottom = f"SECTION {numeral} · {name.upper()}"
+    bottom = "TEST · NOT A REAL REPORT" if section.get("test") else f"SECTION {numeral} · {name.upper()}"
     return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400" role="img" aria-label="{section["reportName"]}">
   <title>{section["reportName"]}</title>
   <defs>

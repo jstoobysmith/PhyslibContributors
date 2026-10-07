@@ -13,6 +13,12 @@ publication:
 | III | Physlib Refactoring Report | Generalising, unifying, reorganising |
 | IV | Physlib Foundations Report | Core definitions other results build on |
 
+For trying the whole process out, the form also has a **Test** section
+(`/submit?section=test`). It fills in every field except the GitHub username
+and ORCID iD. Test submissions are reviewed and signed like real ones, but
+their reports say they are tests, are not numbered, and are listed only in a
+"Test reports" box on the archive page.
+
 Every step happens on GitHub:
 
 | Step | How |
@@ -52,7 +58,7 @@ cryptographically signed with an OB 3.0 Data Integrity proof, not merely hosted.
 | File | Contents |
 | --- | --- |
 | `config/site.json` | site URL, repository, issuer profile, DNS name, number of approvals required |
-| `config/sections.json` | the four sections: names, criteria, guidance |
+| `config/sections.json` | the four sections (names, criteria, guidance), and the test section |
 | `config/maintainers.json` | who may approve reports (names are shown on the site) |
 | `config/keys.json` | public signing keys and their status (written by `npm run keygen`) |
 | `config/revocations.json` | revoked reports |
@@ -192,7 +198,7 @@ The checks are grouped into seven numbered parts, one file each in
 | 4. GitHub settings | Pages; the `signing` environment is limited to `main`; the rules on `main`; `SIGNING_DEPLOY_KEY` can push (by `git push --dry-run`, which pushes nothing); the workflows; the last *Sign and deploy* run |
 | 5. Submissions and signed reports | every submission is valid; why any accepted submission is unsigned; every report verifies; report numbers; revocations; the specimen |
 | 6. Dry run of a submission | a made-up submission through the form's validation, the pull request summary, the approval rules, the credential (against the official OB 3.0 schema), signing with the real key, verification, tamper detection and badge baking |
-| 7. Live site | the published DID document, revocation list and list of reports, and that the published reports verify online |
+| 7. Live site | the published DID document; that the public key the site publishes and shows on `/verify` matches the private key in `OB_SIGNING_KEY`; the revocation list and list of reports; that the published reports verify online |
 
 Each check passes (✓), warns (!: works, but needs attention, usually before
 launch), fails (✗: something will not work until it is fixed) or is skipped

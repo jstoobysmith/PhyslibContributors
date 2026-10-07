@@ -1,12 +1,12 @@
 import { useState, type ReactNode } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { buttonClass, Container, ErrorNote, Field, Input, inputClass, linkButtonClass, PageTitle } from '../components/ui';
-import { EVIDENCE_KINDS, SECTIONS, SITE, sectionById, urls, type EvidenceKind } from '../lib/config';
+import { EVIDENCE_KINDS, SECTIONS, SITE, sectionById, TEST_SECTION, urls, type EvidenceKind, type Section } from '../lib/config';
 import { evidenceTitle, githubLoginFromInput, guessEvidenceKind, normaliseUrl, type Submission } from '../lib/submission';
 import { download } from '../site/data';
 import { SendOnGitHub } from '../components/SendOnGitHub';
 import { openSubmissionPullRequest, submissionJson, whoAmI } from '../site/github';
-import { emptyEvidence, useSubmissionDraft, type Draft, type EvidenceDraft, type PersonDraft } from '../site/useSubmissionDraft';
+import { chooseSection, emptyEvidence, useSubmissionDraft, type Draft, type EvidenceDraft, type PersonDraft } from '../site/useSubmissionDraft';
 import { useTitle } from '../site/useTitle';
 
 function Step({ n, title, children }: { n: number; title: string; children: ReactNode }) {
@@ -68,6 +68,20 @@ function GitHubUsernameField({
         />
       </span>
     </Field>
+  );
+}
+
+function SectionOption({ section, checked, onChoose }: { section: Section; checked: boolean; onChoose: () => void }) {
+  return (
+    <label className="flex cursor-pointer gap-2">
+      <input type="radio" name="section" value={section.id} checked={checked} onChange={onChoose} className="mt-1" />
+      <span>
+        <strong>
+          {section.numeral}. {section.name}
+        </strong>{' '}
+        <span className="text-sm text-muted">— {section.summary}</span>
+      </span>
+    </label>
   );
 }
 
@@ -155,28 +169,35 @@ export default function Submit() {
           <Step n={1} title="Section">
             <div className="space-y-2">
               {SECTIONS.map((s) => (
-                <label key={s.id} className="flex cursor-pointer gap-2">
-                  <input type="radio" name="section" value={s.id} checked={draft.section === s.id} onChange={() => set('section', s.id)} className="mt-1" />
-                  <span>
-                    <strong>
-                      {s.numeral}. {s.name}
-                    </strong>{' '}
-                    <span className="text-sm text-muted">— {s.summary}</span>
-                  </span>
-                </label>
+                <SectionOption key={s.id} section={s} checked={draft.section === s.id} onChoose={() => update((d) => chooseSection(d, s.id))} />
               ))}
+              {TEST_SECTION && (
+                <div className="mt-3 border-t border-dashed border-rule pt-3">
+                  <SectionOption section={TEST_SECTION} checked={section.test === true} onChoose={() => update((d) => chooseSection(d, TEST_SECTION!.id))} />
+                </div>
+              )}
             </div>
-            <div className="mt-3 border border-rule bg-shade px-3 py-2 text-sm">
-              <p className="font-bold">
-                The maintainers will check that:
-              </p>
-              <ol className="mt-1 ml-5 list-decimal space-y-0.5">
-                {section.criteria.map((c) => (
-                  <li key={c}>{c}</li>
-                ))}
-              </ol>
-              <p className="mt-2 text-muted">{section.guidance}</p>
-            </div>
+            {section.test ? (
+              <div className="mt-3 border border-warning/40 bg-[#fdf8ec] px-3 py-2 text-sm">
+                <p className="font-bold">Test submission</p>
+                <p className="mt-1">
+                  The form is filled in with example data, except your GitHub username (and ORCID iD, which is optional). The
+                  submission is reviewed and signed like a real one, but the report is marked as a test, is not numbered, and is not
+                  listed with real reports.
+                </p>
+                <p className="mt-1 font-bold">Enter your GitHub username in step 2, then go to step 5 to send it.</p>
+              </div>
+            ) : (
+              <div className="mt-3 border border-rule bg-shade px-3 py-2 text-sm">
+                <p className="font-bold">The maintainers will check that:</p>
+                <ol className="mt-1 ml-5 list-decimal space-y-0.5">
+                  {section.criteria.map((c) => (
+                    <li key={c}>{c}</li>
+                  ))}
+                </ol>
+                <p className="mt-2 text-muted">{section.guidance}</p>
+              </div>
+            )}
           </Step>
 
           <Step n={2} title="Who did the work">

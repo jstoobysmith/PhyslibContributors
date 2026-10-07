@@ -2,7 +2,7 @@
  * The index of reports that the site reads (public/data/reports.json), and the
  * ways a report is referred to: its number, citation and LinkedIn entry.
  */
-import { sectionById, SITE, urls } from './config';
+import { isTestSection, sectionById, SITE, urls } from './config';
 import { evidenceOf, recipientOf, sectionIdOf, titleOf, type OpenBadgeCredential } from './credential';
 import type { Submission } from './submission';
 
@@ -31,11 +31,20 @@ export interface PendingEntry {
   submittedAt: string;
 }
 
+/** A submission to the test section, signed or not. Test reports are not numbered or listed with real reports. */
+export interface TestEntry {
+  slug: string;
+  title: string;
+  recipient: { name: string; github?: string };
+  signed: boolean;
+}
+
 export interface ReportsIndex {
   generatedAt: string;
   /** Newest first. */
   published: ReportEntry[];
   pending: PendingEntry[];
+  tests: TestEntry[];
 }
 
 /** Report numbers by slug. Numbers are never reused or changed. */
@@ -51,7 +60,9 @@ export function buildReportsIndex(
   numbers: ReportNumbers,
   revokedIds: string[],
 ): ReportsIndex {
+  const isTest = (c: OpenBadgeCredential) => isTestSection(sectionIdOf(c));
   const published = credentials
+    .filter(({ credential }) => !isTest(credential))
     .map(({ slug, credential }): ReportEntry => {
       const submission = submissions.get(slug);
       const number = numbers[slug];
@@ -73,9 +84,9 @@ export function buildReportsIndex(
     })
     .sort((a, b) => b.number - a.number);
 
-  const signed = new Set(published.map((p) => p.slug));
+  const signed = new Set(credentials.map((c) => c.slug));
   const pending = [...submissions]
-    .filter(([slug]) => !signed.has(slug))
+    .filter(([slug, s]) => !signed.has(slug) && !isTestSection(s.section))
     .map(([slug, s]) => ({
       slug,
       section: s.section,
@@ -84,7 +95,14 @@ export function buildReportsIndex(
       submittedAt: s.submittedAt,
     }));
 
-  return { generatedAt: new Date().toISOString(), published, pending };
+  const tests: TestEntry[] = [
+    ...credentials.filter(({ credential }) => isTest(credential)).map(({ slug, credential }) => ({ slug, title: titleOf(credential), recipient: recipientOf(credential), signed: true })),
+    ...[...submissions]
+      .filter(([slug, s]) => !signed.has(slug) && isTestSection(s.section))
+      .map(([slug, s]) => ({ slug, title: s.title, recipient: { name: s.recipient.name, github: s.recipient.github }, signed: false })),
+  ];
+
+  return { generatedAt: new Date().toISOString(), published, pending, tests };
 }
 
 /** Short reference to a report, e.g. "Physlib Contribution Report no. 3 (2026)". */

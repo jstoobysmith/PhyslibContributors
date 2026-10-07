@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Container, PageTitle } from '../components/ui';
-import { ISSUER_DID, MAINTAINERS, SECTIONS, SITE, urls } from '../lib/config';
+import { ISSUER_DID, MAINTAINERS, SECTIONS, SIGNING_KEY, SITE, urls } from '../lib/config';
 import { asset } from '../site/data';
 import { useTitle } from '../site/useTitle';
 
@@ -141,9 +141,14 @@ export default function About() {
             for digital certificates. It is signed with a private key held as a secret of a protected GitHub environment, which only
             the signing workflow on the main branch can use; any change to the workflows or code on the main branch needs a
             maintainer’s review. The matching
-            public key is published in the issuer’s <a href={asset('did.json')}>DID document</a> (
-            <code className="break-all font-mono text-sm">{ISSUER_DID}</code>), so anyone can check the signature, here or with
-            any other Open Badges 3.0 verifier.
+            public key{SIGNING_KEY && (
+              <>
+                , <code className="break-all font-mono text-sm">{SIGNING_KEY.publicKeyMultibase}</code>,
+              </>
+            )}{' '}
+            is shown on the <Link to="/verify#key">verify page</Link> and published in the issuer’s{' '}
+            <a href={asset('did.json')}>DID document</a> (<code className="break-all font-mono text-sm">{ISSUER_DID}</code>), so
+            anyone can check the signature, here or with any other Open Badges 3.0 verifier.
           </p>
           <p>
             Reports are currently signed with a temporary key while the site is being set up. The permanent key will be
