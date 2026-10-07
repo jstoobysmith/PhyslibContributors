@@ -12,6 +12,12 @@
       "Links to the reviewed pull requests or review threads are given as evidence."
     ],
     "guidance": "One report usually covers several substantive reviews over a period of time, or the careful review of one large change. A single short review is not enough.",
+    "examples": [
+      "Reviewed 10 pull requests on quantum mechanics",
+      "Reviewed 25 pull requests on special relativity and the Lorentz group",
+      "Reviewed 50 pull requests across Physlib over a year",
+      "A detailed review of the pull requests introducing the Higgs potential"
+    ],
     "evidenceKinds": [
       "pull-request-review",
       "zulip-thread",
@@ -31,6 +37,12 @@
       "Links to the relevant pull requests, commits or issues are given as evidence."
     ],
     "guidance": "One report usually covers several months of regular maintenance, or one substantial piece of infrastructure work.",
+    "examples": [
+      "Kept Physlib building against new versions of Lean and Mathlib for six months",
+      "Replaced deprecated Mathlib lemmas throughout Physlib",
+      "Set up and looked after the linters and CI checks",
+      "Triaged and closed 40 issues"
+    ],
     "evidenceKinds": [
       "pull-request",
       "commit",
@@ -51,6 +63,12 @@
       "Links to the relevant pull requests are given as evidence, with a short account of what changed and why."
     ],
     "guidance": "One report usually covers one refactor that touched many files or removed a significant amount of duplication.",
+    "examples": [
+      "Refactored tensors in Physlib to be easier to use",
+      "Unified two competing definitions of the Lorentz group",
+      "Reorganised the quantum mechanics files into a clear module structure",
+      "Generalised the harmonic oscillator from one to n dimensions"
+    ],
     "evidenceKinds": [
       "pull-request",
       "commit",
@@ -71,6 +89,12 @@
       "Links to the relevant pull requests and modules are given as evidence."
     ],
     "guidance": "One report usually covers the foundations of one area, typically built up over several pull requests.",
+    "examples": [
+      "Built up the foundations of quantum mechanics",
+      "Defined spacetime and its basic properties",
+      "Set up thermodynamic systems and the laws of thermodynamics",
+      "Defined Feynman diagrams and their first properties"
+    ],
     "evidenceKinds": [
       "pull-request",
       "module",

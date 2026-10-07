@@ -50,13 +50,14 @@ export default definePart({
       if (ALL_SECTIONS.filter((s) => s.test).length !== 1) problems.push('there must be exactly one test section');
       for (const s of ALL_SECTIONS) {
         if (!s.name || !s.reportName || !s.criteria?.length) problems.push(`${s.id} needs a name, reportName and criteria`);
+        if (!s.test && !s.examples?.length) problems.push(`${s.id} has no examples`);
         const unknown = (s.evidenceKinds ?? []).filter((k) => !(k in EVIDENCE_KINDS));
         if (unknown.length) problems.push(`${s.id} has unknown evidence kinds (${unknown.join(', ')})`);
         if (!existsSync(join(ROOT, 'public', 'badges', `${s.id}.svg`))) problems.push(`public/badges/${s.id}.svg is missing`);
       }
       return problems.length
         ? fail(`config/sections.json: ${problems.join('; ')}.`, 'Fix config/sections.json (and redraw badges with python3 scripts/draw-badges.py).')
-        : pass(`${ALL_SECTIONS.map((s) => `${s.numeral}. ${s.name}`).join(', ')}; each has criteria and a badge.`);
+        : pass(`${ALL_SECTIONS.map((s) => `${s.numeral}. ${s.name}`).join(', ')}; each has criteria, examples and a badge.`);
     });
 
     await check('2.4', 'Maintainers', () => {

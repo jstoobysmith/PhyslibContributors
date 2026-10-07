@@ -7,6 +7,8 @@ describe('config', () => {
     // One test section, kept out of the sections listed on the site.
     expect(TEST_SECTION?.id).toBe('test');
     expect(SECTIONS.map((s) => s.id)).not.toContain('test');
+    // Each real section shows examples of what belongs in it.
+    for (const s of SECTIONS) expect(s.examples?.length, s.id).toBeGreaterThan(0);
     for (const s of ALL_SECTIONS) {
       expect(s.criteria.length).toBeGreaterThan(0);
       for (const k of s.evidenceKinds) expect(Object.keys(EVIDENCE_KINDS)).toContain(k);

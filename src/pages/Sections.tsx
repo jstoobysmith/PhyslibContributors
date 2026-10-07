@@ -23,6 +23,7 @@ export function SectionsIndex() {
               </Link>
             </h2>
             <p className="mt-1">{s.description}</p>
+            {s.examples?.length ? <p className="mt-1 text-sm text-muted">For example: {s.examples.slice(0, 3).join('; ')}.</p> : null}
             <p className="mt-1 text-sm">
               <Link to={`/sections/${s.id}`}>Criteria</Link> · <Link to={`/archive?section=${s.id}`}>Reports</Link> ·{' '}
               <Link to={`/submit?section=${s.id}`}>Submit</Link>
@@ -58,6 +59,17 @@ export function SectionPage() {
               <li key={c}>{c}</li>
             ))}
           </ol>
+          {section.examples?.length ? (
+            <>
+              <h2>Examples</h2>
+              <p>Reports in this section might be titled:</p>
+              <ul>
+                {section.examples.map((e) => (
+                  <li key={e}>{e}</li>
+                ))}
+              </ul>
+            </>
+          ) : null}
           <h2>How much work is one report?</h2>
           <p>{section.guidance}</p>
           <p>
