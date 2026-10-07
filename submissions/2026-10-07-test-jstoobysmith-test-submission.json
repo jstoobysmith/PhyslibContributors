@@ -1,0 +1,23 @@
+{
+  "$schema": "https://jstoobysmith.github.io/PhyslibContributors/schemas/submission.schema.json",
+  "section": "test",
+  "title": "Test submission",
+  "summary": "This is a test submission, made to try out the submission form, the review on GitHub and the signing. It does not describe real work and should not be counted as a contribution.",
+  "recipient": {
+    "github": "jstoobysmith",
+    "name": "Test Contributor"
+  },
+  "period": {
+    "from": "2026-09",
+    "to": "2026-10"
+  },
+  "evidence": [
+    {
+      "url": "https://github.com/leanprover-community/physlib/pulls",
+      "kind": "other",
+      "title": "Physlib pull requests (placeholder evidence)",
+      "description": "A real submission links the pull requests, reviews or modules that make up the work."
+    }
+  ],
+  "submittedAt": "2026-10-07T12:49:12Z"
+}
