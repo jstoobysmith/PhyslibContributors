@@ -130,6 +130,26 @@ export function verificationMethodId(keyId: string): string {
   return `${ISSUER_DID}#${keyId}`;
 }
 
+/**
+ * The issuer's DID document (published as did.json): every key that may have
+ * signed a report, except revoked ones, so reports signed with a retired key
+ * keep verifying.
+ */
+export function issuerDidDocument() {
+  const keys = KEYS.filter((k) => k.status !== 'revoked');
+  return {
+    '@context': ['https://www.w3.org/ns/did/v1', 'https://w3id.org/security/multikey/v1'],
+    id: ISSUER_DID,
+    verificationMethod: keys.map((k) => ({
+      id: verificationMethodId(k.id),
+      type: 'Multikey',
+      controller: ISSUER_DID,
+      publicKeyMultibase: k.publicKeyMultibase,
+    })),
+    assertionMethod: keys.map((k) => verificationMethodId(k.id)),
+  };
+}
+
 /** The sample report shown before any real report exists. It is not listed with real reports. */
 export const SPECIMEN_SLUG = 'specimen';
 

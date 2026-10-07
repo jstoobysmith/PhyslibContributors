@@ -29,9 +29,8 @@ import {
   verificationMethodId,
 } from '../src/lib/config';
 import { nextReportNumber } from '../src/lib/reports';
-import { buildCredential, rehomeCredential, type OpenBadgeCredential, type ReviewRecord } from '../src/lib/credential';
+import { buildCredential, rehomeCredential, type OpenBadgeCredential } from '../src/lib/credential';
 import { publicKeyFor, sign, verifySignature, type JsonObject } from '../src/lib/dataIntegrity';
-import { approvalDecision, type PullRequestReview } from '../src/lib/review';
 import type { Submission } from '../src/lib/submission';
 import {
   REPORT_NUMBERS_FILE,
@@ -44,6 +43,7 @@ import {
   writeJson,
 } from './lib/files';
 import { option } from './lib/args';
+import { githubApi, reviewRecord } from './lib/review-record';
 
 const args = process.argv.slice(2);
 const resignAll = args.includes('--resign-all');
@@ -83,36 +83,7 @@ if (reviewCheck && !token) {
   process.exit(1);
 }
 
-const headers = { Accept: 'application/vnd.github+json', Authorization: `Bearer ${token}`, 'X-GitHub-Api-Version': '2022-11-28' };
-
-async function gh<T>(path: string): Promise<T> {
-  const res = await fetch(`https://api.github.com/repos/${repo}${path}`, { headers });
-  if (!res.ok) throw new Error(`GitHub API ${path}: HTTP ${res.status}`);
-  return res.json() as Promise<T>;
-}
-
-/** All pages of a list endpoint (following the Link header). */
-async function ghAll<T>(path: string): Promise<T[]> {
-  const items: T[] = [];
-  let url: string | undefined = `https://api.github.com/repos/${repo}${path}${path.includes('?') ? '&' : '?'}per_page=100`;
-  while (url) {
-    const res: Response = await fetch(url, { headers });
-    if (!res.ok) throw new Error(`GitHub API ${path}: HTTP ${res.status}`);
-    items.push(...((await res.json()) as T[]));
-    url = res.headers.get('link')?.match(/<([^>]+)>;\s*rel="next"/)?.[1];
-  }
-  return items;
-}
-
-/** The file's content at a commit, or undefined if it is not there. */
-function gitShow(commit: string, file: string): string | undefined {
-  try {
-    return execFileSync('git', ['show', `${commit}:${file}`], { cwd: ROOT, encoding: 'utf8' });
-  } catch {
-    return undefined;
-  }
-}
-
+const api = githubApi(repo, token);
 
 function gitDate(file: string): string | undefined {
   try {
@@ -121,48 +92,6 @@ function gitDate(file: string): string | undefined {
   } catch {
     return undefined;
   }
-}
-
-interface PullRequest {
-  number: number;
-  html_url: string;
-  merged_at: string | null;
-  merge_commit_sha: string | null;
-  user: { login: string };
-  merged_by: { login: string } | null;
-  head: { sha: string };
-  base: { ref: string };
-}
-
-/**
- * The review record of a submission, or the reason it may not be signed yet
- * (see src/lib/review.ts). The approvals must be on the pull request that last
- * changed the file, on its final commit, and the file on the main branch must
- * be exactly what that pull request merged.
- */
-async function reviewRecord(file: string, s: Submission): Promise<ReviewRecord | { refused: string }> {
-  if (!reviewCheck) return { acceptedAt: isoSeconds(gitDate(file) ?? new Date()) };
-  const [latest] = await gh<{ sha: string }[]>(`/commits?path=${encodeURIComponent(file)}&sha=${SITE.repository.branch}&per_page=1`);
-  const pulls = latest ? await gh<{ number: number; merged_at: string | null }[]>(`/commits/${latest.sha}/pulls`) : [];
-  const merged = pulls.find((p) => p.merged_at);
-  if (!merged) return { refused: 'its latest change did not come from a merged pull request' };
-
-  const pr = await gh<PullRequest>(`/pulls/${merged.number}`);
-  if (pr.base.ref !== SITE.repository.branch) return { refused: `pull request #${pr.number} was not merged into ${SITE.repository.branch}` };
-  const mergedContent = pr.merge_commit_sha ? gitShow(pr.merge_commit_sha, file) : undefined;
-  if (mergedContent === undefined || mergedContent !== readFileSync(join(ROOT, file), 'utf8')) {
-    return { refused: `the file differs from what pull request #${pr.number} merged` };
-  }
-
-  const reviews = await ghAll<PullRequestReview>(`/pulls/${pr.number}/reviews`);
-  const decision = approvalDecision(reviews, { author: pr.user.login, mergedBy: pr.merged_by?.login, headSha: pr.head.sha }, s);
-  if (!decision.ok) return { refused: decision.reason };
-  return {
-    acceptedAt: isoSeconds(pr.merged_at!),
-    pullRequest: { number: pr.number, url: pr.html_url, author: pr.user.login },
-    reviewers: decision.approvers,
-    mergedBy: pr.merged_by?.login,
-  };
 }
 
 /**
@@ -196,7 +125,7 @@ async function signSubmission(slug: string, file: string, submission: Submission
     console.log(`re-signed ${slug}`);
     return true;
   }
-  const record = await reviewRecord(file, submission);
+  const record = reviewCheck ? await reviewRecord(api, file, submission) : { acceptedAt: isoSeconds(gitDate(file) ?? new Date()) };
   if ('refused' in record) {
     console.error(`::error file=${file}::Not signed: ${record.refused}.`);
     return false;

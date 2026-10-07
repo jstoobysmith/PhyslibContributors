@@ -1,0 +1,94 @@
+# Checks that the whole set-up works: run it after changing settings, keys or
+# maintainers, and before launch (Actions → Setup check → Run workflow).
+# Nothing is changed, signed or published.
+#
+# Job 1, "Tests and build", runs the unit tests and builds the site, with no secrets.
+# Job 2, "Setup check", runs scripts/setup-check/ with the secrets of the
+# "signing" environment. Its output is grouped into seven numbered parts, one
+# file each, e.g. check 4.2 is in scripts/setup-check/4-github-settings.ts:
+#   1 Tests and build              (results of job 1)
+#   2 Configuration                (config/, CODEOWNERS)
+#   3 Signing keys                 (config/keys.json, OB_SIGNING_KEY, DNS)
+#   4 GitHub settings              (Pages, environment, rules on main, SIGNING_DEPLOY_KEY, workflows)
+#   5 Submissions and signed reports
+#   6 Dry run of a submission      (form → approval rules → signed, verified, baked report)
+#   7 Live site                    (DID document, report list, reports verify online)
+# The results are on the run's summary page; failures and warnings are also
+# shown as annotations there.
+name: Setup check
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: Tests and build
+    runs-on: ubuntu-latest
+    outputs:
+      tests: ${{ steps.tests.outcome }}
+      tests_summary: ${{ steps.summary.outputs.text }}
+      build: ${{ steps.build.outcome }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      - id: tests
+        name: Unit tests
+        continue-on-error: true
+        run: npx vitest run --reporter=default --reporter=json --outputFile.json="$RUNNER_TEMP/tests.json"
+
+      - id: summary
+        name: Count the tests
+        if: ${{ !cancelled() }}
+        run: |
+          if [ -f "$RUNNER_TEMP/tests.json" ]; then
+            jq -r '"text=\(.numPassedTests) of \(.numTotalTests) tests passed, in \(.testResults | length) files."' "$RUNNER_TEMP/tests.json" >> "$GITHUB_OUTPUT"
+          fi
+
+      - id: build
+        name: Build the site
+        continue-on-error: true
+        run: npm run build
+
+  setup:
+    name: Setup check
+    needs: tests
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    # For the OB_SIGNING_KEY and SIGNING_DEPLOY_KEY secrets. The environment is
+    # restricted to main, so run this workflow on main.
+    environment: signing
+    permissions:
+      contents: read
+      pages: read          # 4.1 GitHub Pages
+      actions: read        # 4.2 environment, 4.6 workflows, 4.7 last run
+      pull-requests: read  # 5.2 why a submission is unsigned
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0   # 5.2 compares submissions with what their pull requests merged
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      # No install scripts in the job that holds the secrets.
+      - run: npm ci --ignore-scripts
+
+      - name: Setup check
+        env:
+          OB_SIGNING_KEY: ${{ secrets.OB_SIGNING_KEY }}
+          SIGNING_DEPLOY_KEY: ${{ secrets.SIGNING_DEPLOY_KEY }}
+          GITHUB_TOKEN: ${{ github.token }}
+          TESTS_OUTCOME: ${{ needs.tests.outputs.tests }}
+          TESTS_SUMMARY: ${{ needs.tests.outputs.tests_summary }}
+          BUILD_OUTCOME: ${{ needs.tests.outputs.build }}
+        run: npm run setup-check

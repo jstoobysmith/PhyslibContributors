@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { canonicalUrl, evidenceTitle, formatIssues, guessEvidenceKind, md, normaliseUrl, submissionMarkdown, submissionSchema, submissionSlug, validOrcid } from '../src/lib/submission';
+import { canonicalUrl, evidenceTitle, formatIssues, githubLoginFromInput, guessEvidenceKind, md, normaliseUrl, submissionMarkdown, submissionSchema, submissionSlug, validOrcid } from '../src/lib/submission';
 import { loadSubmission } from '../scripts/lib/files';
 import { exampleSubmission } from './fixtures/example';
 
@@ -45,6 +45,13 @@ describe('submission schema', () => {
 });
 
 describe('submission helpers', () => {
+  it('reads a GitHub username however it is typed', () => {
+    for (const typed of ['octocat', ' @octocat ', 'github.com/octocat', 'https://github.com/octocat/', 'https://www.github.com/octocat']) {
+      expect(githubLoginFromInput(typed)).toBe('octocat');
+    }
+    expect(errorsFor({ ...exampleSubmission, recipient: { ...exampleSubmission.recipient, github: '@octocat' } })['recipient.github']).toMatch(/e\.g\. octocat/);
+  });
+
   it('derives evidence titles from links', () => {
     expect(evidenceTitle({ url: 'https://github.com/o/r/pull/12', kind: 'pull-request' })).toBe('Pull request #12');
     expect(evidenceTitle({ url: 'https://github.com/o/r/pull/12', kind: 'pull-request-review' })).toBe('Review of pull request #12');

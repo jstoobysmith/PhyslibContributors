@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { isoSeconds, sectionById, type EvidenceKind, type SectionId } from '../lib/config';
-import { normaliseUrl, submissionSchema, submissionSlug } from '../lib/submission';
+import { githubLoginFromInput, normaliseUrl, submissionSchema, submissionSlug } from '../lib/submission';
 
 export interface EvidenceDraft {
   url: string;
@@ -67,7 +67,7 @@ function loadDraft(section: string | null): Draft {
 }
 
 const opt = (s: string) => (s.trim() ? s.trim() : undefined);
-const login = (s: string) => s.trim().replace(/^@/, '');
+const login = githubLoginFromInput;
 
 /** Turns the form into a submission object (validated separately). */
 export function toSubmission(d: Draft, submittedAt: string): unknown {

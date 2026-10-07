@@ -17,7 +17,7 @@ Every step happens on GitHub:
 
 | Step | How |
 | --- | --- |
-| Submission | A pull request adding `submissions/<name>.json` |
+| Submission | A pull request adding `submissions/<name>.json`, made with the form on the site, which takes the contributor through forking this repository, adding the file and opening the pull request |
 | Review | Maintainers review the pull request in public |
 | Acceptance | A maintainer merges it |
 | Signing | A GitHub workflow signs it as an **Open Badges 3.0** credential using the `OB_SIGNING_KEY` secret |
@@ -74,6 +74,7 @@ cryptographically signed with an OB 3.0 Data Integrity proof, not merely hosted.
 | `src/site/` | browser-only helpers: data loading, opening pull requests, the submission draft |
 | `src/components/`, `src/pages/` | the React site |
 | `scripts/` | `sign`, `validate`, `verify`, `keygen`, `static` (generates `did.json`, the reports index and other files under `public/`) |
+| `scripts/setup-check/` | the setup check (see "Checking the set-up"): one file per numbered part |
 | `test/` | one test file per module in `src/lib/` |
 
 ## Commands
@@ -88,6 +89,7 @@ npm run validate                                          # check every submissi
 npm run sign -- --key .keys/key-1.json --no-review-check  # sign locally, for testing only
 npm run verify -- public/specimen.json --local            # check any credential (file or URL)
 npm run keygen                                            # new signing key (see below)
+npm run setup-check                                       # check the whole set-up (see below)
 python3 scripts/draw-badges.py                            # redraw the section badges
 ```
 
@@ -164,9 +166,42 @@ The site has not been deployed yet. To go live:
    final commit.
 5. **List the maintainers** in `config/maintainers.json`.
 6. Push to `main`. The workflow signs the specimen report and deploys the site.
+7. **Run the setup check** (Actions → *Setup check* → *Run workflow*) and fix
+   anything it reports.
 
 Without the secret, merged submissions stay unsigned ("awaiting signature")
 and the site still deploys.
+
+## Checking the set-up
+
+The **Setup check** workflow (`.github/workflows/setup-check.yml`, run by hand
+from the Actions tab) tests everything the site depends on, without changing,
+signing or publishing anything. Run it after changing settings, keys or
+maintainers, and before launch. Its results are on the run's summary page, and
+failures and warnings are also shown as annotations there.
+
+The checks are grouped into seven numbered parts, one file each in
+`scripts/setup-check/`. Check 4.2 is the second check in
+`4-github-settings.ts`.
+
+| Part | Checks |
+| --- | --- |
+| 1. Tests and build | the unit tests and the site build (run in a first job without secrets) |
+| 2. Configuration | `config/` and `.github/CODEOWNERS`: site address, sections, maintainers and their GitHub ids, approval rules, draft flag |
+| 3. Signing keys | `config/keys.json`; that `OB_SIGNING_KEY` is the private half of the active key and signs; the DNS record |
+| 4. GitHub settings | Pages; the `signing` environment is limited to `main`; the rules on `main`; `SIGNING_DEPLOY_KEY` can push (by `git push --dry-run`, which pushes nothing); the workflows; the last *Sign and deploy* run |
+| 5. Submissions and signed reports | every submission is valid; why any accepted submission is unsigned; every report verifies; report numbers; revocations; the specimen |
+| 6. Dry run of a submission | a made-up submission through the form's validation, the pull request summary, the approval rules, the credential (against the official OB 3.0 schema), signing with the real key, verification, tamper detection and badge baking |
+| 7. Live site | the published DID document, revocation list and list of reports, and that the published reports verify online |
+
+Each check passes (✓), warns (!: works, but needs attention, usually before
+launch), fails (✗: something will not work until it is fixed) or is skipped
+(–: cannot be checked there). Every warning and failure says how to fix it.
+The workflow fails if any check fails.
+
+Locally, `npm run setup-check` runs the same checks except those that need
+the secrets (add `-- --key .keys/key-1.json` to include a local signing key,
+and `GITHUB_TOKEN=$(gh auth token)` in front to read the GitHub settings).
 
 ## Keys, DID and the physlib.io DNS
 

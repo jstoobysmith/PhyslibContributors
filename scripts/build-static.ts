@@ -12,7 +12,7 @@
 import { rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { z } from 'zod';
-import { ISSUER_DID, KEYS, SECTIONS, SITE_URL, urls, verificationMethodId, type Revocation } from '../src/lib/config';
+import { issuerDidDocument, SECTIONS, SITE_URL, urls, type Revocation } from '../src/lib/config';
 import { achievement, issuerProfile, OB_CONTEXT } from '../src/lib/credential';
 import { buildReportsIndex } from '../src/lib/reports';
 import { submissionSchema } from '../src/lib/submission';
@@ -20,19 +20,8 @@ import { listCredentials, listSubmissionFiles, loadSubmission, readReportNumbers
 
 const out = (p: string) => join(ROOT, 'public', p);
 
-// --- DID document: every key that may have signed a report, except revoked ones ------
-const keys = KEYS.filter((k) => k.status !== 'revoked');
-const didDocument = {
-  '@context': ['https://www.w3.org/ns/did/v1', 'https://w3id.org/security/multikey/v1'],
-  id: ISSUER_DID,
-  verificationMethod: keys.map((k) => ({
-    id: verificationMethodId(k.id),
-    type: 'Multikey',
-    controller: ISSUER_DID,
-    publicKeyMultibase: k.publicKeyMultibase,
-  })),
-  assertionMethod: keys.map((k) => verificationMethodId(k.id)),
-};
+// --- DID document ------------------------------------------------------------------
+const didDocument = issuerDidDocument();
 writeJson(out('did.json'), didDocument);
 writeJson(out('.well-known/did.json'), didDocument);
 
@@ -64,5 +53,5 @@ writeJson(out('schemas/submission.schema.json'), {
 });
 
 console.log(
-  `static: ${keys.length} key(s) for ${ISSUER_DID} at ${SITE_URL}; ${index.published.length} published, ${index.pending.length} awaiting signature`,
+  `static: ${didDocument.verificationMethod.length} key(s) for ${didDocument.id} at ${SITE_URL}; ${index.published.length} published, ${index.pending.length} awaiting signature`,
 );
