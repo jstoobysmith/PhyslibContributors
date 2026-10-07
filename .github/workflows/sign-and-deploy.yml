@@ -35,6 +35,10 @@ jobs:
         with:
           ref: main        # the latest main, including awards signed by an earlier run
           fetch-depth: 0   # sign.ts compares each file with what its pull request merged
+          # A write deploy key (secret of the "signing" environment). The ruleset on
+          # main lets deploy keys bypass "require a pull request", so this job can
+          # commit signed awards; nothing else holds the key.
+          ssh-key: ${{ secrets.SIGNING_DEPLOY_KEY }}
 
       - uses: actions/setup-node@v7
         with:

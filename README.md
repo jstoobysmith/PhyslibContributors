@@ -153,12 +153,15 @@ The site has not been deployed yet. To go live:
    gh secret set OB_SIGNING_KEY --env signing --repo jstoobysmith/PhyslibContributors < .keys/key-1.json
    rm .keys/key-1.json   # once the secret is stored
    ```
-4. **Protect `main`:** require pull requests, require review from code owners
-   (`.github/CODEOWNERS` covers everything that runs with the key or is signed
-   with it), dismiss stale approvals when new commits are pushed, require
-   approval of the most recent push, and allow GitHub Actions to push, since
-   the workflow commits signed credentials. (The signing script also ignores
-   approvals that are not on a pull request's final commit.)
+4. **Protect `main`** with a ruleset: require pull requests with review from
+   code owners (`.github/CODEOWNERS` covers everything that runs with the key
+   or is signed with it), dismiss stale approvals, and require approval of the
+   most recent push. The signing workflow commits signed awards to `main`
+   using a write **deploy key** stored as `SIGNING_DEPLOY_KEY` in the `signing`
+   environment; let deploy keys bypass the ruleset. (On a personal account,
+   GitHub does not allow the GitHub Actions app itself as a bypass actor.)
+   The signing script also ignores approvals that are not on a pull request's
+   final commit.
 5. **List the maintainers** in `config/maintainers.json`.
 6. Push to `main`. The workflow signs the specimen award and deploys the site.
 
