@@ -45,6 +45,8 @@ export interface Section {
   criteria: string[];
   /** Rough indication of the amount of work one report covers. */
   guidance: string;
+  /** Typical report titles, to show what belongs in the section. The first is the title hint on the form. */
+  examples?: string[];
   evidenceKinds: EvidenceKind[];
   /**
    * The test section: for trying out the form, the review and the signing.

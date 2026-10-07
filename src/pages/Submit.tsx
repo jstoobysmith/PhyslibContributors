@@ -195,6 +195,16 @@ export default function Submit() {
                     <li key={c}>{c}</li>
                   ))}
                 </ol>
+                {section.examples?.length ? (
+                  <>
+                    <p className="mt-2 font-bold">For example:</p>
+                    <ul className="mt-1 ml-5 list-disc space-y-0.5">
+                      {section.examples.map((e) => (
+                        <li key={e}>{e}</li>
+                      ))}
+                    </ul>
+                  </>
+                ) : null}
                 <p className="mt-2 text-muted">{section.guidance}</p>
               </div>
             )}
@@ -259,7 +269,7 @@ export default function Submit() {
 
           <Step n={3} title="The work">
             <div className="space-y-4">
-              <Field label="Title" error={err('title')} hint="One line, as for a paper, e.g. “Reviews of the tensor species refactor”.">
+              <Field label="Title" error={err('title')} hint={`One line, as for a paper, e.g. “${section.examples?.[0] ?? 'Reviews of the tensor species refactor'}”.`}>
                 <Input value={draft.title} onChange={(e) => set('title', e.target.value)} data-invalid={!!err('title')} />
               </Field>
               <Field label="Summary" error={err('summary')} hint="What was done and why it mattered to Physlib, in a few sentences. Separate paragraphs with a blank line.">
