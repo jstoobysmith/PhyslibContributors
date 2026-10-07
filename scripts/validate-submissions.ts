@@ -13,7 +13,7 @@
  */
 import { appendFileSync, existsSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { SITE } from '../src/lib/config';
+import { isTestSection, SITE } from '../src/lib/config';
 import { evidenceOf, recipientOf, titleOf } from '../src/lib/credential';
 import { CONFLICT_DECLARATION } from '../src/lib/review';
 import { canonicalUrl, md, submissionMarkdown } from '../src/lib/submission';
@@ -75,6 +75,9 @@ for (const path of files) {
   errors.forEach((e) => summary.push(`- **Error:** ${line(e)}`));
   warnings.forEach((w) => summary.push(`- **Check:** ${w}`));
   if (submission) {
+    if (isTestSection(submission.section)) {
+      summary.push('', '**Test submission.** No approvals are needed: merging this pull request is enough for it to be signed, as a test report that is not numbered or listed.');
+    }
     summary.push('', submissionMarkdown(submission), '');
     summary.push(
       previous.length

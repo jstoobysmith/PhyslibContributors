@@ -30,6 +30,22 @@ describe('reports index', () => {
     expect(() => buildReportsIndex([{ slug: 'a', credential: cred('a', '2026-05-01T00:00:00Z') }], new Map(), {}, [])).toThrow();
   });
 
+  it('keeps test reports apart: not numbered, not published, not pending', () => {
+    const test = { ...exampleSubmission, section: 'test' as const, title: 'Test submission' };
+    const t = buildCredential('t', test, exampleRecord) as unknown as OpenBadgeCredential;
+    expect(t.name).toBe('Physlib Test Report: Test submission');
+    expect(t.description).toMatch(/Not a record of real work/);
+    const index = buildReportsIndex(
+      [{ slug: 'a', credential: cred('a', '2026-05-01T00:00:00Z') }, { slug: 't', credential: t }],
+      new Map([['a', exampleSubmission], ['t', test], ['u', test]]),
+      { a: 1 },
+      [],
+    );
+    expect(index.published.map((e) => e.slug)).toEqual(['a']);
+    expect(index.pending).toEqual([]);
+    expect(index.tests.map((e) => [e.slug, e.signed])).toEqual([['t', true], ['u', false]]);
+  });
+
   it('never reuses numbers', () => {
     expect(nextReportNumber({})).toBe(1);
     expect(nextReportNumber({ a: 1, b: 5 })).toBe(6);

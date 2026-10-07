@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { isoSeconds, sectionById, type EvidenceKind, type SectionId } from '../lib/config';
-import { normaliseUrl, submissionSchema, submissionSlug } from '../lib/submission';
+import { isoSeconds, isTestSection, SITE, sectionById, type EvidenceKind, type SectionId } from '../lib/config';
+import { githubLoginFromInput, normaliseUrl, submissionSchema, submissionSlug } from '../lib/submission';
 
 export interface EvidenceDraft {
   url: string;
@@ -55,19 +55,88 @@ function blankDraft(section: string | null): Draft {
   };
 }
 
+const TEST_NAME = 'Test Contributor';
+
+const month = (d: Date) => d.toISOString().slice(0, 7);
+
+/** The example content of a test submission, so that the whole process can be tried without typing anything. */
+function testContent(): Pick<Draft, 'title' | 'summary' | 'from' | 'to' | 'evidence'> {
+  const now = new Date();
+  return {
+    title: 'Test submission',
+    summary:
+      'This is a test submission, made to try out the submission form, the review on GitHub and the signing. It does not describe real work and should not be counted as a contribution.',
+    from: month(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 1))),
+    to: month(now),
+    evidence: [
+      {
+        url: `https://github.com/${SITE.physlib.repository}/pulls`,
+        kind: 'other',
+        title: 'Physlib pull requests (placeholder evidence)',
+        description: 'A real submission links the pull requests, reviews or modules that make up the work.',
+        kindChosen: true,
+      },
+    ],
+  };
+}
+
+/**
+ * The draft with the test section chosen and the fields filled in, except the
+ * GitHub username and ORCID iD: those identify a real person, so they are left
+ * as typed. The test is sent from the account entered as the username.
+ */
+export function testDraft(d: Draft): Draft {
+  return {
+    ...d,
+    ...testContent(),
+    section: 'test',
+    name: d.name.trim() || TEST_NAME,
+    nominating: false,
+    nominatedBy: '',
+    consent: false,
+    collaborators: [],
+  };
+}
+
+/** Leaving the test section: the example content is cleared, unless it has been edited. */
+function withoutTestContent(d: Draft, section: SectionId): Draft {
+  const example = testContent();
+  const same = <K extends keyof typeof example>(k: K) => JSON.stringify(d[k]) === JSON.stringify(example[k]);
+  const blank = blankDraft(section);
+  return {
+    ...d,
+    section,
+    name: d.name === TEST_NAME ? '' : d.name,
+    title: same('title') ? '' : d.title,
+    summary: same('summary') ? '' : d.summary,
+    from: same('from') && same('to') ? '' : d.from,
+    to: same('from') && same('to') ? '' : d.to,
+    evidence: same('evidence') ? blank.evidence : d.evidence,
+  };
+}
+
+/** Chooses a section; choosing the test section fills in the whole form. */
+export function chooseSection(d: Draft, section: SectionId): Draft {
+  if (isTestSection(section)) return testDraft(d);
+  if (isTestSection(d.section)) return withoutTestContent(d, section);
+  return { ...d, section };
+}
+
 function loadDraft(section: string | null): Draft {
   const blank = blankDraft(section);
+  let draft = blank;
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? 'null') as Partial<Draft> | null;
-    if (saved) return { ...blank, ...saved, section: section && sectionById(section) ? blank.section : (saved.section ?? blank.section) };
+    if (saved) draft = { ...blank, ...saved, section: section && sectionById(section) ? blank.section : (saved.section ?? blank.section) };
   } catch {
     /* no saved draft */
   }
-  return blank;
+  // /submit?section=test fills in the form, keeping a saved name and username.
+  return section && isTestSection(section) ? testDraft(draft) : draft;
 }
 
 const opt = (s: string) => (s.trim() ? s.trim() : undefined);
-const login = (s: string) => s.trim().replace(/^@/, '');
+const login = githubLoginFromInput;
 
 /** Turns the form into a submission object (validated separately). */
 export function toSubmission(d: Draft, submittedAt: string): unknown {
@@ -121,7 +190,7 @@ export function useSubmissionDraft(initialSection: string | null) {
       } catch {
         /* ignore */
       }
-      setDraft(blankDraft(draft.section));
+      setDraft(blankDraft(isTestSection(draft.section) ? null : draft.section));
     },
   };
 }

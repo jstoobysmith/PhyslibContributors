@@ -62,4 +62,13 @@ describe('approval rules', () => {
   it('does not let anyone the report credits merge it', () => {
     expect(approvalDecision([review(maintainer, 'APPROVED', '1')], pr({ mergedBy: 'alice' }), submission, 1).ok).toBe(false);
   });
+
+  it('signs test submissions without approvals, whoever opened or merged them', () => {
+    const test = { ...submission, section: 'test' };
+    expect(approvalDecision([], pr({ author: 'someone-else', mergedBy: 'alice' }), test, 1)).toEqual({ ok: true, approvers: [] });
+    // Approvals that would count for a real report are still recorded.
+    expect(approvalDecision([review(maintainer, 'APPROVED', '1')], pr(), test, 1)).toEqual({ ok: true, approvers: [maintainer] });
+    // Real sections keep every rule.
+    expect(approvalDecision([], pr(), { ...submission, section: 'review' }, 1).ok).toBe(false);
+  });
 });

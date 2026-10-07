@@ -14,7 +14,22 @@ const githubLogin = z
   .string()
   .trim()
   .min(1, 'Please enter a GitHub username')
-  .regex(/^[A-Za-z0-9](?:[A-Za-z0-9]|-(?=[A-Za-z0-9])){0,38}$/, 'This is not a valid GitHub username');
+  .regex(
+    /^[A-Za-z0-9](?:[A-Za-z0-9]|-(?=[A-Za-z0-9])){0,38}$/,
+    'Enter just the GitHub username, e.g. octocat (letters, digits and hyphens; no @, spaces or link)',
+  );
+
+/**
+ * The username in what people type into a GitHub username field: "@octocat",
+ * "github.com/octocat" and "https://github.com/octocat/" all give "octocat".
+ */
+export function githubLoginFromInput(text: string): string {
+  return text
+    .trim()
+    .replace(/^(https?:\/\/)?(www\.)?github\.com\//i, '')
+    .replace(/^@/, '')
+    .replace(/\/+$/, '');
+}
 
 const month = z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, 'Choose a month');
 

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400" role="img" aria-label="Physlib Test Report">
+  <title>Physlib Test Report</title>
+  <defs>
+    <path id="top" d="M 62,200 A 138,138 0 0 1 338,200"/>
+    <path id="bottom" d="M 52,200 A 148,148 0 0 0 348,200"/>
+  </defs>
+  <circle cx="200" cy="200" r="194" fill="#ffffff" stroke="#01010d" stroke-width="4"/>
+  <circle cx="200" cy="200" r="176" fill="none" stroke="#007bac" stroke-width="1.5"/>
+  <circle cx="200" cy="200" r="118" fill="none" stroke="#01010d" stroke-opacity="0.12" stroke-width="1.5"/>
+  <text font-family="Menlo, Consolas, 'Courier New', monospace" font-size="17" font-weight="600" letter-spacing="4" fill="#01010d" text-anchor="middle">
+    <textPath href="#top" startOffset="50%">PHYSLIB · CONTRIBUTIONS</textPath>
+  </text>
+  <text font-family="Menlo, Consolas, 'Courier New', monospace" font-size="15" font-weight="500" letter-spacing="3" fill="#007bac" text-anchor="middle">
+    <textPath href="#bottom" startOffset="50%">TEST · NOT A REAL REPORT</textPath>
+  </text>
+  <text x="200" y="128" font-family="Georgia, 'Times New Roman', serif" font-size="30" font-style="italic" fill="#01010d" text-anchor="middle">T</text>
+  <g><line x1="110" y1="205" x2="290" y2="205" stroke="#01010d" stroke-width="4" stroke-linecap="round"/><path d="M211.0,205.0 L189.0,196.2 L189.0,213.8 Z" fill="#01010d"/></g>
+  <circle cx="44" cy="200" r="3.5" fill="#01010d"/>
+  <circle cx="356" cy="200" r="3.5" fill="#01010d"/>
+</svg>

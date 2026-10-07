@@ -119,6 +119,9 @@ export default function Report() {
 
   const c = credential.data;
   const specimen = slug === SPECIMEN_SLUG;
+  const test = !!sectionById(sectionIdOf(c))?.test;
+  // Neither the specimen nor a test report is a record of real work by a real contributor.
+  const notReal = specimen || test;
   const entry = reports.status === 'ready' ? reports.data.published.find((e) => e.slug === slug) : undefined;
   const section = sectionById(sectionIdOf(c));
   const recipient = recipientOf(c);
@@ -132,6 +135,12 @@ export default function Report() {
         {specimen && (
           <p className="mb-4 border border-warning/40 bg-[#fdf8e8] px-3 py-2 text-sm">
             <strong>Specimen.</strong> A sample report showing what a real one looks like. The contributor does not exist.
+          </p>
+        )}
+        {test && (
+          <p className="mb-4 border border-warning/40 bg-[#fdf8e8] px-3 py-2 text-sm">
+            <strong>Test report.</strong> Made to try out the submission, review and signing. It is signed like a real report, but
+            it is not a record of real work, is not numbered and is not listed with real reports.
           </p>
         )}
         {entry?.revoked && (
@@ -150,7 +159,7 @@ export default function Report() {
 
         <h1 className="mt-2 font-serif text-[1.75rem] font-bold leading-tight">{titleOf(c)}</h1>
         <p className="mt-2 text-[1.0625rem]">
-          {recipient.github && !specimen ? <Link to={`/contributors/${recipient.github}`}>{recipient.name}</Link> : recipient.name}
+          {recipient.github && !notReal ? <Link to={`/contributors/${recipient.github}`}>{recipient.name}</Link> : recipient.name}
           {recipient.orcid && (
             <a href={`https://orcid.org/${recipient.orcid}`} className="ml-3 text-sm">
               <OrcidIcon className="size-4" /> {recipient.orcid}
@@ -184,7 +193,7 @@ export default function Report() {
               </Row>
             )}
             {entry && <Row label="Reference">{reportReference(entry)}</Row>}
-            {recipient.github && !specimen && (
+            {recipient.github && !notReal && (
               <Row label="GitHub">
                 <a href={urls.github(recipient.github)}>@{recipient.github}</a>
               </Row>
@@ -286,7 +295,7 @@ export default function Report() {
 
       <aside className="min-w-0 space-y-4 text-sm">
         <VerificationPanel credential={c as unknown as JsonObject} />
-        <CiteThisReport c={c} slug={slug} entry={entry} />
+        {!test && <CiteThisReport c={c} slug={slug} entry={entry} />}
         <div className="panel">
           <div className="panel-title">Download</div>
           <ul className="space-y-1 px-3 py-2">

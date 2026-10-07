@@ -19,7 +19,7 @@ export interface KeyConfig {
   status: KeyStatus;
 }
 
-export const SECTION_IDS = ['review', 'maintenance', 'refactoring', 'foundations'] as const;
+export const SECTION_IDS = ['review', 'maintenance', 'refactoring', 'foundations', 'test'] as const;
 export type SectionId = (typeof SECTION_IDS)[number];
 
 export const EVIDENCE_KINDS = {
@@ -46,6 +46,12 @@ export interface Section {
   /** Rough indication of the amount of work one report covers. */
   guidance: string;
   evidenceKinds: EvidenceKind[];
+  /**
+   * The test section: for trying out the form, the review and the signing.
+   * Its reports are signed like any other, but marked as tests, not numbered
+   * and not listed with real reports.
+   */
+  test?: boolean;
 }
 
 /** An entry of config/revocations.json. */
@@ -65,13 +71,20 @@ export interface Maintainer {
 }
 
 export const SITE = site;
-export const SECTIONS = sectionsJson as Section[];
+/** Every section, including the test section. */
+export const ALL_SECTIONS = sectionsJson as Section[];
+/** The sections of real reports, as listed on the site. */
+export const SECTIONS = ALL_SECTIONS.filter((s) => !s.test);
+export const TEST_SECTION = ALL_SECTIONS.find((s) => s.test);
 export const KEYS = keysJson as KeyConfig[];
 export const MAINTAINERS = maintainersJson as Maintainer[];
 
 export function sectionById(id: string): Section | undefined {
-  return SECTIONS.find((s) => s.id === id);
+  return ALL_SECTIONS.find((s) => s.id === id);
 }
+
+/** Whether a section id is the test section's. */
+export const isTestSection = (id: string) => !!sectionById(id)?.test;
 
 export function maintainerByLogin(login: string): Maintainer | undefined {
   return MAINTAINERS.find((m) => m.github.toLowerCase() === login.toLowerCase());
@@ -128,6 +141,26 @@ export const ISSUER_DID = didWebFromUrl(SITE_URL);
 
 export function verificationMethodId(keyId: string): string {
   return `${ISSUER_DID}#${keyId}`;
+}
+
+/**
+ * The issuer's DID document (published as did.json): every key that may have
+ * signed a report, except revoked ones, so reports signed with a retired key
+ * keep verifying.
+ */
+export function issuerDidDocument() {
+  const keys = KEYS.filter((k) => k.status !== 'revoked');
+  return {
+    '@context': ['https://www.w3.org/ns/did/v1', 'https://w3id.org/security/multikey/v1'],
+    id: ISSUER_DID,
+    verificationMethod: keys.map((k) => ({
+      id: verificationMethodId(k.id),
+      type: 'Multikey',
+      controller: ISSUER_DID,
+      publicKeyMultibase: k.publicKeyMultibase,
+    })),
+    assertionMethod: keys.map((k) => verificationMethodId(k.id)),
+  };
 }
 
 /** The sample report shown before any real report exists. It is not listed with real reports. */

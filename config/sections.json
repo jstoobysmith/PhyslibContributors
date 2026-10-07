@@ -77,5 +77,22 @@
       "commit",
       "other"
     ]
+  },
+  {
+    "id": "test",
+    "numeral": "T",
+    "name": "Test",
+    "reportName": "Physlib Test Report",
+    "test": true,
+    "summary": "For trying out the form, the review and the signing. Not a record of real work.",
+    "description": "Test submissions go through the same steps as a real submission, from the form to the pull request and the signing, so that the whole process can be tried out. They need no maintainer approval: merging the pull request is enough. Test reports are marked as tests, are not numbered, and are not listed with real reports.",
+    "criteria": [
+      "The submission is clearly a test and does not claim credit for real work."
+    ],
+    "guidance": "The form is filled in with example data, except the GitHub username and ORCID iD. Enter your own GitHub username to send the test.",
+    "evidenceKinds": [
+      "pull-request",
+      "other"
+    ]
   }
 ]

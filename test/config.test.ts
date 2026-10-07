@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { credentialFile, didWebBaseUrl, didWebDocumentUrl, didWebFromUrl, EVIDENCE_KINDS, SECTION_IDS, SECTIONS } from '../src/lib/config';
+import { credentialFile, didWebBaseUrl, didWebDocumentUrl, didWebFromUrl, ALL_SECTIONS, EVIDENCE_KINDS, SECTION_IDS, SECTIONS, TEST_SECTION } from '../src/lib/config';
 
 describe('config', () => {
   it('defines exactly the sections the code knows about', () => {
-    expect(SECTIONS.map((s) => s.id)).toEqual([...SECTION_IDS]);
-    for (const s of SECTIONS) {
+    expect(ALL_SECTIONS.map((s) => s.id)).toEqual([...SECTION_IDS]);
+    // One test section, kept out of the sections listed on the site.
+    expect(TEST_SECTION?.id).toBe('test');
+    expect(SECTIONS.map((s) => s.id)).not.toContain('test');
+    for (const s of ALL_SECTIONS) {
       expect(s.criteria.length).toBeGreaterThan(0);
       for (const k of s.evidenceKinds) expect(Object.keys(EVIDENCE_KINDS)).toContain(k);
     }

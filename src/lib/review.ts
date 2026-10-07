@@ -1,7 +1,7 @@
 /**
  * Who may approve a report. Used by scripts/sign.ts before anything is signed.
  */
-import { maintainerOf, SITE } from './config';
+import { isTestSection, maintainerOf, SITE } from './config';
 import type { Submission } from './submission';
 
 export interface PullRequestReview {
@@ -39,13 +39,24 @@ export function conflictedLogins(pr: { author: string }, s: Credited): Set<strin
  * and who declared no conflict of interest in the review. The pull request
  * must be opened by the recipient or the nominator, and may not be merged by
  * anyone the report credits.
+ *
+ * Test submissions (the test section) are exempt, to make the process easy to
+ * try: merging one is enough. Their reports say they are tests and are not
+ * numbered or listed. Approvals that would count for a real report are still
+ * recorded.
  */
 export function approvalDecision(
   reviews: PullRequestReview[],
   pr: PullRequestFacts,
-  submission: Credited,
+  submission: Credited & { section?: string },
   requiredApprovals = SITE.review.requiredApprovals,
 ): ApprovalDecision {
+  const decision = strictDecision(reviews, pr, submission, requiredApprovals);
+  if (submission.section && isTestSection(submission.section) && !decision.ok) return { ok: true, approvers: [] };
+  return decision;
+}
+
+function strictDecision(reviews: PullRequestReview[], pr: PullRequestFacts, submission: Credited, requiredApprovals: number): ApprovalDecision {
   const author = pr.author.toLowerCase();
   if (author !== submission.recipient.github.toLowerCase() && author !== submission.nominatedBy?.toLowerCase()) {
     return { ok: false, reason: `the pull request was opened by @${pr.author}, who is neither the recipient nor the nominator` };

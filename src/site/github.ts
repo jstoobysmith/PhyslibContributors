@@ -4,8 +4,11 @@ import { submissionMarkdown, type Submission } from '../lib/submission';
 /**
  * Two ways to turn a submission into a pull request on the reports repository:
  *
- * 1. `newFileUrl`: GitHub's own "create new file" page, pre-filled. No token
- *    needed; GitHub forks the repository for the user and offers to open a PR.
+ * 1. In the browser, without a token (the usual way; see SendOnGitHub.tsx):
+ *    the contributor forks the repository (`forkUrl`), adds the file to their
+ *    fork on GitHub's pre-filled "create new file" page (`newFileUrl`), and
+ *    opens the pull request (`pullRequestUrl`). `findFork` and `changedInFork` read
+ *    the public API to show how far they have got.
  * 2. `openSubmissionPullRequest`: automated with a personal access token. The
  *    token is held in memory only (never stored) and sent only to api.github.com.
  */
@@ -27,10 +30,88 @@ export function prBody(s: Submission) {
   ].join('\n');
 }
 
-export function newFileUrl(slug: string, s: Submission) {
-  const { owner, name, branch } = SITE.repository;
+const upstreamRepo = () => `${SITE.repository.owner}/${SITE.repository.name}`;
+
+/** GitHub's "create new file" page in `repo` (the reports repository or a fork of it), with the submission filled in. */
+export function newFileUrl(slug: string, s: Submission, repo = upstreamRepo()) {
   const params = new URLSearchParams({ filename: submissionPath(slug), value: submissionJson(s) });
-  return `https://github.com/${owner}/${name}/new/${branch}?${params}`;
+  return `https://github.com/${repo}/new/${SITE.repository.branch}?${params}`;
+}
+
+/** GitHub's page for uploading files into submissions/ of `repo`: the fallback when a submission is too long for a link. */
+export const uploadUrl = (repo: string) => `https://github.com/${repo}/upload/${SITE.repository.branch}/submissions`;
+
+/** GitHub's "Create a new fork" page for the reports repository. */
+export const forkUrl = () => `https://github.com/${upstreamRepo()}/fork`;
+
+/** GitHub's "Open a pull request" page, from the main branch of a fork, with the title filled in. */
+export function pullRequestUrl(fork: Fork, s: Submission) {
+  const { branch } = SITE.repository;
+  const params = new URLSearchParams({
+    expand: '1',
+    title: prTitle(s),
+    body: 'A submission made with the form on the Physlib Contributions site. An automatic check will post a summary of it here.',
+  });
+  return `https://github.com/${upstreamRepo()}/compare/${branch}...${fork.owner}:${fork.name}:${branch}?${params}`;
+}
+
+// --- Progress through the fork steps (public API, no token) ----------------------
+
+export interface Fork {
+  owner: string;
+  name: string;
+  fullName: string;
+}
+
+/**
+ * Calls the public API. Undefined for "not found"; throws for anything else,
+ * including the hourly limit on calls without a token (60 per address).
+ */
+async function publicApi<T>(path: string): Promise<T | undefined> {
+  // GitHub caches public responses for a minute; the extra parameter asks for a fresh answer.
+  const res = await fetch(`https://api.github.com${path}${path.includes('?') ? '&' : '?'}fresh=${Date.now()}`, {
+    headers: { Accept: 'application/vnd.github+json' },
+    cache: 'no-store',
+  });
+  if (res.status === 404) return undefined;
+  if (!res.ok) throw new Error(res.status === 403 || res.status === 429 ? 'GitHub’s limit on checks was reached' : `GitHub: HTTP ${res.status}`);
+  return res.json() as Promise<T>;
+}
+
+interface RepoJson {
+  name: string;
+  full_name: string;
+  owner: { login: string };
+  fork?: boolean;
+  parent?: { full_name: string };
+}
+
+const toFork = (r: RepoJson): Fork => ({ owner: r.owner.login, name: r.name, fullName: r.full_name });
+
+/** The user's fork of the reports repository, if they have one (it may have been renamed). */
+export async function findFork(login: string): Promise<Fork | undefined> {
+  const { owner, name } = SITE.repository;
+  const same = await publicApi<RepoJson>(`/repos/${login}/${name}`);
+  if (same?.fork && same.parent?.full_name.toLowerCase() === upstreamRepo().toLowerCase()) return toFork(same);
+  for (let page = 1; page <= 5; page++) {
+    const forks = (await publicApi<RepoJson[]>(`/repos/${owner}/${name}/forks?per_page=100&page=${page}`)) ?? [];
+    const mine = forks.find((f) => f.owner.login.toLowerCase() === login.toLowerCase());
+    if (mine) return toFork(mine);
+    if (forks.length < 100) break;
+  }
+  return undefined;
+}
+
+/**
+ * The files changed on the fork's main branch that are not in the reports
+ * repository. A pull request from the fork would contain exactly these: the
+ * new submission, and possibly older changes (an earlier submission, say).
+ */
+export async function changedInFork(fork: Fork): Promise<string[]> {
+  const { branch } = SITE.repository;
+  const c = await publicApi<{ files?: { filename: string }[] }>(`/repos/${upstreamRepo()}/compare/${branch}...${fork.owner}:${fork.name}:${branch}`);
+  if (!c) throw new Error('GitHub could not compare your fork with the repository');
+  return (c.files ?? []).map((f) => f.filename);
 }
 
 class GitHub {
@@ -129,6 +210,13 @@ export async function openSubmissionPullRequest(
     }),
   });
   return pr.html_url;
+}
+
+/** The open pull request from the fork's main branch to the reports repository, if there is one. */
+export async function openPullRequestFrom(fork: Fork): Promise<string | undefined> {
+  const { branch } = SITE.repository;
+  const pulls = await publicApi<{ html_url: string }[]>(`/repos/${upstreamRepo()}/pulls?state=open&head=${fork.owner}:${branch}`);
+  return pulls?.[0]?.html_url;
 }
 
 // --- Open submissions (read-only, no token) -------------------------------------

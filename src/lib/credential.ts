@@ -102,9 +102,10 @@ export function buildCredential(slug: string, submission: Submission, record: Re
     id: urls.credential(slug),
     type: ['VerifiableCredential', 'OpenBadgeCredential'],
     name: `${section.reportName}: ${submission.title}`,
-    description:
-      `${SITE.reportSeries} on work by ${recipient.name}: “${submission.title}”` +
-      (submission.collaborators?.length ? `, joint work with ${submission.collaborators.map((c) => c.name).join(', ')}.` : '.'),
+    description: section.test
+      ? `A test of the ${SITE.title} submission, review and signing, made by ${recipient.name}: “${submission.title}”. Not a record of real work.`
+      : `${SITE.reportSeries} on work by ${recipient.name}: “${submission.title}”` +
+        (submission.collaborators?.length ? `, joint work with ${submission.collaborators.map((c) => c.name).join(', ')}.` : '.'),
     issuer: issuerProfile(),
     validFrom: record.acceptedAt,
     awardedDate: record.acceptedAt,

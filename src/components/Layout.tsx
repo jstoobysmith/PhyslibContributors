@@ -86,6 +86,7 @@ function Footer() {
         </ul>
         <ul className="space-y-1">
           <li>{link('Verify a report', '/verify')}</li>
+          <li>{link('Public signing key', '/verify#key')}</li>
           <li>{link('Reports repository', urls.repo())}</li>
         </ul>
         <ul className="space-y-1">

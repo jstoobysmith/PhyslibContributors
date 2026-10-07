@@ -1,11 +1,12 @@
 import { useState, type ReactNode } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { buttonClass, Container, ErrorNote, Field, Input, inputClass, linkButtonClass, PageTitle } from '../components/ui';
-import { EVIDENCE_KINDS, SECTIONS, SITE, sectionById, urls, type EvidenceKind } from '../lib/config';
-import { evidenceTitle, guessEvidenceKind, normaliseUrl, type Submission } from '../lib/submission';
+import { EVIDENCE_KINDS, SECTIONS, SITE, sectionById, TEST_SECTION, urls, type EvidenceKind, type Section } from '../lib/config';
+import { evidenceTitle, githubLoginFromInput, guessEvidenceKind, normaliseUrl, type Submission } from '../lib/submission';
 import { download } from '../site/data';
-import { newFileUrl, openSubmissionPullRequest, submissionJson, whoAmI } from '../site/github';
-import { emptyEvidence, useSubmissionDraft, type Draft, type EvidenceDraft, type PersonDraft } from '../site/useSubmissionDraft';
+import { SendOnGitHub } from '../components/SendOnGitHub';
+import { openSubmissionPullRequest, submissionJson, whoAmI } from '../site/github';
+import { chooseSection, emptyEvidence, useSubmissionDraft, type Draft, type EvidenceDraft, type PersonDraft } from '../site/useSubmissionDraft';
 import { useTitle } from '../site/useTitle';
 
 function Step({ n, title, children }: { n: number; title: string; children: ReactNode }) {
@@ -16,6 +17,71 @@ function Step({ n, title, children }: { n: number; title: string; children: Reac
       </h2>
       {children}
     </section>
+  );
+}
+
+/**
+ * A GitHub username, typed after a fixed "github.com/" so that it is clear only
+ * the name goes in. "@octocat" or a pasted profile link becomes "octocat" when
+ * the field is left.
+ */
+function GitHubUsernameField({
+  label,
+  value,
+  onChange,
+  error,
+  withExample = true,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  error?: string;
+  withExample?: boolean;
+}) {
+  return (
+    <Field
+      label={label}
+      error={error}
+      hint={
+        withExample && (
+          <>
+            Just the username, without “@”. For example, for <span className="font-mono">github.com/octocat</span> enter{' '}
+            <span className="font-mono">octocat</span>.
+          </>
+        )
+      }
+    >
+      <span className="flex">
+        <span className="rounded-l-sm border border-r-0 border-[#aaa] bg-shade px-2 py-1.5 font-mono text-xs leading-5 text-muted" aria-hidden="true">
+          github.com/
+        </span>
+        <Input
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onBlur={() => value !== githubLoginFromInput(value) && onChange(githubLoginFromInput(value))}
+          placeholder="octocat"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          className="rounded-l-none"
+          data-invalid={!!error}
+        />
+      </span>
+    </Field>
+  );
+}
+
+function SectionOption({ section, checked, onChoose }: { section: Section; checked: boolean; onChoose: () => void }) {
+  return (
+    <label className="flex cursor-pointer gap-2">
+      <input type="radio" name="section" value={section.id} checked={checked} onChange={onChoose} className="mt-1" />
+      <span>
+        <strong>
+          {section.numeral}. {section.name}
+        </strong>{' '}
+        <span className="text-sm text-muted">— {section.summary}</span>
+      </span>
+    </label>
   );
 }
 
@@ -59,6 +125,10 @@ export default function Submit() {
   const [result, setResult] = useState<{ url?: string; error?: string }>();
 
   const err = (path: string) => (attempted ? errors[path] : undefined);
+  // The pull request must come from the recipient, or from the nominator when nominating.
+  const senderField = draft.nominating ? 'nominatedBy' : 'recipient.github';
+  const senderInput = githubLoginFromInput(draft.nominating ? draft.nominatedBy : draft.github);
+  const sender = senderInput && !errors[senderField] ? senderInput : undefined;
   const section = sectionById(draft.section)!;
   const setEvidence = (i: number, patch: Partial<EvidenceDraft>) =>
     update((d) => ({ ...d, evidence: d.evidence.map((e, j) => (j === i ? { ...e, ...patch } : e)) }));
@@ -70,8 +140,6 @@ export default function Submit() {
     if (submission) fn(submission);
     else setTimeout(() => document.querySelector('[data-invalid="true"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
   };
-
-  const openOnGitHub = guard((s) => window.open(newFileUrl(slug, s), '_blank', 'noopener'));
 
   const submitWithToken = guard(async (s) => {
     setResult(undefined);
@@ -101,28 +169,35 @@ export default function Submit() {
           <Step n={1} title="Section">
             <div className="space-y-2">
               {SECTIONS.map((s) => (
-                <label key={s.id} className="flex cursor-pointer gap-2">
-                  <input type="radio" name="section" value={s.id} checked={draft.section === s.id} onChange={() => set('section', s.id)} className="mt-1" />
-                  <span>
-                    <strong>
-                      {s.numeral}. {s.name}
-                    </strong>{' '}
-                    <span className="text-sm text-muted">— {s.summary}</span>
-                  </span>
-                </label>
+                <SectionOption key={s.id} section={s} checked={draft.section === s.id} onChoose={() => update((d) => chooseSection(d, s.id))} />
               ))}
+              {TEST_SECTION && (
+                <div className="mt-3 border-t border-dashed border-rule pt-3">
+                  <SectionOption section={TEST_SECTION} checked={section.test === true} onChoose={() => update((d) => chooseSection(d, TEST_SECTION!.id))} />
+                </div>
+              )}
             </div>
-            <div className="mt-3 border border-rule bg-shade px-3 py-2 text-sm">
-              <p className="font-bold">
-                The maintainers will check that:
-              </p>
-              <ol className="mt-1 ml-5 list-decimal space-y-0.5">
-                {section.criteria.map((c) => (
-                  <li key={c}>{c}</li>
-                ))}
-              </ol>
-              <p className="mt-2 text-muted">{section.guidance}</p>
-            </div>
+            {section.test ? (
+              <div className="mt-3 border border-warning/40 bg-[#fdf8ec] px-3 py-2 text-sm">
+                <p className="font-bold">Test submission</p>
+                <p className="mt-1">
+                  The form is filled in with example data, except your GitHub username (and ORCID iD, which is optional). It needs
+                  no maintainer approval: once its pull request is merged, it is signed like a real report, but marked as a test, not
+                  numbered and not listed with real reports.
+                </p>
+                <p className="mt-1 font-bold">Enter your GitHub username in step 2, then go to step 5 to send it.</p>
+              </div>
+            ) : (
+              <div className="mt-3 border border-rule bg-shade px-3 py-2 text-sm">
+                <p className="font-bold">The maintainers will check that:</p>
+                <ol className="mt-1 ml-5 list-decimal space-y-0.5">
+                  {section.criteria.map((c) => (
+                    <li key={c}>{c}</li>
+                  ))}
+                </ol>
+                <p className="mt-2 text-muted">{section.guidance}</p>
+              </div>
+            )}
           </Step>
 
           <Step n={2} title="Who did the work">
@@ -130,9 +205,7 @@ export default function Submit() {
               <Field label="Full name" error={err('recipient.name')}>
                 <Input value={draft.name} onChange={(e) => set('name', e.target.value)} autoComplete="name" data-invalid={!!err('recipient.name')} />
               </Field>
-              <Field label="GitHub username" error={err('recipient.github')}>
-                <Input value={draft.github} onChange={(e) => set('github', e.target.value)} data-invalid={!!err('recipient.github')} />
-              </Field>
+              <GitHubUsernameField label="GitHub username" value={draft.github} onChange={(v) => set('github', v)} error={err('recipient.github')} />
               <Field label="ORCID iD (optional)" error={err('recipient.orcid')} hint="Shown on the report.">
                 <Input value={draft.orcid} onChange={(e) => set('orcid', e.target.value)} placeholder="0000-0002-1825-0097" data-invalid={!!err('recipient.orcid')} />
               </Field>
@@ -144,9 +217,9 @@ export default function Submit() {
             </label>
             {draft.nominating && (
               <div className="mt-3 space-y-3 border-l-2 border-rule pl-4">
-                <Field label="Your GitHub username" error={err('nominatedBy')}>
-                  <Input value={draft.nominatedBy} onChange={(e) => set('nominatedBy', e.target.value)} className="max-w-xs" data-invalid={!!err('nominatedBy')} />
-                </Field>
+                <div className="max-w-sm">
+                  <GitHubUsernameField label="Your GitHub username" value={draft.nominatedBy} onChange={(v) => set('nominatedBy', v)} error={err('nominatedBy')} />
+                </div>
                 <label className="flex gap-2 text-sm" data-invalid={!!err('recipientConsent')}>
                   <input type="checkbox" checked={draft.consent} onChange={(e) => set('consent', e.target.checked)} className="mt-1" />
                   <span>I have asked {draft.name || 'them'} and they agree to be named on this site.</span>
@@ -166,9 +239,13 @@ export default function Submit() {
                   <Field label="Name" error={err(`collaborators.${i}.name`)}>
                     <Input value={c.name} onChange={(e) => setCollaborator(i, { name: e.target.value })} />
                   </Field>
-                  <Field label="GitHub username" error={err(`collaborators.${i}.github`)}>
-                    <Input value={c.github} onChange={(e) => setCollaborator(i, { github: e.target.value })} />
-                  </Field>
+                  <GitHubUsernameField
+                    label="GitHub username"
+                    value={c.github}
+                    onChange={(v) => setCollaborator(i, { github: v })}
+                    error={err(`collaborators.${i}.github`)}
+                    withExample={false}
+                  />
                   <button type="button" className="mb-1.5 text-sm text-link hover:underline" onClick={() => update((d) => ({ ...d, collaborators: d.collaborators.filter((_, j) => j !== i) }))}>
                     Remove
                   </button>
@@ -264,13 +341,14 @@ export default function Submit() {
                 <ErrorNote>Some fields need attention; they are marked above.</ErrorNote>
               </div>
             )}
-            <p className="text-sm">
-              GitHub will open with your submission filled in. Click <em>Commit changes</em>, then <em>Create pull request</em>. If
-              GitHub first offers to “fork” the repository (make your own copy of it to propose the change from), accept.
-            </p>
-            <button type="button" onClick={openOnGitHub} className={`${buttonClass('primary')} mt-3`}>
-              Continue on GitHub
-            </button>
+            <SendOnGitHub
+              sender={sender}
+              senderRole={draft.nominating ? 'nominator' : 'contributor'}
+              slug={slug}
+              submission={submission}
+              guard={guard}
+              onDownload={downloadJson}
+            />
 
             <details className="mt-5 text-sm">
               <summary className="cursor-pointer text-link">Other ways to send it</summary>
