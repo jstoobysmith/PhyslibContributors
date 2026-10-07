@@ -90,6 +90,14 @@
 .prose-long li + li {
   margin-top: 0.3em;
 }
+/* The flow chart on the About page is a numbered list, laid out by its own classes. */
+.prose-long ol.flow {
+  margin: 0;
+  list-style: none;
+}
+.prose-long ol.flow li + li {
+  margin-top: 0;
+}
 .prose-long a {
   text-decoration: underline;
 }

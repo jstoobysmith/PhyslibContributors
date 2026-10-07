@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ACCEPT_COMMAND } from '../lib/issue-submission';
 import { Container, PageTitle } from '../components/ui';
+import { WorkflowDiagram } from '../components/WorkflowDiagram';
 import { ISSUER_DID, MAINTAINERS, SECTIONS, SIGNING_KEY, SITE, urls } from '../lib/config';
 import { asset } from '../site/data';
 import { useTitle } from '../site/useTitle';
@@ -89,18 +90,11 @@ export default function About() {
           <h2 id="process" className="scroll-mt-4">
             How a report is made
           </h2>
-          <ol>
-            <li>
-              Someone fills in the <Link to="/submit">submission form</Link>: a title, a short summary and links to the pull
-              requests, reviews or modules that make up the work. This opens an issue on GitHub, with the submission filled in.
-            </li>
-            <li>The maintainers check the evidence against the section’s criteria, in public on the issue, and may ask for changes.</li>
-            <li>A maintainer who is not involved accepts it by commenting “{ACCEPT_COMMAND} {SITE.review.conflictDeclaration}”.</li>
-            <li>
-              A GitHub workflow then signs the report and publishes it here, usually within a few minutes. The report records the
-              issue and who approved it.
-            </li>
-          </ol>
+          <p>
+            From submission to a report anyone can check, and where each key is kept. Everything happens in public on GitHub; only
+            the two secret keys are hidden.
+          </p>
+          <WorkflowDiagram />
           <p>
             Reports are numbered in the order they are signed, starting from 1, and keep their number permanently. They are
             cited like other technical reports, for example “{SITE.reportSeries} no. 3 (2026)”.
@@ -144,7 +138,8 @@ export default function About() {
             Signatures and keys
           </h2>
           <p>
-            Each report is an <a href="https://www.imsglobal.org/spec/ob/v3p0/">Open Badges 3.0</a> credential, a standard format
+            The <a href="#process">diagram above</a> shows where each key is kept. Each report is an{' '}
+            <a href="https://www.imsglobal.org/spec/ob/v3p0/">Open Badges 3.0</a> credential, a standard format
             for digital certificates. It is signed with a private key held as a secret of a protected GitHub environment, which only
             the signing workflow on the main branch can use; any change to the workflows or code on the main branch needs a
             maintainer’s review. The matching
