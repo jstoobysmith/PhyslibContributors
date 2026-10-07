@@ -7,11 +7,15 @@
  *   npm run setup-check                                   # no secrets: those checks are skipped
  *   npm run setup-check -- --key .keys/key-1.json         # also checks a local signing key
  *   GITHUB_TOKEN=$(gh auth token) npm run setup-check     # also reads admin-only GitHub settings
+ *   npm run setup-check -- --json public/data/status.json # also saves the results for the status page
  *
  * The output is grouped into numbered parts, one file each in this directory:
  * check 4.2 is in 4-github-settings.ts. It exits with 1 if any check failed.
  */
 import { appendFileSync } from 'node:fs';
+import type { SetupStatus } from '../../src/lib/setup-status';
+import { option } from '../lib/args';
+import { writeJson } from '../lib/files';
 import { SITE, SITE_URL } from '../../src/lib/config';
 import type { CheckResult, Outcome, Part, Verdict } from './checks';
 import { IN_ACTIONS, REPO } from './context';
@@ -170,6 +174,22 @@ console.log(dim(`\n   ${STYLE.pass.mark} passed   ${STYLE.warn.mark} warning   $
 const all: PartResult[] = [];
 for (const part of PARTS) all.push(await runPart(part));
 printSummary(all);
+
+/** The results for the site's status page. */
+function statusJson(all: PartResult[]): SetupStatus {
+  const server = process.env.GITHUB_SERVER_URL ?? 'https://github.com';
+  return {
+    checkedAt: new Date().toISOString(),
+    repository: REPO,
+    siteUrl: SITE_URL,
+    commit: process.env.GITHUB_SHA,
+    runUrl: process.env.GITHUB_RUN_ID ? `${server}/${REPO}/actions/runs/${process.env.GITHUB_RUN_ID}` : undefined,
+    parts: all.map(({ part, results }) => ({ number: part.number, title: part.title, covers: part.covers, file: part.file, results })),
+  };
+}
+
+const jsonOut = option(process.argv.slice(2), '--json');
+if (jsonOut) writeJson(jsonOut, statusJson(all));
 if (IN_ACTIONS) {
   annotations(all);
   if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, markdownSummary(all));
