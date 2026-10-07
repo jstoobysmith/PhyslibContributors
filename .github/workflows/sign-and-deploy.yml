@@ -3,11 +3,18 @@
 #   1. signs every accepted submission that has no credential yet, provided
 #      enough maintainers approved it (scripts/sign.ts),
 #   2. commits the signed Open Badges 3.0 credentials and report numbers to main,
-#   3. builds the site and deploys it to GitHub Pages.
+#   3. builds the site and deploys it to GitHub Pages, with the latest results
+#      of the Setup check workflow for the status page (/status).
+# It also runs when the Setup check workflow finishes, so the status page shows
+# the new results.
 name: Sign and deploy
 
 on:
   push:
+    branches: [main]
+  workflow_run:
+    workflows: [Setup check]
+    types: [completed]
     branches: [main]
   workflow_dispatch:
     inputs:
@@ -77,6 +84,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      actions: read      # the setup check results, for the status page
       pages: write
       id-token: write
     environment:
@@ -93,6 +101,24 @@ jobs:
           cache: npm
 
       - run: npm ci
+
+      # The status page (/status) shows the latest results of the Setup check
+      # workflow on main, saved by that workflow as the "setup-check-status" artifact.
+      - name: Fetch the latest setup check results
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          runs=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow setup-check.yml --branch main --status completed --limit 5 --json databaseId --jq '.[].databaseId')
+          for id in $runs; do
+            if gh run download "$id" --repo "$GITHUB_REPOSITORY" --name setup-check-status --dir "$RUNNER_TEMP/status" 2>/dev/null; then
+              mkdir -p public/data
+              cp "$RUNNER_TEMP/status/status.json" public/data/status.json
+              echo "The status page shows the results of run $id."
+              exit 0
+            fi
+          done
+          echo "No setup check results yet; the status page says so."
+
       - run: npm run build
 
       - uses: actions/configure-pages@v6

@@ -11,8 +11,9 @@
 import { relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ROOT } from '../lib/files';
+import type { CheckResult, Outcome } from '../../src/lib/setup-status';
 
-export type Outcome = 'pass' | 'warn' | 'fail' | 'skip';
+export type { CheckResult, Outcome };
 
 export interface Verdict {
   outcome: Outcome;
@@ -26,12 +27,6 @@ export const pass = (detail: string): Verdict => ({ outcome: 'pass', detail });
 export const warn = (detail: string, fix?: string): Verdict => ({ outcome: 'warn', detail, fix });
 export const fail = (detail: string, fix?: string): Verdict => ({ outcome: 'fail', detail, fix });
 export const skip = (detail: string): Verdict => ({ outcome: 'skip', detail });
-
-export interface CheckResult extends Verdict {
-  /** "<part>.<n>", e.g. "3.2"; search for it in the part's file to find the check. */
-  id: string;
-  name: string;
-}
 
 /** Runs one check. Exceptions become failures, so one broken check does not stop the others. */
 export type Check = (id: string, name: string, test: () => Verdict | Promise<Verdict>) => Promise<Verdict>;

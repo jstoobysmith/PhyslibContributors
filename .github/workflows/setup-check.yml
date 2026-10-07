@@ -14,7 +14,9 @@
 #   6 Dry run of a submission      (form → approval rules → signed, verified, baked report)
 #   7 Live site                    (DID document, public key matches OB_SIGNING_KEY, report list, reports verify online)
 # The results are on the run's summary page; failures and warnings are also
-# shown as annotations there.
+# shown as annotations there. They are also saved as the "setup-check-status"
+# artifact, which "Sign and deploy" (started when this workflow finishes)
+# publishes on the site's status page, /status.
 name: Setup check
 
 on:
@@ -91,4 +93,13 @@ jobs:
           TESTS_OUTCOME: ${{ needs.tests.outputs.tests }}
           TESTS_SUMMARY: ${{ needs.tests.outputs.tests_summary }}
           BUILD_OUTCOME: ${{ needs.tests.outputs.build }}
-        run: npm run setup-check
+        run: npm run setup-check -- --json "$RUNNER_TEMP/status.json"
+
+      - name: Save the results for the status page
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: setup-check-status
+          path: ${{ runner.temp }}/status.json
+          if-no-files-found: ignore
+          retention-days: 90

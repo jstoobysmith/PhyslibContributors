@@ -10,6 +10,7 @@ import Archive from './pages/Archive';
 import Report from './pages/Report';
 import Contributor from './pages/Contributor';
 import Verify from './pages/Verify';
+import Status from './pages/Status';
 import NotFound from './pages/NotFound';
 import { Container, Spinner } from './components/ui';
 
@@ -44,6 +45,7 @@ createRoot(document.getElementById('root')!).render(
             }
           />
           <Route path="verify" element={<Verify />} />
+          <Route path="status" element={<Status />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

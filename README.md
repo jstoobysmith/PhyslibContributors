@@ -96,6 +96,7 @@ npm run sign -- --key .keys/key-1.json --no-review-check  # sign locally, for te
 npm run verify -- public/specimen.json --local            # check any credential (file or URL)
 npm run keygen                                            # new signing key (see below)
 npm run setup-check                                       # check the whole set-up (see below)
+npm run setup-check -- --json public/data/status.json     # also preview the results on /status
 python3 scripts/draw-badges.py                            # redraw the section badges
 ```
 
@@ -208,6 +209,13 @@ Each check passes (✓), warns (!: works, but needs attention, usually before
 launch), fails (✗: something will not work until it is fixed) or is skipped
 (–: cannot be checked there). Every warning and failure says how to fix it.
 The workflow fails if any check fails.
+
+The results are also published on the site's **status page**, `/status`
+(linked as "Site status" in the footer). The workflow saves them as the
+`setup-check-status` artifact; when it finishes, *Sign and deploy* runs and
+publishes the latest results with the site, so the page is up to date a few
+minutes after each check. Nothing secret is in them: the check never prints
+the keys.
 
 Locally, `npm run setup-check` runs the same checks except those that need
 the secrets (add `-- --key .keys/key-1.json` to include a local signing key,
