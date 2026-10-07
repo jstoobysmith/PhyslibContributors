@@ -30,7 +30,8 @@ jobs:
           BASE: origin/${{ github.base_ref }}
         run: |
           # NUL-separated, so unusual file names cannot split or hide.
-          git diff -z --name-only --diff-filter=AMR "$BASE...HEAD" -- submissions/ > "$RUNNER_TEMP/changed"
+          # Only submission files; other files under submissions/ (e.g. its README) are not checked.
+          git diff -z --name-only --diff-filter=AMR "$BASE...HEAD" -- 'submissions/*.json' > "$RUNNER_TEMP/changed"
           if [ -s "$RUNNER_TEMP/changed" ]; then
             xargs -0 npm run -s validate -- --changed < "$RUNNER_TEMP/changed"
           else
