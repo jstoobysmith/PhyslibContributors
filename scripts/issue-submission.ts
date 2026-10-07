@@ -10,12 +10,12 @@
  * submissions/<slug>.json and data/issue-submissions.json; the workflow
  * commits them, and the signing workflow re-checks the issue before signing.
  */
-import { appendFileSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { SITE, urls } from '../src/lib/config';
 import { isAcceptComment, submissionFromIssueBody } from '../src/lib/issue-submission';
 import { formatIssues, md, submissionSchema, submissionSlug, type Submission } from '../src/lib/submission';
-import { ISSUE_SUBMISSIONS_FILE, readIssueSubmissions, ROOT, SUBMISSIONS_DIR, writeJson } from './lib/files';
+import { freeSlug, ISSUE_SUBMISSIONS_FILE, readIssueSubmissions, ROOT, SUBMISSIONS_DIR, writeJson } from './lib/files';
 import { fetchIssue, githubApi, issueReviewRecord } from './lib/review-record';
 import { evidenceWarnings, maintainerNote, submissionSummary, summaryContext } from './lib/summary';
 
@@ -27,6 +27,9 @@ const event = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH!, 'utf8')) a
   comment?: { body: string | null; user: { login: string } };
 };
 const number = event.issue.number;
+
+/** The file name under which this issue's submission was accepted, if it was. */
+const acceptedAs = (issue: number) => Object.entries(readIssueSubmissions()).find(([, n]) => n === issue)?.[0];
 
 /** Marks the summary comment, so it is updated rather than posted again. */
 const SUMMARY_MARK = '<!-- physlib-contributions: submission summary -->';
@@ -58,7 +61,8 @@ async function summary() {
   if (submission) {
     const wrong = openedByWrongPerson(submission, event.issue.user.login);
     if (wrong) errors.push(wrong);
-    if (existsSync(join(SUBMISSIONS_DIR, `${submissionSlug(submission)}.json`))) errors.push('A submission with this name has already been accepted.');
+    const accepted = acceptedAs(number);
+    if (accepted) errors.push(`This submission has already been accepted, as submissions/${accepted}.json.`);
   }
   const ctx = summaryContext();
   const warnings = submission ? evidenceWarnings(ctx, submission) : [];
@@ -87,9 +91,11 @@ async function accept() {
 
   const { submission, errors } = readSubmission(issue.body);
   if (!submission) return comment(`Not accepted: the submission is not valid.\n\n${errors.map((e) => `- ${md(e)}`).join('\n')}`);
-  const slug = submissionSlug(submission);
+  const already = acceptedAs(number);
+  if (already) return comment(`This submission has already been accepted, as \`submissions/${already}.json\`.`);
+  // Another submission may have the same title and date: then this one gets the next free name.
+  const slug = freeSlug(submissionSlug(submission));
   const file = join(SUBMISSIONS_DIR, `${slug}.json`);
-  if (existsSync(file)) return comment(`This submission has already been accepted, as \`submissions/${slug}.json\`.`);
 
   // The same check the signing workflow makes before signing.
   const record = await issueReviewRecord(api, repo, number, submission);

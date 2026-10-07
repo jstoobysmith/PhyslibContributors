@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { canonicalUrl, evidenceTitle, formatIssues, githubLoginFromInput, guessEvidenceKind, md, normaliseUrl, submissionMarkdown, submissionSchema, submissionSlug, validOrcid } from '../src/lib/submission';
+import { canonicalUrl, evidenceTitle, fitsSlug, formatIssues, githubLoginFromInput, guessEvidenceKind, md, normaliseUrl, submissionMarkdown, submissionSchema, submissionSlug, validOrcid } from '../src/lib/submission';
 import { loadSubmission } from '../scripts/lib/files';
 import { exampleSubmission } from './fixtures/example';
 
@@ -45,6 +45,14 @@ describe('submission schema', () => {
 });
 
 describe('submission helpers', () => {
+  it('allows a number after a file name that was already taken', () => {
+    expect(fitsSlug('2026-10-07-test-a-test', '2026-10-07-test-a-test')).toBe(true);
+    expect(fitsSlug('2026-10-07-test-a-test-2', '2026-10-07-test-a-test')).toBe(true);
+    expect(fitsSlug('2026-10-07-test-a-test-0', '2026-10-07-test-a-test')).toBe(false);
+    expect(fitsSlug('2026-10-07-test-a-test-x', '2026-10-07-test-a-test')).toBe(false);
+    expect(fitsSlug('2026-10-07-test-a-tes', '2026-10-07-test-a-test')).toBe(false);
+  });
+
   it('reads a GitHub username however it is typed', () => {
     for (const typed of ['octocat', ' @octocat ', 'github.com/octocat', 'https://github.com/octocat/', 'https://www.github.com/octocat']) {
       expect(githubLoginFromInput(typed)).toBe('octocat');
