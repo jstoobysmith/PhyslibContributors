@@ -7,7 +7,7 @@ import keysJson from '../../config/keys.json';
 import maintainersJson from '../../config/maintainers.json';
 
 /**
- * active/temporary: signs new awards. retired: no longer signs, but awards it
+ * active/temporary: signs new reports. retired: no longer signs, but reports it
  * signed still verify. revoked: compromised; removed from the DID document so
  * nothing it signed verifies.
  */
@@ -38,12 +38,12 @@ export interface Section {
   /** Roman numeral shown before the name, e.g. "IV". */
   numeral: string;
   name: string;
-  awardName: string;
+  reportName: string;
   /** One sentence, for lists. */
   summary: string;
   description: string;
   criteria: string[];
-  /** Rough indication of the amount of work one award covers. */
+  /** Rough indication of the amount of work one report covers. */
   guidance: string;
   evidenceKinds: EvidenceKind[];
 }
@@ -83,10 +83,10 @@ export function maintainerOf(user: { login: string; id?: number }): Maintainer |
   return m && (m.id === undefined || m.id === user.id) ? m : undefined;
 }
 
-/** Whether a key with this status may sign new awards. */
+/** Whether a key with this status may sign new reports. */
 export const canSign = (status: KeyStatus) => status === 'active' || status === 'temporary';
 
-/** The key that signs new awards (the newest key that may sign). */
+/** The key that signs new reports (the newest key that may sign). */
 export const SIGNING_KEY = [...KEYS].reverse().find((k) => canSign(k.status));
 
 /** An ISO 8601 timestamp to the second, as used in credentials. */
@@ -99,7 +99,7 @@ export const SITE_URL = site.siteUrl.replace(/\/$/, '');
  * The issuer is identified by a did:web DID derived from the site URL, so the
  * key material is published by whoever controls the site:
  *   https://example.org            -> did:web:example.org            (/.well-known/did.json)
- *   https://example.org/awards     -> did:web:example.org:awards     (/awards/did.json)
+ *   https://example.org/reports     -> did:web:example.org:reports     (/reports/did.json)
  */
 export function didWebFromUrl(url: string): string {
   const u = new URL(url);
@@ -130,7 +130,7 @@ export function verificationMethodId(keyId: string): string {
   return `${ISSUER_DID}#${keyId}`;
 }
 
-/** The sample award shown before any real award exists. It is not listed with real awards. */
+/** The sample report shown before any real report exists. It is not listed with real reports. */
 export const SPECIMEN_SLUG = 'specimen';
 
 /** Path of a credential file, relative to the site root (and to public/). */
@@ -145,7 +145,7 @@ export const SUBMISSION_TITLE_PREFIX = 'Submission: ';
 
 export const urls = {
   credential: (slug: string) => `${SITE_URL}/${credentialFile(slug)}`,
-  award: (slug: string) => `${SITE_URL}/awards/${slug}`,
+  report: (slug: string) => `${SITE_URL}/reports/${slug}`,
   achievement: (sectionId: string) => `${SITE_URL}/achievements/${sectionId}.json`,
   badgeImage: (sectionId: string) => `${SITE_URL}/badges/${sectionId}.svg`,
   section: (sectionId: string) => `${SITE_URL}/sections/${sectionId}`,

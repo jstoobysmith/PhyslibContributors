@@ -8,8 +8,8 @@ export default function NotFound() {
     <Container>
       <PageTitle title="Page not found" />
       <p>
-        There is no page at this address. The link may be wrong, or the award may not have been published yet. Try the{' '}
-        <Link to="/archive">list of awards</Link> or the <Link to="/">home page</Link>.
+        There is no page at this address. The link may be wrong, or the report may not have been published yet. Try the{' '}
+        <Link to="/archive">list of reports</Link> or the <Link to="/">home page</Link>.
       </p>
     </Container>
   );

@@ -1,6 +1,7 @@
 {
   "title": "Physlib Contributions",
-  "subtitle": "Signed awards for reviewing, maintenance, refactoring and foundational work on Physlib",
+  "reportSeries": "Physlib Contribution Report",
+  "subtitle": "Signed reports on reviewing, maintenance, refactoring and foundational work on Physlib",
   "draft": true,
   "siteUrl": "https://jstoobysmith.github.io/PhyslibContributors",
   "basePath": "/PhyslibContributors/",
@@ -17,7 +18,7 @@
   },
   "issuer": {
     "name": "Physlib Contributions",
-    "description": "An open-source community project to digitalize results from physics into Lean 4. Physlib Contributions records signed awards for reviewing, maintenance, refactoring and foundational work on Physlib.",
+    "description": "An open-source community project to digitalize results from physics into Lean 4. Physlib Contributions publishes signed reports on reviewing, maintenance, refactoring and foundational work on Physlib.",
     "url": "https://physlib.io",
     "image": "images/physlib-logo.png"
   },

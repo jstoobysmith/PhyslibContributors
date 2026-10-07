@@ -1,10 +1,10 @@
 import { useMemo, type FormEvent } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { AwardList } from '../components/AwardListing';
+import { ReportList } from '../components/ReportListing';
 import { buttonClass, Container, inputClass, PageTitle, Spinner } from '../components/ui';
 import { SECTIONS, sectionById, SPECIMEN_SLUG } from '../lib/config';
-import { formatDate, useAwards, useUnderReview } from '../site/data';
-import type { AwardEntry } from '../lib/awards';
+import { formatDate, useReports, useUnderReview } from '../site/data';
+import type { ReportEntry } from '../lib/reports';
 import { useTitle } from '../site/useTitle';
 
 /** Open submission pull requests. Shown only when GitHub can be reached. */
@@ -35,8 +35,8 @@ function UnderReview() {
 }
 
 export default function Archive() {
-  useTitle('All awards');
-  const awards = useAwards();
+  useTitle('All reports');
+  const reports = useReports();
   const [params, setParams] = useSearchParams();
   const section = params.get('section') ?? '';
   const query = params.get('q') ?? '';
@@ -62,9 +62,9 @@ export default function Archive() {
   };
 
   const years = useMemo(() => {
-    if (awards.status !== 'ready') return [];
+    if (reports.status !== 'ready') return [];
     const q = query.trim().toLowerCase();
-    const filtered = awards.data.published.filter(
+    const filtered = reports.data.published.filter(
       (e) =>
         (!section || e.section === section) &&
         (!q ||
@@ -72,10 +72,10 @@ export default function Archive() {
             s.toLowerCase().includes(q),
           )),
     );
-    const byYear = new Map<number, AwardEntry[]>();
+    const byYear = new Map<number, ReportEntry[]>();
     for (const e of filtered) byYear.set(e.year, [...(byYear.get(e.year) ?? []), e]);
     return [...byYear].sort(([a], [b]) => b - a);
-  }, [awards, section, query]);
+  }, [reports, section, query]);
 
   const onSearch = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -87,7 +87,7 @@ export default function Archive() {
   return (
     <Container className="grid gap-10 lg:grid-cols-[1fr_16rem]">
       <div className="min-w-0">
-        <PageTitle title="All awards">Every published award, by year, most recent first.</PageTitle>
+        <PageTitle title="All reports">Every published report, by year, most recent first.</PageTitle>
 
         <div className="space-y-2 text-sm">
           <p>
@@ -104,12 +104,12 @@ export default function Archive() {
             ))}
           </p>
           <form onSubmit={onSearch} className="flex max-w-md gap-2" key={query}>
-            <input name="q" type="search" defaultValue={query} placeholder="Title, recipient or GitHub username" aria-label="Search awards" className={inputClass} />
+            <input name="q" type="search" defaultValue={query} placeholder="Title, contributor or GitHub username" aria-label="Search reports" className={inputClass} />
             <button type="submit" className={buttonClass()}>
               Search
             </button>
           </form>
-          {(query || section) && awards.status === 'ready' && (
+          {(query || section) && reports.status === 'ready' && (
             <p className="text-muted">
               {total} {total === 1 ? 'result' : 'results'}
               {query && <> for “{query}”</>}
@@ -118,16 +118,16 @@ export default function Archive() {
           )}
         </div>
 
-        {awards.status === 'loading' && <Spinner />}
-        {awards.status === 'error' && <p className="mt-6 text-muted">The list of awards could not be loaded.</p>}
-        {awards.status === 'ready' && years.length === 0 && (
+        {reports.status === 'loading' && <Spinner />}
+        {reports.status === 'error' && <p className="mt-6 text-muted">The list of reports could not be loaded.</p>}
+        {reports.status === 'ready' && years.length === 0 && (
           <p className="mt-6">
-            {awards.data.published.length === 0 ? (
+            {reports.data.published.length === 0 ? (
               <>
-                Nothing has been published yet. See the <Link to={`/awards/${SPECIMEN_SLUG}`}>specimen award</Link> for an example.
+                Nothing has been published yet. See the <Link to={`/reports/${SPECIMEN_SLUG}`}>specimen report</Link> for an example.
               </>
             ) : (
-              'No awards match.'
+              'No reports match.'
             )}
           </p>
         )}
@@ -137,10 +137,10 @@ export default function Archive() {
               {year}
               <span className="ml-2 font-sans text-sm font-normal text-muted">
                 <span className="sr-only">: </span>
-                {entries.length} {entries.length === 1 ? 'award' : 'awards'}
+                {entries.length} {entries.length === 1 ? 'report' : 'reports'}
               </span>
             </h2>
-            <AwardList entries={entries} />
+            <ReportList entries={entries} />
           </section>
         ))}
       </div>
@@ -150,10 +150,10 @@ export default function Archive() {
           <div className="panel-title">Awaiting signature</div>
           <div className="px-3 py-2">
             <p className="mb-2 text-xs text-muted">Accepted, not yet signed.</p>
-            {awards.status === 'ready' && awards.data.pending.length === 0 && <p className="text-muted">None at present.</p>}
-            {awards.status === 'ready' && awards.data.pending.length > 0 && (
+            {reports.status === 'ready' && reports.data.pending.length === 0 && <p className="text-muted">None at present.</p>}
+            {reports.status === 'ready' && reports.data.pending.length > 0 && (
               <ul className="space-y-2">
-                {awards.data.pending.map((e) => (
+                {reports.data.pending.map((e) => (
                   <li key={e.slug}>
                     {e.title}
                     <span className="block text-xs text-muted">

@@ -35,7 +35,7 @@ export interface VerifyOptions {
   /** Credential ids that the issuer has revoked. Omit to skip the check. */
   revoked?: string[];
   /**
-   * Issuers whose awards count as genuine here. Anyone can sign a credential with
+   * Issuers whose reports count as genuine here. Anyone can sign a credential with
    * their own key and give the issuer any name, so a valid signature alone only
    * shows who signed it. Omit to accept any issuer.
    */
@@ -92,7 +92,7 @@ export async function verifyCredential(credential: JsonObject, opts: VerifyOptio
     return done();
   }
   if (opts.trustedIssuers && !opts.trustedIssuers.includes(did)) {
-    add('issuer', 'Issued by Physlib Contributions', 'fail', `This credential was issued by ${did}, not by Physlib Contributions.`);
+    add('issuer', `Issued by ${SITE.issuer.name}`, 'fail', `This credential was issued by ${did}, not by ${SITE.issuer.name}.`);
     return done();
   }
 
@@ -150,7 +150,7 @@ export async function verifyCredential(credential: JsonObject, opts: VerifyOptio
       'revocation',
       'Not revoked',
       revoked ? 'fail' : 'pass',
-      revoked ? 'The issuer has revoked this award.' : 'Not on the revocation list published on this site.',
+      revoked ? 'The issuer has revoked this report.' : 'Not on the revocation list published on this site.',
     );
   }
 

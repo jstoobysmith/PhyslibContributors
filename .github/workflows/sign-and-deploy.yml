@@ -2,7 +2,7 @@
 # maintainer merges the submission pull request). It then:
 #   1. signs every accepted submission that has no credential yet, provided
 #      enough maintainers approved it (scripts/sign.ts),
-#   2. commits the signed Open Badges 3.0 credentials and award numbers to main,
+#   2. commits the signed Open Badges 3.0 credentials and report numbers to main,
 #   3. builds the site and deploys it to GitHub Pages.
 name: Sign and deploy
 
@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
     inputs:
       resign_all:
-        description: Re-sign every award (after rotating the signing key or moving the site)
+        description: Re-sign every report (after rotating the signing key or moving the site)
         type: boolean
         default: false
 
@@ -33,11 +33,11 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: main        # the latest main, including awards signed by an earlier run
+          ref: main        # the latest main, including reports signed by an earlier run
           fetch-depth: 0   # sign.ts compares each file with what its pull request merged
           # A write deploy key (secret of the "signing" environment). The ruleset on
           # main lets deploy keys bypass "require a pull request", so this job can
-          # commit signed awards; nothing else holds the key.
+          # commit signed reports; nothing else holds the key.
           ssh-key: ${{ secrets.SIGNING_DEPLOY_KEY }}
 
       - uses: actions/setup-node@v7
@@ -57,16 +57,16 @@ jobs:
       - name: Commit signed credentials
         if: ${{ !cancelled() }}
         run: |
-          git add public/credentials public/specimen.json data/award-numbers.json
+          git add public/credentials public/specimen.json data/report-numbers.json
           if git diff --cached --quiet; then
             echo "Nothing new to commit."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "Sign accepted awards [skip ci]"
+          git commit -m "Sign accepted reports [skip ci]"
           if ! git pull --rebase origin main || ! git push origin HEAD:main; then
-            echo "::error::Could not push the signed awards (main changed during signing). Re-run this workflow to sign them."
+            echo "::error::Could not push the signed reports (main changed during signing). Re-run this workflow to sign them."
             exit 1
           fi
 

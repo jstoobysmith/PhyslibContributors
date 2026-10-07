@@ -1,19 +1,19 @@
 import { Link } from 'react-router-dom';
 import { sectionById } from '../lib/config';
-import type { AwardEntry } from '../lib/awards';
+import type { ReportEntry } from '../lib/reports';
 import { formatDate } from '../site/data';
 
-/** One award in a list, in the style of an arXiv listing. */
-export function AwardListItem({ entry, showSummary = false }: { entry: AwardEntry; showSummary?: boolean }) {
+/** One report in a list, in the style of an arXiv listing. */
+export function ReportListItem({ entry, showSummary = false }: { entry: ReportEntry; showSummary?: boolean }) {
   const section = sectionById(entry.section);
   return (
     <li className="border-b border-rule py-3 last:border-b-0">
       <p className="text-sm text-muted">
-        Award no. {entry.number} · {section ? `${section.numeral}. ${section.name}` : entry.section} · accepted {formatDate(entry.acceptedAt)}
+        Report no. {entry.number} · {section ? `${section.numeral}. ${section.name}` : entry.section} · accepted {formatDate(entry.acceptedAt)}
         {entry.revoked && <span className="ml-2 font-bold text-danger">Revoked</span>}
       </p>
       <p className="mt-0.5 font-serif text-[1.125rem] leading-snug">
-        <Link to={`/awards/${entry.slug}`} className="text-foreground">
+        <Link to={`/reports/${entry.slug}`} className="text-foreground">
           {entry.title}
         </Link>
       </p>
@@ -26,11 +26,11 @@ export function AwardListItem({ entry, showSummary = false }: { entry: AwardEntr
   );
 }
 
-export function AwardList({ entries, showSummary }: { entries: AwardEntry[]; showSummary?: boolean }) {
+export function ReportList({ entries, showSummary }: { entries: ReportEntry[]; showSummary?: boolean }) {
   return (
     <ul>
       {entries.map((e) => (
-        <AwardListItem key={e.slug} entry={e} showSummary={showSummary} />
+        <ReportListItem key={e.slug} entry={e} showSummary={showSummary} />
       ))}
     </ul>
   );

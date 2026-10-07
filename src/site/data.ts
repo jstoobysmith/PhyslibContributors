@@ -3,7 +3,7 @@ import { credentialFile, ISSUER_DID, type Revocation } from '../lib/config';
 import { fetchUnderReview } from './github';
 import type { OpenBadgeCredential } from '../lib/credential';
 import type { JsonObject } from '../lib/dataIntegrity';
-import type { AwardsIndex } from '../lib/awards';
+import type { ReportsIndex } from '../lib/reports';
 import { resolveDidWeb, verifyCredential, type VerificationResult } from '../lib/verify';
 
 /** Path of a file published by this site, respecting the deploy base path. */
@@ -42,7 +42,7 @@ export function useAsync<T>(fn: () => Promise<T>, deps: unknown[]): Loadable<T> 
   return state;
 }
 
-export const useAwards = () => useAsync(() => fetchJson<AwardsIndex>(asset('data/awards.json')), []);
+export const useReports = () => useAsync(() => fetchJson<ReportsIndex>(asset('data/reports.json')), []);
 
 export const credentialPath = (slug: string) => asset(credentialFile(slug));
 

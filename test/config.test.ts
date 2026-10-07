@@ -18,7 +18,7 @@ describe('config', () => {
     expect(didWebBaseUrl('did:web:example.org')).toBe('https://example.org');
   });
 
-  it('keeps the specimen apart from real awards', () => {
+  it('keeps the specimen apart from real reports', () => {
     expect(credentialFile('specimen')).toBe('specimen.json');
     expect(credentialFile('x')).toBe('credentials/x.json');
   });

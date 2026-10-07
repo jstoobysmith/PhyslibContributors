@@ -5,7 +5,7 @@
  *   npm run keygen -- --status active   # the long-term key, once the physlib.io DNS is ready
  *
  * The public key is added to config/keys.json (and from there to the DID
- * document); earlier keys are marked "retired" so awards they signed still
+ * document); earlier keys are marked "retired" so reports they signed still
  * verify. The secret key is written to .keys/<id>.json (git-ignored, mode 600):
  * store it as the OB_SIGNING_KEY secret of the "signing" environment, then delete it.
  */
@@ -50,6 +50,6 @@ Next steps
   2. Commit config/keys.json so the public key is published in the DID document.
   3. When ready, add this TXT record to the DNS zone:
        ${SITE.dns.txtName}  TXT  "${dnsRecordFor(ISSUER_DID, keys.publicKeyMultibase)}"
-  4. Re-sign existing awards with the new key: run the "Sign and deploy" workflow
-     manually with "Re-sign every award" ticked.
+  4. Re-sign existing reports with the new key: run the "Sign and deploy" workflow
+     manually with "Re-sign every report" ticked.
 `);

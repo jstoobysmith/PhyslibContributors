@@ -37,13 +37,13 @@ jobs:
             npm run -s validate
           fi
 
-      - name: Signed awards are not edited by hand
+      - name: Signed reports are not edited by hand
         env:
           BASE: origin/${{ github.base_ref }}
         run: |
-          touched=$(git diff --name-only "$BASE...HEAD" -- public/credentials public/specimen.json data/award-numbers.json config/keys.json)
+          touched=$(git diff --name-only "$BASE...HEAD" -- public/credentials public/specimen.json data/report-numbers.json config/keys.json)
           if [ -n "$touched" ]; then
-            echo "::warning::This pull request changes signed awards, award numbers or keys. Only the signing workflow (or a maintainer rotating keys) should do this: $touched"
+            echo "::warning::This pull request changes signed reports, report numbers or keys. Only the signing workflow (or a maintainer rotating keys) should do this: $touched"
           fi
 
       - run: npm test

@@ -59,7 +59,7 @@ describe('approval rules', () => {
     expect(approvalDecision(comment, pr(), submission, 1).ok).toBe(true);
   });
 
-  it('does not let anyone the award credits merge it', () => {
+  it('does not let anyone the report credits merge it', () => {
     expect(approvalDecision([review(maintainer, 'APPROVED', '1')], pr({ mergedBy: 'alice' }), submission, 1).ok).toBe(false);
   });
 });
