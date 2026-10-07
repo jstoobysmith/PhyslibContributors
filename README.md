@@ -12,7 +12,7 @@ publication:
 | II | Physlib Maintenance Report | Version bumps, CI, tooling, triage |
 | III | Physlib Refactoring Report | Generalising, unifying, reorganising |
 | IV | Physlib Foundations Report | Core definitions other results build on |
-| V | Physlib Formalisation Report | New results, proofs and examples, including many small additions |
+| V | Physlib Formalisation Report | New lemmas, definitions and results, including many small additions |
 | VI | Physlib Documentation Report | Docstrings, module overviews, guides and tutorials |
 
 For trying the whole process out, the form also has a **Test** section
