@@ -171,6 +171,15 @@ export function submissionSlug(s: Pick<Submission, 'section' | 'recipient' | 'ti
   return [date, s.section, s.recipient.github.toLowerCase(), slugify(s.title, 40)].filter(Boolean).join('-');
 }
 
+/**
+ * Whether a file name (without extension) fits a submission: its slug, or the
+ * slug with a number added ("-2", "-3", …) when that name was already taken,
+ * e.g. by an earlier submission with the same title on the same day.
+ */
+export function fitsSlug(name: string, slug: string): boolean {
+  return name === slug || new RegExp(`^${slug}-[1-9][0-9]*$`).test(name);
+}
+
 /** Submission file names: lower-case letters, digits and hyphens only. */
 export const SUBMISSION_FILE = /^submissions\/[a-z0-9-]+\.json$/;
 

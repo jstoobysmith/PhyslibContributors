@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { formatIssues, SUBMISSION_FILE, submissionSchema, submissionSlug, type Submission } from '../../src/lib/submission';
+import { fitsSlug, formatIssues, SUBMISSION_FILE, submissionSchema, submissionSlug, type Submission } from '../../src/lib/submission';
 import type { OpenBadgeCredential } from '../../src/lib/credential';
 import type { ReportNumbers } from '../../src/lib/reports';
 
@@ -47,9 +47,17 @@ export function loadSubmission(path: string): LoadedSubmission {
   const parsed = submissionSchema.safeParse(raw);
   if (!parsed.success) return { file, slug: name, errors: formatIssues(parsed.error) };
   const expected = submissionSlug(parsed.data);
-  const errors = expected === name ? [] : [`File must be named submissions/${expected}.json`];
+  const errors = fitsSlug(name, expected) ? [] : [`File must be named submissions/${expected}.json`];
   if (!SUBMISSION_FILE.test(file)) errors.push('Submission files must be directly in submissions/ and named with a-z, 0-9 and hyphens');
   return { file, slug: name, submission: parsed.data, errors };
+}
+
+/** The submission's slug, or, if a file already has that name, the slug with the next free number ("-2", "-3", …). */
+export function freeSlug(slug: string): string {
+  if (!existsSync(join(SUBMISSIONS_DIR, `${slug}.json`))) return slug;
+  let n = 2;
+  while (existsSync(join(SUBMISSIONS_DIR, `${slug}-${n}.json`))) n++;
+  return `${slug}-${n}`;
 }
 
 export function listSubmissionFiles(): string[] {
