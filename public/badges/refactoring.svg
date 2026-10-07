@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400" role="img" aria-label="Physlib Refactoring Award">
+  <title>Physlib Refactoring Award</title>
+  <defs>
+    <path id="top" d="M 62,200 A 138,138 0 0 1 338,200"/>
+    <path id="bottom" d="M 52,200 A 148,148 0 0 0 348,200"/>
+  </defs>
+  <circle cx="200" cy="200" r="194" fill="#ffffff" stroke="#01010d" stroke-width="4"/>
+  <circle cx="200" cy="200" r="176" fill="none" stroke="#007bac" stroke-width="1.5"/>
+  <circle cx="200" cy="200" r="118" fill="none" stroke="#01010d" stroke-opacity="0.12" stroke-width="1.5"/>
+  <text font-family="Menlo, Consolas, 'Courier New', monospace" font-size="17" font-weight="600" letter-spacing="4" fill="#01010d" text-anchor="middle">
+    <textPath href="#top" startOffset="50%">PHYSLIB · CONTRIBUTIONS</textPath>
+  </text>
+  <text font-family="Menlo, Consolas, 'Courier New', monospace" font-size="15" font-weight="500" letter-spacing="3" fill="#007bac" text-anchor="middle">
+    <textPath href="#bottom" startOffset="50%">SECTION III · REFACTORING</textPath>
+  </text>
+  <text x="200" y="128" font-family="Georgia, 'Times New Roman', serif" font-size="30" font-style="italic" fill="#01010d" text-anchor="middle">III</text>
+  <g><line x1="110" y1="160" x2="160" y2="205" stroke="#01010d" stroke-width="4" stroke-linecap="round"/><path d="M143.2,189.9 L132.7,168.6 L120.9,181.7 Z" fill="#01010d"/><line x1="160" y1="205" x2="110" y2="250" stroke="#01010d" stroke-width="4" stroke-linecap="round"/><path d="M126.8,234.9 L149.1,226.7 L137.3,213.6 Z" fill="#01010d"/><path d="M160.0,205.0 L160.7,206.9 L161.3,208.7 L162.0,210.3 L162.7,211.7 L163.3,212.8 L164.0,213.6 L164.7,214.0 L165.3,214.0 L166.0,213.6 L166.7,212.8 L167.3,211.7 L168.0,210.3 L168.7,208.7 L169.3,206.9 L170.0,205.0 L170.7,203.1 L171.3,201.3 L172.0,199.7 L172.7,198.3 L173.3,197.2 L174.0,196.4 L174.7,196.0 L175.3,196.0 L176.0,196.4 L176.7,197.2 L177.3,198.3 L178.0,199.7 L178.7,201.3 L179.3,203.1 L180.0,205.0 L180.7,206.9 L181.3,208.7 L182.0,210.3 L182.7,211.7 L183.3,212.8 L184.0,213.6 L184.7,214.0 L185.3,214.0 L186.0,213.6 L186.7,212.8 L187.3,211.7 L188.0,210.3 L188.7,208.7 L189.3,206.9 L190.0,205.0 L190.7,203.1 L191.3,201.3 L192.0,199.7 L192.7,198.3 L193.3,197.2 L194.0,196.4 L194.7,196.0 L195.3,196.0 L196.0,196.4 L196.7,197.2 L197.3,198.3 L198.0,199.7 L198.7,201.3 L199.3,203.1 L200.0,205.0 L200.7,206.9 L201.3,208.7 L202.0,210.3 L202.7,211.7 L203.3,212.8 L204.0,213.6 L204.7,214.0 L205.3,214.0 L206.0,213.6 L206.7,212.8 L207.3,211.7 L208.0,210.3 L208.7,208.7 L209.3,206.9 L210.0,205.0 L210.7,203.1 L211.3,201.3 L212.0,199.7 L212.7,198.3 L213.3,197.2 L214.0,196.4 L214.7,196.0 L215.3,196.0 L216.0,196.4 L216.7,197.2 L217.3,198.3 L218.0,199.7 L218.7,201.3 L219.3,203.1 L220.0,205.0 L220.7,206.9 L221.3,208.7 L222.0,210.3 L222.7,211.7 L223.3,212.8 L224.0,213.6 L224.7,214.0 L225.3,214.0 L226.0,213.6 L226.7,212.8 L227.3,211.7 L228.0,210.3 L228.7,208.7 L229.3,206.9 L230.0,205.0 L230.7,203.1 L231.3,201.3 L232.0,199.7 L232.7,198.3 L233.3,197.2 L234.0,196.4 L234.7,196.0 L235.3,196.0 L236.0,196.4 L236.7,197.2 L237.3,198.3 L238.0,199.7 L238.7,201.3 L239.3,203.1 L240.0,205.0" fill="none" stroke="#007bac" stroke-width="4" stroke-linecap="round"/><line x1="240" y1="205" x2="290" y2="160" stroke="#01010d" stroke-width="4" stroke-linecap="round"/><path d="M273.2,175.1 L250.9,183.3 L262.7,196.4 Z" fill="#01010d"/><line x1="290" y1="250" x2="240" y2="205" stroke="#01010d" stroke-width="4" stroke-linecap="round"/><path d="M256.8,220.1 L267.3,241.4 L279.1,228.3 Z" fill="#01010d"/><circle cx="160" cy="205" r="5" fill="#01010d"/><circle cx="240" cy="205" r="5" fill="#01010d"/></g>
+  <circle cx="44" cy="200" r="3.5" fill="#01010d"/>
+  <circle cx="356" cy="200" r="3.5" fill="#01010d"/>
+</svg>

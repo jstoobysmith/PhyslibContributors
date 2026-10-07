@@ -1,0 +1,106 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2",
+    "https://purl.imsglobal.org/spec/ob/v3p0/context-3.0.3.json"
+  ],
+  "id": "https://jstoobysmith.github.io/PhyslibContributors/specimen.json",
+  "type": [
+    "VerifiableCredential",
+    "OpenBadgeCredential"
+  ],
+  "name": "Physlib Foundations Award: Specimen: index notation for Lorentz tensors",
+  "description": "A. N. Example received the Physlib Foundations Award from Physlib Contributions for “Specimen: index notation for Lorentz tensors”.",
+  "issuer": {
+    "id": "did:web:jstoobysmith.github.io:PhyslibContributors",
+    "type": [
+      "Profile"
+    ],
+    "name": "Physlib Contributions",
+    "url": "https://physlib.io",
+    "description": "An open-source community project to digitalize results from physics into Lean 4. Physlib Contributions records signed awards for reviewing, maintenance, refactoring and foundational work on Physlib.",
+    "image": {
+      "id": "https://jstoobysmith.github.io/PhyslibContributors/images/physlib-logo.png",
+      "type": "Image"
+    }
+  },
+  "validFrom": "2026-07-01T12:00:00Z",
+  "awardedDate": "2026-07-01T12:00:00Z",
+  "credentialSubject": {
+    "type": [
+      "AchievementSubject"
+    ],
+    "identifier": [
+      {
+        "type": "IdentityObject",
+        "identityType": "name",
+        "identityHash": "A. N. Example",
+        "hashed": false
+      },
+      {
+        "type": "IdentityObject",
+        "identityType": "ext:GitHubUsername",
+        "identityHash": "physlib-specimen",
+        "hashed": false
+      }
+    ],
+    "narrative": "This is a specimen award, issued so that the award page and the verifier can be tried before any real award exists. It is signed with the current Physlib Contributions key in exactly the same way as a real award, but it does not record a real contribution and its recipient does not exist.",
+    "activityStartDate": "2026-01-01T00:00:00Z",
+    "activityEndDate": "2026-06-30T00:00:00Z",
+    "achievement": {
+      "id": "https://jstoobysmith.github.io/PhyslibContributors/achievements/foundations.json",
+      "type": [
+        "Achievement"
+      ],
+      "achievementType": "Award",
+      "name": "Physlib Foundations Award",
+      "description": "For setting up the basic definitions and first properties of an area of physics in Physlib, such as spacetime, tensors, quantum states or thermodynamic systems, so that other results can be stated and proved.",
+      "criteria": {
+        "id": "https://jstoobysmith.github.io/PhyslibContributors/sections/foundations",
+        "narrative": "- The work introduced or substantially developed basic definitions and their elementary properties in Physlib.\n- The work was merged and is used, or is designed to be used, by other parts of the library.\n- Links to the relevant pull requests and modules are given as evidence."
+      },
+      "image": {
+        "id": "https://jstoobysmith.github.io/PhyslibContributors/badges/foundations.svg",
+        "type": "Image",
+        "caption": "Physlib Foundations Award badge"
+      },
+      "creator": {
+        "id": "did:web:jstoobysmith.github.io:PhyslibContributors",
+        "type": [
+          "Profile"
+        ],
+        "name": "Physlib Contributions",
+        "url": "https://physlib.io",
+        "description": "An open-source community project to digitalize results from physics into Lean 4. Physlib Contributions records signed awards for reviewing, maintenance, refactoring and foundational work on Physlib.",
+        "image": {
+          "id": "https://jstoobysmith.github.io/PhyslibContributors/images/physlib-logo.png",
+          "type": "Image"
+        }
+      },
+      "tag": [
+        "Physlib",
+        "Lean 4",
+        "formalization",
+        "Foundational Work"
+      ]
+    }
+  },
+  "evidence": [
+    {
+      "id": "https://github.com/leanprover-community/physlib",
+      "type": [
+        "Evidence"
+      ],
+      "name": "Physlib repository (placeholder evidence)",
+      "description": "A real award would link the pull requests and modules that make up the contribution.",
+      "genre": "Lean module"
+    }
+  ],
+  "proof": {
+    "type": "DataIntegrityProof",
+    "cryptosuite": "eddsa-rdfc-2022",
+    "created": "2026-10-06T18:35:20Z",
+    "verificationMethod": "did:web:jstoobysmith.github.io:PhyslibContributors#key-1",
+    "proofPurpose": "assertionMethod",
+    "proofValue": "z5X13dJ4RgKMDyiPTu2ftCGsvfsXemgAWtboobFQR4jt9XJyrLKnWV8TqxsxRosizyBiByWL4C9NEEYAwJpRyNujk"
+  }
+}

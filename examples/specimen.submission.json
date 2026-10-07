@@ -1,0 +1,22 @@
+{
+  "section": "foundations",
+  "title": "Specimen: index notation for Lorentz tensors",
+  "summary": "This is a specimen award, issued so that the award page and the verifier can be tried before any real award exists. It is signed with the current Physlib Contributions key in exactly the same way as a real award, but it does not record a real contribution and its recipient does not exist.",
+  "recipient": {
+    "github": "physlib-specimen",
+    "name": "A. N. Example"
+  },
+  "period": {
+    "from": "2026-01",
+    "to": "2026-06"
+  },
+  "evidence": [
+    {
+      "url": "https://github.com/leanprover-community/physlib",
+      "kind": "module",
+      "title": "Physlib repository (placeholder evidence)",
+      "description": "A real award would link the pull requests and modules that make up the contribution."
+    }
+  ],
+  "submittedAt": "2026-07-01T12:00:00Z"
+}

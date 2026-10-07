@@ -1,0 +1,81 @@
+[
+  {
+    "id": "review",
+    "numeral": "I",
+    "name": "Review",
+    "awardName": "Physlib Review Award",
+    "summary": "For reviewing other people’s pull requests to Physlib.",
+    "description": "For reviewing pull requests (proposed changes) to Physlib: checking that definitions match the physics, suggesting better statements or proofs, and helping authors get their work merged.",
+    "criteria": [
+      "The reviews were on pull requests to leanprover-community/physlib and contained substantive comments, not only approvals.",
+      "The reviews improved the physics, the Lean code or the documentation of the change.",
+      "Links to the reviewed pull requests or review threads are given as evidence."
+    ],
+    "guidance": "One award usually covers several substantive reviews over a period of time, or the careful review of one large change. A single short review is not enough.",
+    "evidenceKinds": [
+      "pull-request-review",
+      "zulip-thread",
+      "other"
+    ]
+  },
+  {
+    "id": "maintenance",
+    "numeral": "II",
+    "name": "Maintenance",
+    "awardName": "Physlib Maintenance Award",
+    "summary": "For keeping Physlib building and up to date.",
+    "description": "For work that keeps Physlib building and usable: updating it when Lean or Mathlib release new versions, fixing what those updates break, and looking after the automatic build checks (CI), linters, documentation and the issue tracker.",
+    "criteria": [
+      "The work was maintenance of Physlib or its infrastructure, for example version updates, CI, linting, replacing deprecated lemmas, tooling or issue triage.",
+      "The work was merged or otherwise adopted by the project.",
+      "Links to the relevant pull requests, commits or issues are given as evidence."
+    ],
+    "guidance": "One award usually covers several months of regular maintenance, or one substantial piece of infrastructure work.",
+    "evidenceKinds": [
+      "pull-request",
+      "commit",
+      "issue",
+      "other"
+    ]
+  },
+  {
+    "id": "refactoring",
+    "numeral": "III",
+    "name": "Refactoring",
+    "awardName": "Physlib Refactoring Award",
+    "summary": "For restructuring existing Physlib code so it is simpler or more general.",
+    "description": "For changing the structure of existing Physlib code without adding new results: generalising definitions, merging duplicate definitions, reorganising files, or speeding up compilation, so that later work is easier.",
+    "criteria": [
+      "The change restructured existing Physlib code rather than adding new results.",
+      "The change was merged and leaves the library easier to use or extend.",
+      "Links to the relevant pull requests are given as evidence, with a short account of what changed and why."
+    ],
+    "guidance": "One award usually covers one refactor that touched many files or removed a significant amount of duplication.",
+    "evidenceKinds": [
+      "pull-request",
+      "commit",
+      "zulip-thread",
+      "other"
+    ]
+  },
+  {
+    "id": "foundations",
+    "numeral": "IV",
+    "name": "Foundational Work",
+    "awardName": "Physlib Foundations Award",
+    "summary": "For basic definitions that other parts of Physlib build on.",
+    "description": "For setting up the basic definitions and first properties of an area of physics in Physlib, such as spacetime, tensors, quantum states or thermodynamic systems, so that other results can be stated and proved.",
+    "criteria": [
+      "The work introduced or substantially developed basic definitions and their elementary properties in Physlib.",
+      "The work was merged and is used, or is designed to be used, by other parts of the library.",
+      "Links to the relevant pull requests and modules are given as evidence."
+    ],
+    "guidance": "One award usually covers the foundations of one area, typically built up over several pull requests.",
+    "evidenceKinds": [
+      "pull-request",
+      "module",
+      "commit",
+      "other"
+    ]
+  }
+]

@@ -1,0 +1,13 @@
+# Changes to anything that runs with, or decides what is signed with, the
+# signing key need a maintainer's review. Enable "Require review from Code
+# Owners" in the branch protection rule for main.
+/.github/                @jstoobysmith
+/scripts/                @jstoobysmith
+/src/lib/                @jstoobysmith
+/config/                 @jstoobysmith
+/package.json            @jstoobysmith
+/package-lock.json       @jstoobysmith
+/public/credentials/     @jstoobysmith
+/data/                   @jstoobysmith
+/examples/               @jstoobysmith
+/public/specimen.json    @jstoobysmith

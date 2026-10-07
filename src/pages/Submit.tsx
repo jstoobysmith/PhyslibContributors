@@ -1,0 +1,351 @@
+import { useState, type ReactNode } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { buttonClass, Container, ErrorNote, Field, Input, inputClass, linkButtonClass, PageTitle } from '../components/ui';
+import { EVIDENCE_KINDS, SECTIONS, SITE, sectionById, urls, type EvidenceKind } from '../lib/config';
+import { evidenceTitle, guessEvidenceKind, normaliseUrl, type Submission } from '../lib/submission';
+import { download } from '../site/data';
+import { newFileUrl, openSubmissionPullRequest, submissionJson, whoAmI } from '../site/github';
+import { emptyEvidence, useSubmissionDraft, type Draft, type EvidenceDraft, type PersonDraft } from '../site/useSubmissionDraft';
+import { useTitle } from '../site/useTitle';
+
+function Step({ n, title, children }: { n: number; title: string; children: ReactNode }) {
+  return (
+    <section className="border-t border-rule pt-4 first:border-t-0 first:pt-0">
+      <h2 className="mb-3 font-serif text-xl font-bold">
+        {n}. {title}
+      </h2>
+      {children}
+    </section>
+  );
+}
+
+function Preview({ d }: { d: Draft }) {
+  const section = sectionById(d.section);
+  const evidence = d.evidence.filter((e) => e.url || e.title);
+  return (
+    <div className="panel text-sm">
+      <div className="panel-title">Preview</div>
+      <div className="px-3 py-2">
+        <p className="text-xs text-muted">{section && `${section.numeral}. ${section.name}`}</p>
+        <p className="mt-1 font-serif text-base font-bold leading-snug">{d.title || <span className="font-normal text-muted">Title</span>}</p>
+        <p>
+          {d.name || <span className="text-muted">Recipient</span>}
+          {d.collaborators.some((c) => c.name) && (
+            <span className="text-muted"> (joint work with {d.collaborators.filter((c) => c.name).map((c) => c.name).join(', ')})</span>
+          )}
+        </p>
+        <p className="mt-2 line-clamp-6 whitespace-pre-line font-serif text-muted">{d.summary || 'Summary.'}</p>
+        {evidence.length > 0 && (
+          <ol className="mt-2 space-y-0.5 text-xs text-muted">
+            {evidence.map((e, i) => (
+              <li key={i} className="truncate">
+                [{i + 1}] {e.title || (e.url ? evidenceTitle({ url: e.url, kind: e.kind }) : '')}
+              </li>
+            ))}
+          </ol>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default function Submit() {
+  useTitle('Submit a contribution');
+  const [params] = useSearchParams();
+  const { draft, set, update, errors, submission, slug, clear } = useSubmissionDraft(params.get('section'));
+  const [attempted, setAttempted] = useState(false);
+  const [token, setToken] = useState('');
+  const [progress, setProgress] = useState<string>();
+  const [result, setResult] = useState<{ url?: string; error?: string }>();
+
+  const err = (path: string) => (attempted ? errors[path] : undefined);
+  const section = sectionById(draft.section)!;
+  const setEvidence = (i: number, patch: Partial<EvidenceDraft>) =>
+    update((d) => ({ ...d, evidence: d.evidence.map((e, j) => (j === i ? { ...e, ...patch } : e)) }));
+  const setCollaborator = (i: number, patch: Partial<PersonDraft>) =>
+    update((d) => ({ ...d, collaborators: d.collaborators.map((c, j) => (j === i ? { ...c, ...patch } : c)) }));
+
+  const guard = (fn: (s: Submission) => void) => () => {
+    setAttempted(true);
+    if (submission) fn(submission);
+    else setTimeout(() => document.querySelector('[data-invalid="true"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
+  };
+
+  const openOnGitHub = guard((s) => window.open(newFileUrl(slug, s), '_blank', 'noopener'));
+
+  const submitWithToken = guard(async (s) => {
+    setResult(undefined);
+    try {
+      setProgress('Checking the token');
+      await whoAmI(token);
+      setResult({ url: await openSubmissionPullRequest(token, slug, s, setProgress) });
+    } catch (e) {
+      setResult({ error: (e as Error).message });
+    } finally {
+      setProgress(undefined);
+    }
+  });
+
+  const downloadJson = guard((s) => download(`${slug}.json`, submissionJson(s), 'application/json'));
+
+  return (
+    <Container className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_17rem]">
+      <div className="min-w-0">
+        <PageTitle title="Submit a contribution">
+          Describe the work and link to it. You can submit your own work or nominate someone else. The submission becomes a pull
+          request on GitHub, where the maintainers check it; you need a free GitHub account. See{' '}
+          <Link to="/about#process">how an award is made</Link>.
+        </PageTitle>
+
+        <form className="max-w-3xl space-y-8" onSubmit={(e) => e.preventDefault()} noValidate>
+          <Step n={1} title="Section">
+            <div className="space-y-2">
+              {SECTIONS.map((s) => (
+                <label key={s.id} className="flex cursor-pointer gap-2">
+                  <input type="radio" name="section" value={s.id} checked={draft.section === s.id} onChange={() => set('section', s.id)} className="mt-1" />
+                  <span>
+                    <strong>
+                      {s.numeral}. {s.name}
+                    </strong>{' '}
+                    <span className="text-sm text-muted">— {s.summary}</span>
+                  </span>
+                </label>
+              ))}
+            </div>
+            <div className="mt-3 border border-rule bg-shade px-3 py-2 text-sm">
+              <p className="font-bold">The maintainers will check that:</p>
+              <ol className="mt-1 ml-5 list-decimal space-y-0.5">
+                {section.criteria.map((c) => (
+                  <li key={c}>{c}</li>
+                ))}
+              </ol>
+              <p className="mt-2 text-muted">{section.guidance}</p>
+            </div>
+          </Step>
+
+          <Step n={2} title="Who did the work">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="Full name" error={err('recipient.name')}>
+                <Input value={draft.name} onChange={(e) => set('name', e.target.value)} autoComplete="name" data-invalid={!!err('recipient.name')} />
+              </Field>
+              <Field label="GitHub username" error={err('recipient.github')}>
+                <Input value={draft.github} onChange={(e) => set('github', e.target.value)} data-invalid={!!err('recipient.github')} />
+              </Field>
+              <Field label="ORCID iD (optional)" error={err('recipient.orcid')} hint="Shown on the award.">
+                <Input value={draft.orcid} onChange={(e) => set('orcid', e.target.value)} placeholder="0000-0002-1825-0097" data-invalid={!!err('recipient.orcid')} />
+              </Field>
+            </div>
+
+            <label className="mt-4 flex gap-2 text-sm">
+              <input type="checkbox" checked={draft.nominating} onChange={(e) => set('nominating', e.target.checked)} className="mt-1" />
+              <span>I am nominating someone else</span>
+            </label>
+            {draft.nominating && (
+              <div className="mt-3 space-y-3 border-l-2 border-rule pl-4">
+                <Field label="Your GitHub username" error={err('nominatedBy')}>
+                  <Input value={draft.nominatedBy} onChange={(e) => set('nominatedBy', e.target.value)} className="max-w-xs" data-invalid={!!err('nominatedBy')} />
+                </Field>
+                <label className="flex gap-2 text-sm" data-invalid={!!err('recipientConsent')}>
+                  <input type="checkbox" checked={draft.consent} onChange={(e) => set('consent', e.target.checked)} className="mt-1" />
+                  <span>I have asked {draft.name || 'them'} and they agree to be named on this site.</span>
+                </label>
+                {err('recipientConsent') && <p className="text-xs text-danger">{err('recipientConsent')}</p>}
+              </div>
+            )}
+
+            <div className="mt-4">
+              <p className="text-sm font-bold">Joint work (optional)</p>
+              <p className="text-xs text-muted">
+                If others did this work with the recipient, name them here. They are shown on the award; each can submit for their
+                own award too.
+              </p>
+              {draft.collaborators.map((c, i) => (
+                <div key={i} className="mt-2 flex flex-wrap items-end gap-2">
+                  <Field label="Name" error={err(`collaborators.${i}.name`)}>
+                    <Input value={c.name} onChange={(e) => setCollaborator(i, { name: e.target.value })} />
+                  </Field>
+                  <Field label="GitHub username" error={err(`collaborators.${i}.github`)}>
+                    <Input value={c.github} onChange={(e) => setCollaborator(i, { github: e.target.value })} />
+                  </Field>
+                  <button type="button" className="mb-1.5 text-sm text-link hover:underline" onClick={() => update((d) => ({ ...d, collaborators: d.collaborators.filter((_, j) => j !== i) }))}>
+                    Remove
+                  </button>
+                </div>
+              ))}
+              <button type="button" className={`${buttonClass()} mt-2`} onClick={() => update((d) => ({ ...d, collaborators: [...d.collaborators, { name: '', github: '' }] }))}>
+                Add a person
+              </button>
+            </div>
+          </Step>
+
+          <Step n={3} title="The work">
+            <div className="space-y-4">
+              <Field label="Title" error={err('title')} hint="One line, as for a paper, e.g. “Reviews of the tensor species refactor”.">
+                <Input value={draft.title} onChange={(e) => set('title', e.target.value)} data-invalid={!!err('title')} />
+              </Field>
+              <Field label="Summary" error={err('summary')} hint="What was done and why it mattered to Physlib, in a few sentences. Separate paragraphs with a blank line.">
+                <textarea value={draft.summary} onChange={(e) => set('summary', e.target.value)} rows={6} className={`${inputClass} font-serif text-base`} data-invalid={!!err('summary')} />
+              </Field>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field label="From (optional)" error={err('period.from')}>
+                  <Input type="month" value={draft.from} onChange={(e) => set('from', e.target.value)} />
+                </Field>
+                <Field label="To (optional)" error={err('period.to')}>
+                  <Input type="month" value={draft.to} onChange={(e) => set('to', e.target.value)} />
+                </Field>
+              </div>
+            </div>
+          </Step>
+
+          <Step n={4} title="Evidence">
+            <p className="mb-3 text-sm text-muted">
+              Links to the pull requests, reviews, commits, modules or Zulip threads that make up the work. One award can cover
+              many links.
+            </p>
+            {err('evidence') && <p className="mb-2 text-xs text-danger">{err('evidence')}</p>}
+            <ol className="space-y-3">
+              {draft.evidence.map((e, i) => (
+                <li key={i} className="border border-rule p-3">
+                  <div className="mb-2 flex items-center justify-between text-sm">
+                    <span className="font-bold">[{i + 1}]</span>
+                    {draft.evidence.length > 1 && (
+                      <button type="button" onClick={() => set('evidence', draft.evidence.filter((_, j) => j !== i))} className="text-link hover:underline">
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_11rem]">
+                    <Field label="Link" error={err(`evidence.${i}.url`)}>
+                      <Input
+                        type="url"
+                        value={e.url}
+                        onChange={(ev) => {
+                          const url = ev.target.value;
+                          setEvidence(i, { url, ...(e.kindChosen ? {} : { kind: guessEvidenceKind(normaliseUrl(url), section.evidenceKinds[0]) }) });
+                        }}
+                        onBlur={() => setEvidence(i, { url: normaliseUrl(e.url) })}
+                        placeholder={`https://github.com/${SITE.physlib.repository}/pull/123`}
+                        data-invalid={!!err(`evidence.${i}.url`)}
+                      />
+                    </Field>
+                    <Field label="Kind">
+                      <select value={e.kind} onChange={(ev) => setEvidence(i, { kind: ev.target.value as EvidenceKind, kindChosen: true })} className={inputClass}>
+                        {Object.entries(EVIDENCE_KINDS).map(([k, v]) => (
+                          <option key={k} value={k}>
+                            {v}
+                          </option>
+                        ))}
+                      </select>
+                    </Field>
+                    <Field label="Title (optional)" error={err(`evidence.${i}.title`)}>
+                      <Input
+                        value={e.title}
+                        onChange={(ev) => setEvidence(i, { title: ev.target.value })}
+                        placeholder={/^\S+\.\S+/.test(e.url) ? evidenceTitle({ url: normaliseUrl(e.url), kind: e.kind }) : ''}
+                      />
+                    </Field>
+                    <Field label="Note (optional)" error={err(`evidence.${i}.description`)}>
+                      <Input value={e.description} onChange={(ev) => setEvidence(i, { description: ev.target.value })} />
+                    </Field>
+                  </div>
+                </li>
+              ))}
+            </ol>
+            <button type="button" onClick={() => set('evidence', [...draft.evidence, emptyEvidence(section.evidenceKinds[0])])} className={`${buttonClass()} mt-3`}>
+              Add another link
+            </button>
+          </Step>
+
+          <Step n={5} title="Send">
+            {attempted && !submission && (
+              <div className="mb-3">
+                <ErrorNote>Some fields need attention; they are marked above.</ErrorNote>
+              </div>
+            )}
+            <p className="text-sm">
+              GitHub will open with your submission filled in. Click <em>Commit changes</em>, then <em>Create pull request</em>. If
+              GitHub first offers to “fork” the repository (make your own copy of it to propose the change from), accept.
+            </p>
+            <button type="button" onClick={openOnGitHub} className={`${buttonClass('primary')} mt-3`}>
+              Continue on GitHub
+            </button>
+
+            <details className="mt-5 text-sm">
+              <summary className="cursor-pointer text-link">Other ways to send it</summary>
+              <div className="mt-3 space-y-4 border-l-2 border-rule pl-4">
+                <div>
+                  <p className="font-bold">Open the pull request from this page</p>
+                  <p className="mt-1 text-muted">
+                    Needs a GitHub <a href="https://github.com/settings/tokens/new?scopes=public_repo&description=Physlib%20Contributions">personal access token</a>{' '}
+                    with the <code className="font-mono">public_repo</code> scope. The token is used once, sent only to GitHub, and
+                    not stored. Delete it on GitHub afterwards.
+                  </p>
+                  <div className="mt-2 flex max-w-lg gap-2">
+                    <input
+                      type="password"
+                      value={token}
+                      onChange={(e) => setToken(e.target.value)}
+                      placeholder="ghp_…"
+                      aria-label="GitHub personal access token"
+                      autoComplete="off"
+                      className={`${inputClass} font-mono text-xs`}
+                    />
+                    <button type="button" onClick={submitWithToken} disabled={!token || !!progress} className={`${buttonClass()} shrink-0`}>
+                      {progress ? `${progress}…` : 'Open pull request'}
+                    </button>
+                  </div>
+                </div>
+                <p>
+                  Or{' '}
+                  <button type="button" className={linkButtonClass} onClick={downloadJson}>
+                    download the file
+                  </button>{' '}
+                  and add it to <code className="font-mono text-xs">submissions/</code> in a pull request to{' '}
+                  <a href={urls.repo()}>
+                    {SITE.repository.owner}/{SITE.repository.name}
+                  </a>{' '}
+                  yourself.
+                </p>
+              </div>
+            </details>
+
+            {result?.url && (
+              <div className="mt-4 border border-success/40 bg-[#f1f8f3] px-3 py-2 text-sm">
+                <p className="font-bold">Your pull request is open:</p>
+                <a href={result.url} className="break-all">
+                  {result.url}
+                </a>
+              </div>
+            )}
+            {result?.error && (
+              <div className="mt-4">
+                <ErrorNote>{result.error}</ErrorNote>
+              </div>
+            )}
+          </Step>
+        </form>
+      </div>
+
+      <aside className="min-w-0 space-y-4 text-sm lg:sticky lg:top-4 lg:self-start">
+        <Preview d={draft} />
+        <div className="panel">
+          <div className="panel-title">What happens next</div>
+          <ol className="ml-8 list-decimal space-y-1 py-2 pr-3">
+            <li>An automatic check reads the submission and posts a summary on the pull request.</li>
+            <li>The maintainers check the evidence there and may ask questions.</li>
+            <li>When it is approved and merged, the award is signed and appears on this site.</li>
+          </ol>
+          <p className="border-t border-rule px-3 py-2 text-xs text-muted">
+            Maintainers review as volunteers, so there is no fixed turnaround. Submitting is optional: plenty of good work is
+            never submitted.
+          </p>
+        </div>
+        <p>
+          <button type="button" className={linkButtonClass} onClick={() => (clear(), setAttempted(false))}>
+            Clear the form
+          </button>
+        </p>
+      </aside>
+    </Container>
+  );
+}

@@ -1,0 +1,63 @@
+# Posts a readable summary of each submission on its pull request and labels
+# it, so maintainers can review it without opening the JSON or the Actions tab.
+#
+# pull_request_target is needed to comment on pull requests from forks. To be
+# safe it runs ONLY code from the base branch: the pull request's submission
+# files are fetched through the API as data, and only files named
+# submissions/<a-z0-9->.json are accepted.
+name: Submission summary
+
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize]
+    paths: ['submissions/**']
+
+concurrency:
+  group: submission-summary-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  summary:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PR: ${{ github.event.pull_request.number }}
+      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@v7   # the base branch, not the pull request
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Fetch the submitted files (as data)
+        run: |
+          gh api "repos/$REPO/pulls/$PR/files" --paginate \
+            --jq '.[] | select(.status != "removed") | .filename | select(test("^submissions/[a-z0-9-]+\\.json$"))' > "$RUNNER_TEMP/files"
+          while IFS= read -r f; do
+            gh api "repos/$REPO/contents/$f?ref=$HEAD_SHA" --jq .content | base64 -d > "$f"
+          done < "$RUNNER_TEMP/files"
+
+      - name: Summarise
+        run: |
+          if [ -s "$RUNNER_TEMP/files" ]; then
+            xargs npm run -s validate -- --changed --markdown "$RUNNER_TEMP/summary.md" < "$RUNNER_TEMP/files" || true
+          else
+            echo "This pull request changes files under submissions/ that are not submissions (names must be submissions/<a-z, 0-9, ->.json)." > "$RUNNER_TEMP/summary.md"
+          fi
+
+      - name: Label and comment
+        run: |
+          gh label create submission --repo "$REPO" --color 1b3a5c --description "A submission for a Physlib Contributions award" 2>/dev/null || true
+          gh pr edit "$PR" --repo "$REPO" --add-label submission
+          gh pr comment "$PR" --repo "$REPO" --body-file "$RUNNER_TEMP/summary.md" --edit-last 2>/dev/null \
+            || gh pr comment "$PR" --repo "$REPO" --body-file "$RUNNER_TEMP/summary.md"

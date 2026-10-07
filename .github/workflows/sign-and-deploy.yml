@@ -1,0 +1,100 @@
+# Runs on every push to main, which is how accepted submissions arrive (a
+# maintainer merges the submission pull request). It then:
+#   1. signs every accepted submission that has no credential yet, provided
+#      enough maintainers approved it (scripts/sign.ts),
+#   2. commits the signed Open Badges 3.0 credentials and award numbers to main,
+#   3. builds the site and deploys it to GitHub Pages.
+name: Sign and deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      resign_all:
+        description: Re-sign every award (after rotating the signing key or moving the site)
+        type: boolean
+        default: false
+
+concurrency:
+  group: sign-and-deploy
+  cancel-in-progress: false
+
+jobs:
+  sign:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    # The signing key is a secret of this environment. Restrict the environment
+    # to the main branch (Settings > Environments) so no other branch can use it.
+    environment: signing
+    permissions:
+      contents: write        # commit the signed credentials
+      pull-requests: read    # read who approved and merged each submission
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main        # the latest main, including awards signed by an earlier run
+          fetch-depth: 0   # sign.ts compares each file with what its pull request merged
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      # No install scripts in the job that holds the signing key.
+      - run: npm ci --ignore-scripts
+
+      - name: Sign accepted submissions
+        env:
+          OB_SIGNING_KEY: ${{ secrets.OB_SIGNING_KEY }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: npm run sign -- ${{ inputs.resign_all && '--resign-all' || '' }}
+
+      - name: Commit signed credentials
+        if: ${{ !cancelled() }}
+        run: |
+          git add public/credentials public/specimen.json data/award-numbers.json
+          if git diff --cached --quiet; then
+            echo "Nothing new to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Sign accepted awards [skip ci]"
+          if ! git pull --rebase origin main || ! git push origin HEAD:main; then
+            echo "::error::Could not push the signed awards (main changed during signing). Re-run this workflow to sign them."
+            exit 1
+          fi
+
+  deploy:
+    needs: sign
+    # Deploy even if signing failed, so the rest of the site stays current.
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main   # includes the credentials committed by the sign job
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build
+
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+          include-hidden-files: true   # .well-known/did.json
+      - id: deployment
+        uses: actions/deploy-pages@v5

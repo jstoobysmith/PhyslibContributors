@@ -1,0 +1,113 @@
+@import 'tailwindcss';
+@import '@fontsource/stix-two-text/400.css';
+@import '@fontsource/stix-two-text/400-italic.css';
+@import '@fontsource/stix-two-text/700.css';
+
+/* A plain palette: black on white, one link colour, grey rules. */
+:root {
+  --background: #ffffff;
+  --foreground: #1a1a1a;
+  --muted: #5c5c5c;
+  --rule: #cccccc;
+  --shade: #f2f2ee;
+  --link: #1a4d8f;
+  --band: #1b3a5c;
+  --band-fg: #ffffff;
+  --success: #1a7f37;
+  --danger: #b0201c;
+  --warning: #8a5a00;
+}
+
+@theme inline {
+  --font-sans: 'Lucida Grande', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-serif: 'STIX Two Text', 'Times New Roman', Times, serif;
+  --font-mono: Menlo, Consolas, 'Courier New', monospace;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-rule: var(--rule);
+  --color-shade: var(--shade);
+  --color-link: var(--link);
+  --color-band: var(--band);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --color-warning: var(--warning);
+}
+
+/* In the base layer, so that utility classes (e.g. text-white on a link) win. */
+@layer base {
+  html {
+    background: var(--background);
+  }
+
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  a {
+    color: var(--link);
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+}
+
+/* Long-form text (About, summaries): serif, as in print. */
+.prose-long {
+  font-family: var(--font-serif);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
+.prose-long p + p {
+  margin-top: 0.8em;
+}
+.prose-long h2 {
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+.prose-long h3 {
+  margin-top: 1.25rem;
+  margin-bottom: 0.25rem;
+  font-size: 1.0625rem;
+  font-weight: 700;
+}
+.prose-long ul,
+.prose-long ol {
+  margin: 0.6em 0 0.6em 1.5em;
+}
+.prose-long ul {
+  list-style: disc;
+}
+.prose-long ol {
+  list-style: decimal;
+}
+.prose-long li + li {
+  margin-top: 0.3em;
+}
+.prose-long a {
+  text-decoration: underline;
+}
+
+/* A grey bordered box, like arXiv's side panels. */
+.panel {
+  border: 1px solid var(--rule);
+  background: var(--background);
+}
+.panel-title {
+  background: var(--shade);
+  border-bottom: 1px solid var(--rule);
+  padding: 0.35rem 0.75rem;
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 1px;
+}

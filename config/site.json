@@ -1,0 +1,33 @@
+{
+  "title": "Physlib Contributions",
+  "subtitle": "Signed awards for reviewing, maintenance, refactoring and foundational work on Physlib",
+  "draft": true,
+  "siteUrl": "https://jstoobysmith.github.io/PhyslibContributors",
+  "basePath": "/PhyslibContributors/",
+  "repository": {
+    "owner": "jstoobysmith",
+    "name": "PhyslibContributors",
+    "branch": "main"
+  },
+  "physlib": {
+    "repository": "leanprover-community/physlib",
+    "site": "https://physlib.io",
+    "zulip": "https://leanprover.zulipchat.com/#narrow/channel/479953-physlib",
+    "gettingStarted": "https://physlib.io/getting-started"
+  },
+  "issuer": {
+    "name": "Physlib Contributions",
+    "description": "An open-source community project to digitalize results from physics into Lean 4. Physlib Contributions records signed awards for reviewing, maintenance, refactoring and foundational work on Physlib.",
+    "url": "https://physlib.io",
+    "image": "images/physlib-logo.png"
+  },
+  "dns": {
+    "txtName": "_openbadges.physlib.io",
+    "dohResolver": "https://cloudflare-dns.com/dns-query"
+  },
+  "review": {
+    "requiredApprovals": 1,
+    "conflictDeclaration": "no conflict of interest",
+    "appointment": "Maintainers are appointed and removed by agreement of the existing maintainers, discussed openly on the Physlib Zulip channel. Any maintainer may step down at any time."
+  }
+}

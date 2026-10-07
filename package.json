@@ -1,0 +1,49 @@
+{
+  "name": "physlib-contributors",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Physlib Contributions: signed Open Badges 3.0 awards for reviewing, maintenance, refactoring and foundational work on Physlib.",
+  "scripts": {
+    "dev": "npm run static && vite",
+    "build": "npm run static && npm run typecheck && vite build && cp dist/index.html dist/404.html",
+    "preview": "vite preview",
+    "static": "tsx scripts/build-static.ts",
+    "keygen": "tsx scripts/generate-key.ts",
+    "validate": "tsx scripts/validate-submissions.ts",
+    "verify": "tsx scripts/verify.ts",
+    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.node.json",
+    "test": "vitest run",
+    "sign": "tsx scripts/sign.ts"
+  },
+  "dependencies": {
+    "@fontsource/stix-two-text": "^5.3.0",
+    "@noble/curves": "^2.4.0",
+    "@noble/hashes": "^2.4.0",
+    "@scure/base": "^2.4.0",
+    "jsonld": "^9.0.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "react-router-dom": "^7.18.4",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@digitalbazaar/data-integrity": "^2.5.0",
+    "@digitalbazaar/ed25519-multikey": "^1.3.1",
+    "@digitalbazaar/eddsa-rdfc-2022-cryptosuite": "^1.3.0",
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/jsonld": "^1.5.15",
+    "@types/node": "^26.6.4",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
+    "jsonld-signatures": "^11.6.0",
+    "tailwindcss": "^4.3.3",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.3",
+    "vitest": "^3.2.7"
+  }
+}

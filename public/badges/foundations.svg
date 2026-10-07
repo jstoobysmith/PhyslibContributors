@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400" role="img" aria-label="Physlib Foundations Award">
+  <title>Physlib Foundations Award</title>
+  <defs>
+    <path id="top" d="M 62,200 A 138,138 0 0 1 338,200"/>
+    <path id="bottom" d="M 52,200 A 148,148 0 0 0 348,200"/>
+  </defs>
+  <circle cx="200" cy="200" r="194" fill="#ffffff" stroke="#01010d" stroke-width="4"/>
+  <circle cx="200" cy="200" r="176" fill="none" stroke="#007bac" stroke-width="1.5"/>
+  <circle cx="200" cy="200" r="118" fill="none" stroke="#01010d" stroke-opacity="0.12" stroke-width="1.5"/>
+  <text font-family="Menlo, Consolas, 'Courier New', monospace" font-size="17" font-weight="600" letter-spacing="4" fill="#01010d" text-anchor="middle">
+    <textPath href="#top" startOffset="50%">PHYSLIB · CONTRIBUTIONS</textPath>
+  </text>
+  <text font-family="Menlo, Consolas, 'Courier New', monospace" font-size="15" font-weight="500" letter-spacing="3" fill="#007bac" text-anchor="middle">
+    <textPath href="#bottom" startOffset="50%">SECTION IV · FOUNDATIONAL WORK</textPath>
+  </text>
+  <text x="200" y="128" font-family="Georgia, 'Times New Roman', serif" font-size="30" font-style="italic" fill="#01010d" text-anchor="middle">IV</text>
+  <g><line x1="110" y1="245" x2="200" y2="245" stroke="#01010d" stroke-width="4" stroke-linecap="round"/><path d="M166.0,245.0 L144.0,236.2 L144.0,253.8 Z" fill="#01010d"/><line x1="290" y1="165" x2="200" y2="245" stroke="#01010d" stroke-width="4" stroke-linecap="round"/><path d="M236.8,212.3 L259.1,204.3 L247.4,191.1 Z" fill="#01010d"/><path d="M200.0,245.0 L200.8,246.9 L201.5,248.7 L202.2,250.3 L203.0,251.7 L203.8,252.8 L204.5,253.6 L205.2,254.0 L206.0,254.0 L206.8,253.6 L207.5,252.8 L208.2,251.7 L209.0,250.3 L209.8,248.7 L210.5,246.9 L211.2,245.0 L212.0,243.1 L212.8,241.3 L213.5,239.7 L214.2,238.3 L215.0,237.2 L215.8,236.4 L216.5,236.0 L217.2,236.0 L218.0,236.4 L218.8,237.2 L219.5,238.3 L220.2,239.7 L221.0,241.3 L221.8,243.1 L222.5,245.0 L223.2,246.9 L224.0,248.7 L224.8,250.3 L225.5,251.7 L226.2,252.8 L227.0,253.6 L227.8,254.0 L228.5,254.0 L229.2,253.6 L230.0,252.8 L230.8,251.7 L231.5,250.3 L232.2,248.7 L233.0,246.9 L233.8,245.0 L234.5,243.1 L235.2,241.3 L236.0,239.7 L236.8,238.3 L237.5,237.2 L238.2,236.4 L239.0,236.0 L239.8,236.0 L240.5,236.4 L241.2,237.2 L242.0,238.3 L242.8,239.7 L243.5,241.3 L244.2,243.1 L245.0,245.0 L245.8,246.9 L246.5,248.7 L247.2,250.3 L248.0,251.7 L248.8,252.8 L249.5,253.6 L250.2,254.0 L251.0,254.0 L251.8,253.6 L252.5,252.8 L253.2,251.7 L254.0,250.3 L254.8,248.7 L255.5,246.9 L256.2,245.0 L257.0,243.1 L257.8,241.3 L258.5,239.7 L259.2,238.3 L260.0,237.2 L260.8,236.4 L261.5,236.0 L262.2,236.0 L263.0,236.4 L263.8,237.2 L264.5,238.3 L265.2,239.7 L266.0,241.3 L266.8,243.1 L267.5,245.0 L268.2,246.9 L269.0,248.7 L269.8,250.3 L270.5,251.7 L271.2,252.8 L272.0,253.6 L272.8,254.0 L273.5,254.0 L274.2,253.6 L275.0,252.8 L275.8,251.7 L276.5,250.3 L277.2,248.7 L278.0,246.9 L278.8,245.0 L279.5,243.1 L280.2,241.3 L281.0,239.7 L281.8,238.3 L282.5,237.2 L283.2,236.4 L284.0,236.0 L284.8,236.0 L285.5,236.4 L286.2,237.2 L287.0,238.3 L287.8,239.7 L288.5,241.3 L289.2,243.1 L290.0,245.0" fill="none" stroke="#007bac" stroke-width="4" stroke-linecap="round"/><circle cx="200" cy="245" r="5" fill="#01010d"/></g>
+  <circle cx="44" cy="200" r="3.5" fill="#01010d"/>
+  <circle cx="356" cy="200" r="3.5" fill="#01010d"/>
+</svg>
