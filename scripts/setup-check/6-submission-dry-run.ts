@@ -1,8 +1,8 @@
 /**
  * Part 6: one made-up submission, followed through every step a real one
- * takes, without touching GitHub: the form's output is validated, the pull
- * request summary is written, the approval rules are applied with the listed
- * maintainers, the credential is built, signed with the real key, verified as
+ * takes, without touching GitHub: the form's output is validated, the
+ * summary is written, the approval rules are applied with the listed
+ * maintainers (for pull requests and for issues), the credential is built, signed with the real key, verified as
  * the site does, and baked into a badge image.
  */
 import Ajv2019 from 'ajv/dist/2019.js';
@@ -12,7 +12,8 @@ import { join } from 'node:path';
 import { generateKeyPair, publicKeyFor, sign, type JsonObject } from '../../src/lib/dataIntegrity';
 import { buildCredential, type OpenBadgeCredential } from '../../src/lib/credential';
 import { bakeSvg, unbakeSvg } from '../../src/lib/baking';
-import { CONFLICT_DECLARATION, approvalDecision, type PullRequestReview } from '../../src/lib/review';
+import { CONFLICT_DECLARATION, approvalDecision, issueApprovalDecision, type IssueComment, type PullRequestReview } from '../../src/lib/review';
+import { ACCEPT_COMMAND } from '../../src/lib/issue-submission';
 import { issuerDidDocument, isoSeconds, ISSUER_DID, KEYS, MAINTAINERS, SIGNING_KEY, SITE, verificationMethodId } from '../../src/lib/config';
 import { githubLoginFromInput, submissionMarkdown, submissionSchema, submissionSlug, type Submission } from '../../src/lib/submission';
 import { verifyCredential } from '../../src/lib/verify';
@@ -42,14 +43,14 @@ export default definePart({
     if (!submission) return;
     const s = submission;
 
-    await check('6.2', 'Pull request summary', () => {
+    await check('6.2', 'Summary for maintainers', () => {
       const text = submissionMarkdown(s);
       return text.includes(s.title.slice(0, 20)) && text.includes(`@${RECIPIENT}`)
-        ? pass('The summary that submission-summary.yml posts on the pull request is written.')
+        ? pass('The summary posted on each submission issue or pull request is written.')
         : fail('The pull request summary is missing the title or the recipient.');
     });
 
-    await check('6.3', 'Approval rules with the listed maintainers', () => {
+    await check('6.3', 'Approval rules for pull requests', () => {
       const required = SITE.review.requiredApprovals;
       const approvers = MAINTAINERS.slice(0, required);
       if (approvers.length < required) return fail(`Only ${MAINTAINERS.length} maintainer(s) are listed, but ${required} approvals are needed.`, 'Add maintainers to config/maintainers.json.');
@@ -72,8 +73,28 @@ export default definePart({
       return pass(`Accepted when ${who} approve${approvers.length === 1 ? 's' : ''} with “${CONFLICT_DECLARATION}”; refused without it, and refused for their own work.`);
     });
 
+    await check('6.4', 'Approval rules for submissions made as issues', () => {
+      const required = SITE.review.requiredApprovals;
+      const approvers = MAINTAINERS.slice(0, required);
+      if (approvers.length < required) return fail('Not enough maintainers are listed (see 6.3).');
+      const at = (minute: number) => `2026-01-01T00:${String(minute).padStart(2, '0')}:00Z`;
+      const accept = (m: (typeof MAINTAINERS)[number], minute: number): IssueComment => ({
+        user: { login: m.github, id: m.id },
+        body: `${ACCEPT_COMMAND} I have ${CONFLICT_DECLARATION}.`,
+        created_at: at(minute),
+      });
+      const issue = { author: RECIPIENT, lastEditedAt: at(1) };
+      const accepted = issueApprovalDecision(approvers.map((m) => accept(m, 2)), issue, s);
+      const beforeEdit = issueApprovalDecision(approvers.map((m) => accept(m, 0)), issue, s);
+      const otherAuthor = issueApprovalDecision(approvers.map((m) => accept(m, 2)), { ...issue, author: 'someone-else' }, s);
+      if (!accepted.ok) return fail(`“${ACCEPT_COMMAND}” from ${approvers.map((m) => '@' + m.github).join(', ')} was refused: ${accepted.reason}.`);
+      if (beforeEdit.ok) return fail('An acceptance made before the issue was last edited still counted.');
+      if (otherAuthor.ok) return fail('A submission opened by someone other than the contributor or nominator was accepted.');
+      return pass(`Accepted by “${ACCEPT_COMMAND} I have ${CONFLICT_DECLARATION}”; refused when the issue was edited afterwards, or opened by someone else.`);
+    });
+
     let credential: JsonObject | undefined;
-    await check('6.4', 'Open Badges 3.0 credential', () => {
+    await check('6.5', 'Open Badges 3.0 credential', () => {
       credential = buildCredential(slug, s, {
         acceptedAt: isoSeconds(),
         pullRequest: { number: 1, url: `https://github.com/${SITE.repository.owner}/${SITE.repository.name}/pull/1`, author: RECIPIENT },
@@ -91,7 +112,7 @@ export default definePart({
     const unsigned = credential;
 
     let signed: JsonObject | undefined;
-    await check('6.5', 'Signed and verified as the site does', async () => {
+    await check('6.6', 'Signed and verified as the site does', async () => {
       // The real key when it is available; otherwise a throwaway key, which shows the code works but not the secret.
       let secretKeyMultibase: string | undefined;
       try {
@@ -116,13 +137,13 @@ export default definePart({
     if (!signed) return;
     const report = signed;
 
-    await check('6.6', 'Tampering is detected', async () => {
+    await check('6.7', 'Tampering is detected', async () => {
       const edited = { ...report, name: `${String(report.name)} (edited)` };
       const r = await verifyCredential(edited, { resolveDid: async () => issuerDidDocument(), trustedIssuers: [ISSUER_DID] });
       return r.valid ? fail('A report with an edited title still verified.') : pass('A report with an edited title no longer verifies.');
     });
 
-    await check('6.7', 'Badge image with the report inside', () => {
+    await check('6.8', 'Badge image with the report inside', () => {
       const svg = readFileSync(join(ROOT, 'public', 'badges', `${s.section}.svg`), 'utf8');
       const back = unbakeSvg(bakeSvg(svg, report));
       return back && (JSON.parse(back) as OpenBadgeCredential).proof?.proofValue === (report as unknown as OpenBadgeCredential).proof?.proofValue

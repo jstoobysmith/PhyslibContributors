@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Ask on the Physlib Zulip
+    url: https://leanprover.zulipchat.com/#narrow/channel/479953-physlib
+    about: Questions about Physlib or about what to submit.

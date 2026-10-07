@@ -23,9 +23,9 @@ Every step happens on GitHub:
 
 | Step | How |
 | --- | --- |
-| Submission | A pull request adding `submissions/<name>.json`, made with the form on the site, which takes the contributor through forking this repository, adding the file and opening the pull request |
-| Review | Maintainers review the pull request in public |
-| Acceptance | A maintainer merges it |
+| Submission | An issue opened with the form on the site, which fills in the submission; no fork is needed. (A pull request adding `submissions/<name>.json` also works.) |
+| Review | Maintainers review the issue in public |
+| Acceptance | Maintainers comment `/accept I have no conflict of interest`; a workflow checks the rules and commits `submissions/<name>.json` |
 | Signing | A GitHub workflow signs it as an **Open Badges 3.0** credential using the `OB_SIGNING_KEY` secret |
 | Trust | The Ed25519 signing key is published as a `did:web` DID document and, later, in the physlib.io DNS |
 
@@ -39,9 +39,12 @@ cryptographically signed with an OB 3.0 Data Integrity proof, not merely hosted.
 ```
  contributor                      reports repository (GitHub)                        anyone
  ───────────                      ───────────────────────────                       ──────
- /submit form ──PR──▶ submissions/x.json ──check.yml: validate + preview
+ /submit form ──issue──▶ submission-issue.yml: summary
                                    │
-                maintainers review; approve; merge
+                maintainers review; comment "/accept …"
+                                   │
+                submission-issue.yml: check approvals, commit submissions/x.json
+                (or: a pull request adding it, reviewed and merged; check.yml)
                                    │
                   sign-and-deploy.yml (push to main, "signing" environment)
                   ├─ scripts/sign.ts: check approvals (src/lib/review.ts),
@@ -104,39 +107,52 @@ python3 scripts/draw-badges.py                            # redraw the section b
 
 `src/lib/review.ts` and `scripts/sign.ts` sign a report only if:
 
-- the pull request that last changed the submission was opened by the
-  recipient or the nominator, and merged into `main`;
-- the file on `main` is exactly what that pull request merged;
+- it was submitted by the recipient or the nominator: they opened its issue,
+  or the pull request that last changed it, which was merged into `main`;
+- the file on `main` is exactly the submission in the issue, or exactly what
+  that pull request merged;
 - it has at least `review.requiredApprovals` (in `config/site.json`) approvals
-  **on its final commit** from people in `config/maintainers.json` (matched by
-  numeric GitHub id where one is given), each including the phrase in
-  `review.conflictDeclaration` ("no conflict of interest");
+  **on its final version** from people in `config/maintainers.json` (matched
+  by numeric GitHub id where one is given), each including the phrase in
+  `review.conflictDeclaration` ("no conflict of interest"). On an issue, an
+  approval is a comment starting `/accept`; an edit to the issue afterwards
+  voids it. On a pull request, it is an *Approve* review on its last commit;
 - none of those approvals comes from the recipient, anyone named as joint
-  work, the nominator or the pull request's author, and none of them merged it.
+  work, the nominator or whoever opened the issue or pull request, and none
+  of them merged it.
 
-Test submissions (the test section) are exempt from these rules: merging
-the pull request is enough. Their reports say they are tests, and are not
-numbered or listed with real reports.
+The *Submission issue* workflow checks the same rules before it commits an
+accepted submission (`scripts/issue-submission.ts`), and records the issue in
+`data/issue-submissions.json`; `scripts/sign.ts` checks them again before
+signing. Maintainers need no write access to accept a submission on an issue.
 
-Only each person's latest review counts. A refused submission is reported as
+Test submissions (the test section) are exempt from these rules: a
+maintainer's `/accept` (or merging the pull request) is enough. Their reports
+say they are tests, and are not numbered or listed with real reports.
+
+Only each person's latest approval counts. A refused submission is reported as
 an error in the workflow run; re-running it after more approvals signs it.
 
 ## Reviewing a submission
 
-`submission-summary.yml` posts a summary on each submission's pull request:
-the submission, the section's criteria as a checklist, any evidence already
-used in another report, and the contributor's previous reports.
+`submission-issue.yml` (for issues) and `submission-summary.yml` (for pull
+requests) post a summary on each submission: the submission, the section's
+criteria as a checklist, any evidence already used in another report, and the
+contributor's previous reports.
 
 1. Open each evidence link and tick the criteria. "Substantive" means the
    comments or changes affected the physics, the Lean code or the documentation.
 2. If the work is better split across sections, or several small submissions
    would be better as one, say so and ask for changes.
-3. To approve, submit an *Approve* review that includes "I have no conflict of
-   interest". Do not approve if you supervise, co-authored the work with, or
-   work closely with the recipient.
-4. Merge when the required approvals are in. Signing follows within minutes.
+3. To approve an issue, comment `/accept I have no conflict of interest`.
+   (On a pull request, submit an *Approve* review saying "I have no conflict
+   of interest", and merge once the approvals are in.) Do not approve if you
+   supervise, co-authored the work with, or work closely with the recipient.
+4. When the required approvals are in, the submission is accepted, the issue
+   closed, and the report signed within minutes. If the contributor edits the
+   issue after you accept, accept it again.
 
-To decline, close the pull request with a short, kind note, for example:
+To decline, close the issue or pull request with a short, kind note, for example:
 
 > Thank you for submitting this. We don't think it meets the criteria for
 > this section yet (in particular, …). That is not a judgement on the value

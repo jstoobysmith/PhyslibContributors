@@ -37,6 +37,7 @@ jobs:
     permissions:
       contents: write        # commit the signed credentials
       pull-requests: read    # read who approved and merged each submission
+      issues: read           # or, for a submission made as an issue, its "/accept" comments
     steps:
       - uses: actions/checkout@v7
         with:

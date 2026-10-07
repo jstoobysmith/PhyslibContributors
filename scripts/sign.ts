@@ -5,7 +5,9 @@
  * report number (test submissions are signed but not numbered).
  *
  * In GitHub Actions the key comes from the OB_SIGNING_KEY secret and the review
- * record (pull request, approvals, merger) from the GitHub API. A report is only
+ * record from the GitHub API: the pull request that merged the submission
+ * (approvals, merger), or, for submissions accepted on an issue
+ * (data/issue-submissions.json), the issue and its "/accept" comments. A report is only
  * signed if enough maintainers (config/maintainers.json) other than the
  * recipient, the nominator and the pull request author approved it.
  *
@@ -38,13 +40,14 @@ import {
   CREDENTIALS_DIR,
   listSubmissionFiles,
   loadSubmission,
+  readIssueSubmissions,
   readReportNumbers,
   readJson,
   ROOT,
   writeJson,
 } from './lib/files';
 import { option } from './lib/args';
-import { githubApi, reviewRecord } from './lib/review-record';
+import { githubApi, issueReviewRecord, reviewRecord } from './lib/review-record';
 
 const args = process.argv.slice(2);
 const resignAll = args.includes('--resign-all');
@@ -110,6 +113,7 @@ async function mayResign(c: OpenBadgeCredential): Promise<string | undefined> {
 }
 
 const numbers = readReportNumbers();
+const issueSubmissions = readIssueSubmissions();
 const revoked = new Set(readJson<Revocation[]>(join(ROOT, 'config', 'revocations.json')).map((r) => r.id));
 
 async function signSubmission(slug: string, file: string, submission: Submission): Promise<boolean> {
@@ -126,7 +130,12 @@ async function signSubmission(slug: string, file: string, submission: Submission
     console.log(`re-signed ${slug}`);
     return true;
   }
-  const record = reviewCheck ? await reviewRecord(api, file, submission) : { acceptedAt: isoSeconds(gitDate(file) ?? new Date()) };
+  const issue = issueSubmissions[slug];
+  const record = !reviewCheck
+    ? { acceptedAt: isoSeconds(gitDate(file) ?? new Date()) }
+    : issue
+      ? await issueReviewRecord(api, repo, issue, submission) // accepted on an issue
+      : await reviewRecord(api, file, submission); // merged as a pull request
   if ('refused' in record) {
     console.error(`::error file=${file}::Not signed: ${record.refused}.`);
     return false;

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { ACCEPT_COMMAND } from '../lib/issue-submission';
 import { Container, PageTitle } from '../components/ui';
 import { ISSUER_DID, MAINTAINERS, SECTIONS, SIGNING_KEY, SITE, urls } from '../lib/config';
 import { asset } from '../site/data';
@@ -54,23 +55,25 @@ export default function About() {
           </ul>
           <p>{SITE.review.appointment}</p>
           <p>
-            Reports are signed by an automatic step on GitHub (the signing workflow), which runs when a submission is merged. It will
-            only sign a report when all of these hold:
+            Reports are signed by an automatic step on GitHub (the signing workflow), which runs when a submission is accepted. It
+            will only sign a report when all of these hold:
           </p>
           <ul>
             <li>
               {approvals === 1 ? 'at least one listed maintainer has' : `at least ${approvals} listed maintainers have`} approved the
-              submission’s pull request, writing “{SITE.review.conflictDeclaration}” in their approval;
+              submission (by commenting “{ACCEPT_COMMAND}” on its issue, or approving its pull request), writing “
+              {SITE.review.conflictDeclaration}” in their approval;
             </li>
             <li>
               none of those approvals comes from the contributor, anyone named as joint work, the nominator, or whoever opened the
-              pull request;
+              issue or pull request;
             </li>
-            <li>the pull request was not merged by anyone the report credits.</li>
+            <li>the submission was opened by the contributor or the nominator, and has not been changed since it was approved;</li>
+            <li>a pull request was not merged by anyone the report credits.</li>
           </ul>
           <p>
-            The one exception is test submissions, made to try the process out: they are signed once merged, without approvals,
-            and their reports say they are tests and are not numbered or listed.
+            The one exception is test submissions, made to try the process out: they are signed once a maintainer accepts them,
+            without these rules, and their reports say they are tests and are not numbered or listed.
           </p>
           <p>
             The workflow can check who is named in a submission, but not other relationships: a maintainer who supervises or
@@ -89,13 +92,13 @@ export default function About() {
           <ol>
             <li>
               Someone fills in the <Link to="/submit">submission form</Link>: a title, a short summary and links to the pull
-              requests, reviews or modules that make up the work. This opens a pull request on GitHub.
+              requests, reviews or modules that make up the work. This opens an issue on GitHub, with the submission filled in.
             </li>
-            <li>The maintainers check the evidence against the section’s criteria, in public on the pull request, and may ask for changes.</li>
-            <li>When the pull request has the required approvals, a maintainer merges it.</li>
+            <li>The maintainers check the evidence against the section’s criteria, in public on the issue, and may ask for changes.</li>
+            <li>A maintainer who is not involved accepts it by commenting “{ACCEPT_COMMAND} {SITE.review.conflictDeclaration}”.</li>
             <li>
               A GitHub workflow then signs the report and publishes it here, usually within a few minutes. The report records the
-              pull request, who approved it and who merged it.
+              issue and who approved it.
             </li>
           </ol>
           <p>

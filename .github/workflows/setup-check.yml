@@ -72,6 +72,7 @@ jobs:
       pages: read          # 4.1 GitHub Pages
       actions: read        # 4.2 environment, 4.6 workflows, 4.7 last run
       pull-requests: read  # 5.2 why a submission is unsigned
+      issues: read         # (the same, for submissions made as issues)
     steps:
       - uses: actions/checkout@v7
         with:
