@@ -151,6 +151,9 @@ export function linkedInUrl(c: OpenBadgeCredential, slug: string) {
 /** One plain sentence on what the report certifies, for readers outside the field. */
 export function whatItMeans(c: OpenBadgeCredential) {
   const section = sectionById(sectionIdOf(c));
+  if (section?.test) {
+    return `This is a test report, made to try out how ${SITE.title} reports are submitted and signed. Test submissions need no maintainer approval; it is not a record of real work.`;
+  }
   return `This report records that the maintainers of ${SITE.title} checked the evidence above and agreed that it meets the published criteria for ${
     section ? `the ${section.name} section` : 'this report'
   }. Physlib is an open-source library of physics formalised in the Lean 4 proof assistant.`;

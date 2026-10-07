@@ -181,9 +181,9 @@ export default function Submit() {
               <div className="mt-3 border border-warning/40 bg-[#fdf8ec] px-3 py-2 text-sm">
                 <p className="font-bold">Test submission</p>
                 <p className="mt-1">
-                  The form is filled in with example data, except your GitHub username (and ORCID iD, which is optional). The
-                  submission is reviewed and signed like a real one, but the report is marked as a test, is not numbered, and is not
-                  listed with real reports.
+                  The form is filled in with example data, except your GitHub username (and ORCID iD, which is optional). It needs
+                  no maintainer approval: once its pull request is merged, it is signed like a real report, but marked as a test, not
+                  numbered and not listed with real reports.
                 </p>
                 <p className="mt-1 font-bold">Enter your GitHub username in step 2, then go to step 5 to send it.</p>
               </div>

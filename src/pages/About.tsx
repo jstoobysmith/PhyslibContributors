@@ -69,6 +69,10 @@ export default function About() {
             <li>the pull request was not merged by anyone the report credits.</li>
           </ul>
           <p>
+            The one exception is test submissions, made to try the process out: they are signed once merged, without approvals,
+            and their reports say they are tests and are not numbered or listed.
+          </p>
+          <p>
             The workflow can check who is named in a submission, but not other relationships: a maintainer who supervises or
             works closely with the contributor is trusted not to approve. If every listed maintainer has such a conflict, the
             submission waits until another maintainer is appointed. Reports on maintainers’ own work follow the same rules and are

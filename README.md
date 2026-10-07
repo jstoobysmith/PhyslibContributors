@@ -15,8 +15,8 @@ publication:
 
 For trying the whole process out, the form also has a **Test** section
 (`/submit?section=test`). It fills in every field except the GitHub username
-and ORCID iD. Test submissions are reviewed and signed like real ones, but
-their reports say they are tests, are not numbered, and are listed only in a
+and ORCID iD. Test submissions need no maintainer approval: once merged,
+they are signed like real ones, but their reports say they are tests, are not numbered, and are listed only in a
 "Test reports" box on the archive page.
 
 Every step happens on GitHub:
@@ -112,6 +112,10 @@ python3 scripts/draw-badges.py                            # redraw the section b
   `review.conflictDeclaration` ("no conflict of interest");
 - none of those approvals comes from the recipient, anyone named as joint
   work, the nominator or the pull request's author, and none of them merged it.
+
+Test submissions (the test section) are exempt from these rules: merging
+the pull request is enough. Their reports say they are tests, and are not
+numbered or listed with real reports.
 
 Only each person's latest review counts. A refused submission is reported as
 an error in the workflow run; re-running it after more approvals signs it.
