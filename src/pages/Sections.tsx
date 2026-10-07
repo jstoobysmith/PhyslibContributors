@@ -11,7 +11,7 @@ export function SectionsIndex() {
   return (
     <Container className="max-w-4xl">
       <PageTitle title="Sections">
-        Reports are published in four sections, each with its own criteria. The maintainers apply these criteria when they review a
+        Reports are published in the sections below, each with its own criteria. The maintainers apply these criteria when they review a
         submission.
       </PageTitle>
       <ol className="space-y-5">

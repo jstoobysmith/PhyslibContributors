@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400" role="img" aria-label="Physlib Formalisation Report">
+  <title>Physlib Formalisation Report</title>
+  <defs>
+    <path id="top" d="M 62,200 A 138,138 0 0 1 338,200"/>
+    <path id="bottom" d="M 52,200 A 148,148 0 0 0 348,200"/>
+  </defs>
+  <circle cx="200" cy="200" r="194" fill="#ffffff" stroke="#01010d" stroke-width="4"/>
+  <circle cx="200" cy="200" r="176" fill="none" stroke="#007bac" stroke-width="1.5"/>
+  <circle cx="200" cy="200" r="118" fill="none" stroke="#01010d" stroke-opacity="0.12" stroke-width="1.5"/>
+  <text font-family="Menlo, Consolas, 'Courier New', monospace" font-size="17" font-weight="600" letter-spacing="4" fill="#01010d" text-anchor="middle">
+    <textPath href="#top" startOffset="50%">PHYSLIB · CONTRIBUTIONS</textPath>
+  </text>
+  <text font-family="Menlo, Consolas, 'Courier New', monospace" font-size="15" font-weight="500" letter-spacing="3" fill="#007bac" text-anchor="middle">
+    <textPath href="#bottom" startOffset="50%">SECTION V · FORMALISATION</textPath>
+  </text>
+  <text x="200" y="128" font-family="Georgia, 'Times New Roman', serif" font-size="30" font-style="italic" fill="#01010d" text-anchor="middle">V</text>
+  <g><line x1="110" y1="160" x2="200" y2="160" stroke="#01010d" stroke-width="4" stroke-linecap="round"/><path d="M166.0,160.0 L144.0,151.2 L144.0,168.8 Z" fill="#01010d"/><line x1="200" y1="160" x2="290" y2="160" stroke="#01010d" stroke-width="4" stroke-linecap="round"/><path d="M256.0,160.0 L234.0,151.2 L234.0,168.8 Z" fill="#01010d"/><line x1="110" y1="250" x2="200" y2="250" stroke="#01010d" stroke-width="4" stroke-linecap="round"/><path d="M166.0,250.0 L144.0,241.2 L144.0,258.8 Z" fill="#01010d"/><line x1="200" y1="250" x2="290" y2="250" stroke="#01010d" stroke-width="4" stroke-linecap="round"/><path d="M256.0,250.0 L234.0,241.2 L234.0,258.8 Z" fill="#01010d"/><path d="M200.0,160.0 L198.7,160.8 L197.5,161.5 L196.4,162.2 L195.3,163.0 L194.3,163.8 L193.5,164.5 L192.9,165.2 L192.4,166.0 L192.1,166.8 L192.0,167.5 L192.1,168.2 L192.4,169.0 L192.9,169.8 L193.5,170.5 L194.3,171.2 L195.3,172.0 L196.4,172.8 L197.5,173.5 L198.7,174.2 L200.0,175.0 L201.3,175.8 L202.5,176.5 L203.6,177.2 L204.7,178.0 L205.7,178.8 L206.5,179.5 L207.1,180.2 L207.6,181.0 L207.9,181.8 L208.0,182.5 L207.9,183.2 L207.6,184.0 L207.1,184.8 L206.5,185.5 L205.7,186.2 L204.7,187.0 L203.6,187.8 L202.5,188.5 L201.3,189.2 L200.0,190.0 L198.7,190.8 L197.5,191.5 L196.4,192.2 L195.3,193.0 L194.3,193.8 L193.5,194.5 L192.9,195.2 L192.4,196.0 L192.1,196.8 L192.0,197.5 L192.1,198.2 L192.4,199.0 L192.9,199.8 L193.5,200.5 L194.3,201.2 L195.3,202.0 L196.4,202.8 L197.5,203.5 L198.7,204.2 L200.0,205.0 L201.3,205.8 L202.5,206.5 L203.6,207.2 L204.7,208.0 L205.7,208.8 L206.5,209.5 L207.1,210.2 L207.6,211.0 L207.9,211.8 L208.0,212.5 L207.9,213.2 L207.6,214.0 L207.1,214.8 L206.5,215.5 L205.7,216.2 L204.7,217.0 L203.6,217.8 L202.5,218.5 L201.3,219.2 L200.0,220.0 L198.7,220.8 L197.5,221.5 L196.4,222.2 L195.3,223.0 L194.3,223.8 L193.5,224.5 L192.9,225.2 L192.4,226.0 L192.1,226.8 L192.0,227.5 L192.1,228.2 L192.4,229.0 L192.9,229.8 L193.5,230.5 L194.3,231.2 L195.3,232.0 L196.4,232.8 L197.5,233.5 L198.7,234.2 L200.0,235.0 L201.3,235.8 L202.5,236.5 L203.6,237.2 L204.7,238.0 L205.7,238.8 L206.5,239.5 L207.1,240.2 L207.6,241.0 L207.9,241.8 L208.0,242.5 L207.9,243.2 L207.6,244.0 L207.1,244.8 L206.5,245.5 L205.7,246.2 L204.7,247.0 L203.6,247.8 L202.5,248.5 L201.3,249.2 L200.0,250.0" fill="none" stroke="#007bac" stroke-width="4" stroke-linecap="round"/><circle cx="200" cy="160" r="5" fill="#01010d"/><circle cx="200" cy="250" r="5" fill="#01010d"/></g>
+  <circle cx="44" cy="200" r="3.5" fill="#01010d"/>
+  <circle cx="356" cy="200" r="3.5" fill="#01010d"/>
+</svg>

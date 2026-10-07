@@ -2,7 +2,7 @@
 
 **Short, citable, signed reports on the work that keeps formal physics standing.**
 
-Physlib Contributions publishes short reports, much like technical reports, on four
+Physlib Contributions publishes short reports, much like technical reports, on six
 kinds of contribution to [Physlib](https://physlib.io) that rarely lead to a
 publication:
 
@@ -12,12 +12,14 @@ publication:
 | II | Physlib Maintenance Report | Version bumps, CI, tooling, triage |
 | III | Physlib Refactoring Report | Generalising, unifying, reorganising |
 | IV | Physlib Foundations Report | Core definitions other results build on |
+| V | Physlib Formalisation Report | New results, proofs and examples, including many small additions |
+| VI | Physlib Documentation Report | Docstrings, module overviews, guides and tutorials |
 
 For trying the whole process out, the form also has a **Test** section
 (`/submit?section=test`). It fills in every field except the GitHub username
-and ORCID iD. Test submissions need no maintainer approval: once merged,
-they are signed like real ones, but their reports say they are tests, are not numbered, and are listed only in a
-"Test reports" box on the archive page.
+and ORCID iD. Test submissions need no approvals: once a maintainer accepts
+one, it is signed like a real one, but its report says it is a test, is not
+numbered, and is listed only in a "Test reports" box on the archive page.
 
 Every step happens on GitHub:
 
@@ -61,7 +63,7 @@ cryptographically signed with an OB 3.0 Data Integrity proof, not merely hosted.
 | File | Contents |
 | --- | --- |
 | `config/site.json` | site URL, repository, issuer profile, DNS name, number of approvals required |
-| `config/sections.json` | the four sections (names, criteria, guidance), and the test section |
+| `config/sections.json` | the six sections (names, criteria, guidance, examples), and the test section |
 | `config/maintainers.json` | who may approve reports (names are shown on the site) |
 | `config/keys.json` | public signing keys and their status (written by `npm run keygen`) |
 | `config/revocations.json` | revoked reports |

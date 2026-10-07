@@ -19,7 +19,7 @@ export interface KeyConfig {
   status: KeyStatus;
 }
 
-export const SECTION_IDS = ['review', 'maintenance', 'refactoring', 'foundations', 'test'] as const;
+export const SECTION_IDS = ['review', 'maintenance', 'refactoring', 'foundations', 'formalisation', 'documentation', 'test'] as const;
 export type SectionId = (typeof SECTION_IDS)[number];
 
 export const EVIDENCE_KINDS = {
