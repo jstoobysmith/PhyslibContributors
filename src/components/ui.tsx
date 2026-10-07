@@ -18,8 +18,8 @@ export function buttonClass(variant: 'primary' | 'plain' = 'plain') {
 /** A button that looks like a text link, for actions inside running text. */
 export const linkButtonClass = 'cursor-pointer text-link hover:underline';
 
-export function BadgeImage({ section, className = '' }: { section: Pick<Section, 'id' | 'awardName'>; className?: string }) {
-  return <img src={asset(`badges/${section.id}.svg`)} alt={`${section.awardName} badge`} className={`select-none ${className}`} />;
+export function BadgeImage({ section, className = '' }: { section: Pick<Section, 'id' | 'reportName'>; className?: string }) {
+  return <img src={asset(`badges/${section.id}.svg`)} alt={`${section.reportName} badge`} className={`select-none ${className}`} />;
 }
 
 export function OrcidIcon({ className = 'size-4' }: { className?: string }) {

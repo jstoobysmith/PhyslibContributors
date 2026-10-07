@@ -23,7 +23,7 @@ async function readCredential(input: string): Promise<JsonObject> {
     if (!res.ok) throw new Error(`That link could not be downloaded (the server answered ${res.status}).`);
     const body = await res.text();
     if (/^\s*<!doctype html|^\s*<html/i.test(body)) {
-      throw new Error('That link leads to a web page, not to a credential file. On an award page, use “Signed credential (JSON)”.');
+      throw new Error('That link leads to a web page, not to a credential file. On a report page, use “Signed credential (JSON)”.');
     }
     return readCredential(body);
   }
@@ -37,7 +37,7 @@ async function readCredential(input: string): Promise<JsonObject> {
 const STATUS_TEXT = {
   active: 'in use',
   temporary: 'temporary, in use while the site is being set up',
-  retired: 'retired; awards it signed still verify',
+  retired: 'retired; reports it signed still verify',
   revoked: 'revoked',
 };
 
@@ -47,14 +47,14 @@ function KeyPanel() {
     <div id="key" className="panel scroll-mt-4 text-sm">
       <div className="panel-title">The signing key</div>
       <p className="px-3 pt-2">
-        Awards are signed with a key published by this site
+        Reports are signed with a key published by this site
         {SIGNING_KEY?.status === 'temporary' ? '. It is a temporary key, used while the site is being set up.' : '.'}
       </p>
       <details className="px-3 py-2">
         <summary className="cursor-pointer text-xs text-link">Technical details</summary>
         <div className="mt-2 space-y-3">
           <p>
-            Awards are signed by <code className="break-all font-mono text-xs">{ISSUER_DID}</code>, whose public keys are listed in
+            Reports are signed by <code className="break-all font-mono text-xs">{ISSUER_DID}</code>, whose public keys are listed in
             its <a href={asset('did.json')}>DID document</a>.
           </p>
           <ul className="space-y-2">
@@ -83,7 +83,7 @@ function KeyPanel() {
 }
 
 export default function Verify() {
-  useTitle('Check an award');
+  useTitle('Check a report');
   const [input, setInput] = useState('');
   const [credential, setCredential] = useState<JsonObject>();
   const [error, setError] = useState<string>();
@@ -113,9 +113,8 @@ export default function Verify() {
   return (
     <Container className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_20rem]">
       <div className="min-w-0">
-        <PageTitle title="Check an award">
-          Paste an award’s credential, a link to it, or its badge image. This page checks that it was signed by Physlib
-          Contributions with a published key, that it has not been changed since, that it is in date, and that it has not been
+        <PageTitle title="Check a report">
+          Paste a report’s credential, a link to it, or its badge image. This page checks that it was signed by {SITE.issuer.name} with a published key, that it has not been changed since, that it is in date, and that it has not been
           revoked. The first three are the standard Open Badges 3.0 checks, which any other verifier can repeat; the revocation
           list is published on this site.
         </PageTitle>
@@ -153,7 +152,7 @@ export default function Verify() {
                 run(url);
               }}
             >
-              Try the specimen award
+              Try the specimen report
             </button>
           </div>
         </form>
@@ -175,12 +174,12 @@ export default function Verify() {
             {valid && (
               <div className="text-sm">
                 <p className="text-xs text-muted">The credential says:</p>
-                <p className="font-serif text-lg font-bold">{claimed?.credentialSubject?.achievement?.name ?? claimed?.name ?? 'Unknown award'}</p>
-                {claimed?.credentialSubject && <p>Awarded to {recipientOf(claimed).name}</p>}
+                <p className="font-serif text-lg font-bold">{claimed?.credentialSubject?.achievement?.name ?? claimed?.name ?? 'Unknown report'}</p>
+                {claimed?.credentialSubject && <p>Contributor: {recipientOf(claimed).name}</p>}
                 <p className="text-muted">Issuer: {claimed?.issuer?.name ?? claimed?.issuer?.id ?? 'unknown'}</p>
                 {ours && claimed && (
                   <p className="mt-2">
-                    <Link to={`/awards/${slugOf(claimed)}`}>View the award page</Link>
+                    <Link to={`/reports/${slugOf(claimed)}`}>View the report page</Link>
                   </p>
                 )}
               </div>

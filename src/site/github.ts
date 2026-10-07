@@ -2,7 +2,7 @@ import { SITE, SUBMISSION_BRANCH_PREFIX, SUBMISSION_LABEL, SUBMISSION_TITLE_PREF
 import { submissionMarkdown, type Submission } from '../lib/submission';
 
 /**
- * Two ways to turn a submission into a pull request on the awards repository:
+ * Two ways to turn a submission into a pull request on the reports repository:
  *
  * 1. `newFileUrl`: GitHub's own "create new file" page, pre-filled. No token
  *    needed; GitHub forks the repository for the user and offers to open a PR.
@@ -23,7 +23,7 @@ export function prBody(s: Submission) {
     submissionMarkdown(s),
     '',
     '---',
-    '_Merging this pull request accepts the award. The signing workflow then signs it as an Open Badges 3.0 credential, provided the required maintainer approvals are present._',
+    '_Merging this pull request accepts the report. The signing workflow then signs it as an Open Badges 3.0 credential, provided the required maintainer approvals are present._',
   ].join('\n');
 }
 
@@ -80,10 +80,10 @@ export async function openSubmissionPullRequest(
   const me = await gh.call<{ login: string }>('/user');
   const repo = await gh.call<{ permissions?: { push?: boolean } }>(`/repos/${upstream}`);
 
-  // Push to the awards repository directly if allowed, otherwise via a fork.
+  // Push to the reports repository directly if allowed, otherwise via a fork.
   let target = upstream;
   if (!repo.permissions?.push) {
-    progress('Forking the awards repository');
+    progress('Forking the reports repository');
     const fork = await gh.call<{ full_name: string }>(`/repos/${upstream}/forks`, {
       method: 'POST',
       body: JSON.stringify({ default_branch_only: true }),

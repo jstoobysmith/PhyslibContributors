@@ -6,9 +6,9 @@ import { BadgeImage, Container, ErrorNote, linkButtonClass, OrcidIcon, Spinner }
 import { maintainerByLogin, sectionById, SPECIMEN_SLUG, urls } from '../lib/config';
 import { bakeSvg } from '../lib/baking';
 import { evidenceOf, recipientOf, reviewParticipants, sectionIdOf, titleOf, type OpenBadgeCredential } from '../lib/credential';
-import { awardReference, citations, cvLine, linkedInUrl, whatItMeans, type AwardEntry } from '../lib/awards';
+import { citations, linkedInUrl, reportReference, whatItMeans, type ReportEntry } from '../lib/reports';
 import type { JsonObject } from '../lib/dataIntegrity';
-import { asset, credentialPath, download, formatDate, useAwards, useCredential } from '../site/data';
+import { asset, credentialPath, download, formatDate, useReports, useCredential } from '../site/data';
 import { useTitle } from '../site/useTitle';
 
 async function downloadBakedBadge(slug: string, sectionId: string, credential: OpenBadgeCredential) {
@@ -66,10 +66,9 @@ function CopyBox({ text }: { text: string }) {
   );
 }
 
-function UsingThisAward({ c, slug, entry }: { c: OpenBadgeCredential; slug: string; entry?: AwardEntry }) {
-  const [format, setFormat] = useState<'cv' | 'text' | 'bibtex'>('cv');
-  const cite = citations(c, slug, entry);
-  const text = format === 'cv' ? cvLine(c, slug, entry) : cite[format];
+function CiteThisReport({ c, slug, entry }: { c: OpenBadgeCredential; slug: string; entry?: ReportEntry }) {
+  const [format, setFormat] = useState<'text' | 'bibtex'>('text');
+  const text = citations(c, slug, entry)[format];
   const tab = (f: typeof format, label: string) =>
     format === f ? (
       <strong>{label}</strong>
@@ -80,13 +79,13 @@ function UsingThisAward({ c, slug, entry }: { c: OpenBadgeCredential; slug: stri
     );
   return (
     <div className="panel text-sm">
-      <div className="panel-title">Using this award</div>
+      <div className="panel-title">Cite this report</div>
       <div className="space-y-2 px-3 py-2">
         <p className="text-xs">
-          {tab('cv', 'CV line')} | {tab('text', 'Reference')} | {tab('bibtex', 'BibTeX')}
+          {tab('text', 'Reference')} | {tab('bibtex', 'BibTeX')}
         </p>
         <CopyBox text={text} />
-        <p className="text-xs text-muted">On a CV this fits under “Awards” or “Open-source contributions”.</p>
+        <p className="text-xs text-muted">On a CV this fits under “Technical reports” or “Open-source contributions”.</p>
         <p>
           <a href={linkedInUrl(c, slug)}>Add to LinkedIn profile</a>
         </p>
@@ -95,16 +94,16 @@ function UsingThisAward({ c, slug, entry }: { c: OpenBadgeCredential; slug: stri
   );
 }
 
-export default function Award() {
+export default function Report() {
   const { slug = '' } = useParams();
   const credential = useCredential(slug);
-  const awards = useAwards();
+  const reports = useReports();
   useTitle(credential.status === 'ready' ? titleOf(credential.data) : undefined);
 
   if (credential.status === 'loading') {
     return (
       <Container>
-        <Spinner label="Loading award" />
+        <Spinner label="Loading report" />
       </Container>
     );
   }
@@ -112,7 +111,7 @@ export default function Award() {
     return (
       <Container>
         <ErrorNote>
-          There is no award at this address. <Link to="/archive">See all awards</Link>.
+          There is no report at this address. <Link to="/archive">See all reports</Link>.
         </ErrorNote>
       </Container>
     );
@@ -120,7 +119,7 @@ export default function Award() {
 
   const c = credential.data;
   const specimen = slug === SPECIMEN_SLUG;
-  const entry = awards.status === 'ready' ? awards.data.published.find((e) => e.slug === slug) : undefined;
+  const entry = reports.status === 'ready' ? reports.data.published.find((e) => e.slug === slug) : undefined;
   const section = sectionById(sectionIdOf(c));
   const recipient = recipientOf(c);
   const { work, review } = evidenceOf(c);
@@ -132,15 +131,15 @@ export default function Award() {
       <article className="min-w-0">
         {specimen && (
           <p className="mb-4 border border-warning/40 bg-[#fdf8e8] px-3 py-2 text-sm">
-            <strong>Specimen.</strong> A sample award showing what a real one looks like. The recipient does not exist.
+            <strong>Specimen.</strong> A sample report showing what a real one looks like. The contributor does not exist.
           </p>
         )}
         {entry?.revoked && (
-          <p className="mb-4 border border-danger/40 bg-[#fdf3f2] px-3 py-2 text-sm font-bold text-danger">This award has been revoked.</p>
+          <p className="mb-4 border border-danger/40 bg-[#fdf3f2] px-3 py-2 text-sm font-bold text-danger">This report has been revoked.</p>
         )}
 
         <p className="text-sm text-muted">
-          {entry && <>Award no. {entry.number} · </>}
+          {entry && <>Report no. {entry.number} · </>}
           {section && (
             <Link to={`/sections/${section.id}`}>
               {section.numeral}. {section.name}
@@ -177,14 +176,14 @@ export default function Award() {
 
         <table className="mt-6 w-full table-fixed text-sm">
           <tbody>
-            <Row label="Award">{c.credentialSubject.achievement.name}</Row>
+            <Row label="Series">{c.credentialSubject.achievement.name}</Row>
             {subject.activityStartDate && subject.activityEndDate && (
               <Row label="Work period">
                 {formatDate(subject.activityStartDate, { month: 'long', year: 'numeric' })} –{' '}
                 {formatDate(subject.activityEndDate, { month: 'long', year: 'numeric' })}
               </Row>
             )}
-            {entry && <Row label="Reference">{awardReference(entry)}</Row>}
+            {entry && <Row label="Reference">{reportReference(entry)}</Row>}
             {recipient.github && !specimen && (
               <Row label="GitHub">
                 <a href={urls.github(recipient.github)}>@{recipient.github}</a>
@@ -207,7 +206,7 @@ export default function Award() {
           ))}
         </ol>
 
-        <Heading>How this award was checked</Heading>
+        <Heading>How this report was checked</Heading>
         <div className="mt-2 space-y-1 text-sm">
           {review ? (
             <>
@@ -215,7 +214,7 @@ export default function Award() {
                 Reviewed on <a href={review.id}>pull request #{review.id?.split('/').pop()}</a>
                 {people.submittedBy &&
                   (people.submittedBy.toLowerCase() === recipient.github?.toLowerCase() ? (
-                    ', submitted by the recipient'
+                    ', submitted by the contributor'
                   ) : (
                     <>
                       , submitted by <Person login={people.submittedBy} />
@@ -238,7 +237,7 @@ export default function Award() {
               )}
             </>
           ) : (
-            <p className="text-muted">{specimen ? 'A real award links the pull request on which it was reviewed.' : 'Accepted by the maintainers.'}</p>
+            <p className="text-muted">{specimen ? 'A real report links the pull request on which it was reviewed.' : 'Accepted by the maintainers.'}</p>
           )}
           <p className="pt-1 text-muted">{whatItMeans(c)}</p>
         </div>
@@ -246,7 +245,7 @@ export default function Award() {
         {section && (
           <>
             <Heading>
-              Criteria for this award <Link to={`/sections/${section.id}`} className="font-sans text-sm font-normal">(section page)</Link>
+              Criteria for this report <Link to={`/sections/${section.id}`} className="font-sans text-sm font-normal">(section page)</Link>
             </Heading>
             <ol className="mt-2 ml-5 list-decimal space-y-1 text-sm">
               {section.criteria.map((cr) => (
@@ -287,7 +286,7 @@ export default function Award() {
 
       <aside className="min-w-0 space-y-4 text-sm">
         <VerificationPanel credential={c as unknown as JsonObject} />
-        <UsingThisAward c={c} slug={slug} entry={entry} />
+        <CiteThisReport c={c} slug={slug} entry={entry} />
         <div className="panel">
           <div className="panel-title">Download</div>
           <ul className="space-y-1 px-3 py-2">

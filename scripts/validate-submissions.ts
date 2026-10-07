@@ -5,11 +5,11 @@
  *   npm run validate -- --changed <files...>            # files changed by a pull request
  *   npm run validate -- --changed --markdown out.md <files...>
  *
- * With --changed, files must exist, and awards that have already been signed
+ * With --changed, files must exist, and reports that have already been signed
  * may not be edited. The summary (also written to the GitHub job summary, and
  * posted on the pull request by submission-summary.yml) shows each submission,
- * the criteria, evidence already used in other awards, and the recipient's
- * previous awards.
+ * the criteria, evidence already used in other reports, and the recipient's
+ * previous reports.
  */
 import { appendFileSync, existsSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -17,7 +17,7 @@ import { SITE } from '../src/lib/config';
 import { evidenceOf, recipientOf, titleOf } from '../src/lib/credential';
 import { CONFLICT_DECLARATION } from '../src/lib/review';
 import { canonicalUrl, md, submissionMarkdown } from '../src/lib/submission';
-import { CREDENTIALS_DIR, listCredentials, listSubmissionFiles, loadSubmission, readAwardNumbers } from './lib/files';
+import { CREDENTIALS_DIR, listCredentials, listSubmissionFiles, loadSubmission, readReportNumbers } from './lib/files';
 import { option, positional } from './lib/args';
 
 const args = process.argv.slice(2);
@@ -27,13 +27,13 @@ const files = changed ? positional(args, ['--markdown']) : listSubmissionFiles()
 
 const trusted = [`https://github.com/${SITE.physlib.repository}/`, new URL(SITE.physlib.zulip).origin + '/'];
 
-// What has already been awarded, to spot evidence claimed twice.
-const numbers = readAwardNumbers();
+// What has already been published, to spot evidence claimed twice.
+const numbers = readReportNumbers();
 const signed = listCredentials();
 const usedIn = new Map<string, string[]>();
 const note = (url: string, where: string) => usedIn.set(canonicalUrl(url), [...(usedIn.get(canonicalUrl(url)) ?? []), where]);
 for (const { slug, credential } of signed) {
-  for (const e of evidenceOf(credential).work) if (e.id) note(e.id, `award no. ${numbers[slug] ?? '?'} (${titleOf(credential)})`);
+  for (const e of evidenceOf(credential).work) if (e.id) note(e.id, `report no. ${numbers[slug] ?? '?'} (${titleOf(credential)})`);
 }
 for (const f of listSubmissionFiles()) {
   const s = loadSubmission(f);
@@ -52,7 +52,7 @@ for (const path of files) {
   }
   const { file, slug, submission, errors } = loadSubmission(path);
   if (changed && existsSync(join(CREDENTIALS_DIR, `${slug}.json`))) {
-    errors.push('This award has already been signed; signed awards cannot be edited');
+    errors.push('This report has already been signed; signed reports cannot be edited');
   }
   const warnings: string[] = [];
   for (const e of submission?.evidence ?? []) {
@@ -78,8 +78,8 @@ for (const path of files) {
     summary.push('', submissionMarkdown(submission), '');
     summary.push(
       previous.length
-        ? `**Previous awards to @${submission.recipient.github}:** ${previous.map(({ slug: s, credential }) => `no. ${numbers[s] ?? '?'} ${md(titleOf(credential))}`).join('; ')}`
-        : `**Previous awards to @${submission.recipient.github}:** none`,
+        ? `**Previous reports to @${submission.recipient.github}:** ${previous.map(({ slug: s, credential }) => `no. ${numbers[s] ?? '?'} ${md(titleOf(credential))}`).join('; ')}`
+        : `**Previous reports to @${submission.recipient.github}:** none`,
       '',
     );
   }

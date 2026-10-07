@@ -51,11 +51,11 @@ describe('Open Badges 3.0 credential', () => {
 
   it('re-homes a credential to a new site address without changing its content', async () => {
     // A credential signed when the site lived at another address.
-    const old = 'https://old.example/awards';
+    const old = 'https://old.example/site';
     const original = JSON.parse(
       JSON.stringify(await sign(buildCredential('x', exampleSubmission, exampleRecord), { secretKeyMultibase: generateKeyPair().secretKeyMultibase, verificationMethod: verificationMethodId('key-1') }))
         .split(SITE_URL).join(old)
-        .split(ISSUER_DID).join('did:web:old.example:awards'),
+        .split(ISSUER_DID).join('did:web:old.example:site'),
     ) as OpenBadgeCredential;
     const moved = rehomeCredential(original, SITE_URL) as unknown as OpenBadgeCredential;
     expect('proof' in moved).toBe(false);

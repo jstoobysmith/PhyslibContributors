@@ -72,7 +72,7 @@ export default function VerificationPanel({
           <>
             <p className="font-bold text-success">✓ Genuine</p>
             <p className="mt-1">Issued by {SITE.issuer.name} and unchanged since it was signed.</p>
-            {specimen && <p className="mt-1 font-bold text-warning">This is the specimen: a sample, not a real award.</p>}
+            {specimen && <p className="mt-1 font-bold text-warning">This is the specimen: a sample, not a real report.</p>}
           </>
         )}
         {failure && (

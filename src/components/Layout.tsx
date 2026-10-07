@@ -7,7 +7,7 @@ import { Container } from './ui';
 const NAV = [
   { to: '/', label: 'Home', end: true },
   { to: '/sections', label: 'Sections' },
-  { to: '/archive', label: 'All awards' },
+  { to: '/archive', label: 'All reports' },
   { to: '/submit', label: 'Submit' },
   { to: '/verify', label: 'Verify' },
   { to: '/about', label: 'About' },
@@ -23,7 +23,7 @@ function SearchBox() {
   return (
     <form onSubmit={submit} role="search" className="flex items-center gap-1">
       <label htmlFor="site-search" className="sr-only">
-        Search awards
+        Search reports
       </label>
       <input
         id="site-search"
@@ -45,7 +45,7 @@ function Header() {
     <header>
       <div className="border-b border-rule bg-white">
         <Container className="flex items-center justify-between gap-4 py-1.5 text-xs text-muted">
-          <span>Awards for contributions to Physlib, reviewed and published openly on GitHub.</span>
+          <span>Reports on contributions to Physlib, reviewed and published openly on GitHub.</span>
           <a href={SITE.physlib.site} className="shrink-0" aria-label="Physlib">
             <img src={asset('images/physlib-logo.png')} alt="Physlib" width={1600} height={459} className="h-5 w-auto" />
           </a>
@@ -81,12 +81,12 @@ function Footer() {
       <Container className="grid gap-6 py-6 text-sm sm:grid-cols-3">
         <ul className="space-y-1">
           <li>{link('About', '/about')}</li>
-          <li>{link('Who reviews awards', '/about#maintainers')}</li>
+          <li>{link('Who reviews reports', '/about#maintainers')}</li>
           <li>{link('Submit a contribution', '/submit')}</li>
         </ul>
         <ul className="space-y-1">
-          <li>{link('Verify an award', '/verify')}</li>
-          <li>{link('Awards repository', urls.repo())}</li>
+          <li>{link('Verify a report', '/verify')}</li>
+          <li>{link('Reports repository', urls.repo())}</li>
         </ul>
         <ul className="space-y-1">
           <li>{link('Physlib', SITE.physlib.site)}</li>
@@ -95,7 +95,7 @@ function Footer() {
         </ul>
       </Container>
       <Container className="border-t border-rule py-3 text-xs text-muted">
-        Awards are digitally signed, so anyone can check that they are genuine. <Link to="/verify">How to check an award</Link>.
+        Reports are digitally signed, so anyone can check that they are genuine. <Link to="/verify">How to check a report</Link>.
       </Container>
     </footer>
   );

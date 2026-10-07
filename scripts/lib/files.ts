@@ -3,13 +3,13 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { formatIssues, SUBMISSION_FILE, submissionSchema, submissionSlug, type Submission } from '../../src/lib/submission';
 import type { OpenBadgeCredential } from '../../src/lib/credential';
-import type { AwardNumbers } from '../../src/lib/awards';
+import type { ReportNumbers } from '../../src/lib/reports';
 
 export const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 export const SUBMISSIONS_DIR = join(ROOT, 'submissions');
 export const CREDENTIALS_DIR = join(ROOT, 'public', 'credentials');
-/** Committed, append-only record of award numbers, written by scripts/sign.ts. */
-export const AWARD_NUMBERS_FILE = join(ROOT, 'data', 'award-numbers.json');
+/** Committed, append-only record of report numbers, written by scripts/sign.ts. */
+export const REPORT_NUMBERS_FILE = join(ROOT, 'data', 'report-numbers.json');
 
 export function readJson<T = unknown>(path: string): T {
   return JSON.parse(readFileSync(path, 'utf8')) as T;
@@ -21,7 +21,7 @@ export function writeJson(path: string, data: unknown, mode?: number) {
   writeFileSync(path, JSON.stringify(data, null, 2) + '\n', mode === undefined ? undefined : { mode });
 }
 
-export const readAwardNumbers = () => (existsSync(AWARD_NUMBERS_FILE) ? readJson<AwardNumbers>(AWARD_NUMBERS_FILE) : {});
+export const readReportNumbers = () => (existsSync(REPORT_NUMBERS_FILE) ? readJson<ReportNumbers>(REPORT_NUMBERS_FILE) : {});
 
 export interface LoadedSubmission {
   file: string; // repo-relative path

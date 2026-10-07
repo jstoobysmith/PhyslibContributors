@@ -1,17 +1,17 @@
 # Physlib Contributions
 
-**Signed, verifiable awards for the work that keeps formal physics standing.**
+**Short, citable, signed reports on the work that keeps formal physics standing.**
 
-Physlib Contributions publishes awards, not papers. The awards recognise four
+Physlib Contributions publishes short reports, much like technical reports, on four
 kinds of contribution to [Physlib](https://physlib.io) that rarely lead to a
 publication:
 
-| Section | Award | For |
+| Section | Report | For |
 | --- | --- | --- |
-| I | Physlib Review Award | Reviewing pull requests |
-| II | Physlib Maintenance Award | Version bumps, CI, tooling, triage |
-| III | Physlib Refactoring Award | Generalising, unifying, reorganising |
-| IV | Physlib Foundations Award | Core definitions other results build on |
+| I | Physlib Review Report | Reviewing pull requests |
+| II | Physlib Maintenance Report | Version bumps, CI, tooling, triage |
+| III | Physlib Refactoring Report | Generalising, unifying, reorganising |
+| IV | Physlib Foundations Report | Core definitions other results build on |
 
 Every step happens on GitHub:
 
@@ -31,7 +31,7 @@ cryptographically signed with an OB 3.0 Data Integrity proof, not merely hosted.
 ## How it fits together
 
 ```
- contributor                      awards repository (GitHub)                        anyone
+ contributor                      reports repository (GitHub)                        anyone
  ───────────                      ───────────────────────────                       ──────
  /submit form ──PR──▶ submissions/x.json ──check.yml: validate + preview
                                    │
@@ -40,9 +40,9 @@ cryptographically signed with an OB 3.0 Data Integrity proof, not merely hosted.
                   sign-and-deploy.yml (push to main, "signing" environment)
                   ├─ scripts/sign.ts: check approvals (src/lib/review.ts),
                   │  build the OB 3.0 credential, sign with OB_SIGNING_KEY,
-                  │  assign the next award number
-                  ├─ commit public/credentials/x.json, data/award-numbers.json
-                  └─ build & deploy site to GitHub Pages ───▶ /awards/x
+                  │  assign the next report number
+                  ├─ commit public/credentials/x.json, data/report-numbers.json
+                  └─ build & deploy site to GitHub Pages ───▶ /reports/x
                                                                checked in the browser
                                                                against /did.json
 ```
@@ -53,9 +53,9 @@ cryptographically signed with an OB 3.0 Data Integrity proof, not merely hosted.
 | --- | --- |
 | `config/site.json` | site URL, repository, issuer profile, DNS name, number of approvals required |
 | `config/sections.json` | the four sections: names, criteria, guidance |
-| `config/maintainers.json` | who may approve awards (names are shown on the site) |
+| `config/maintainers.json` | who may approve reports (names are shown on the site) |
 | `config/keys.json` | public signing keys and their status (written by `npm run keygen`) |
-| `config/revocations.json` | revoked awards |
+| `config/revocations.json` | revoked reports |
 
 **Records** (written by the signing workflow; never edit by hand)
 
@@ -63,17 +63,17 @@ cryptographically signed with an OB 3.0 Data Integrity proof, not merely hosted.
 | --- | --- |
 | `submissions/` | accepted submissions, one JSON file each (added by pull requests) |
 | `public/credentials/` | the signed credentials |
-| `data/award-numbers.json` | the permanent number of each award |
-| `public/specimen.json` | the sample award, signed from `examples/specimen.submission.json` |
+| `data/report-numbers.json` | the permanent number of each report |
+| `public/specimen.json` | the sample report, signed from `examples/specimen.submission.json` |
 
 **Code**
 
 | Path | Contents |
 | --- | --- |
-| `src/lib/` | shared by the site and the scripts, no browser APIs (checked by `tsconfig.node.json`): config, submission schema, credential builder, `eddsa-rdfc-2022` signing (`dataIntegrity.ts`), verification, approval rules, awards index |
+| `src/lib/` | shared by the site and the scripts, no browser APIs (checked by `tsconfig.node.json`): config, submission schema, credential builder, `eddsa-rdfc-2022` signing (`dataIntegrity.ts`), verification, approval rules, reports index |
 | `src/site/` | browser-only helpers: data loading, opening pull requests, the submission draft |
 | `src/components/`, `src/pages/` | the React site |
-| `scripts/` | `sign`, `validate`, `verify`, `keygen`, `static` (generates `did.json`, the awards index and other files under `public/`) |
+| `scripts/` | `sign`, `validate`, `verify`, `keygen`, `static` (generates `did.json`, the reports index and other files under `public/`) |
 | `test/` | one test file per module in `src/lib/` |
 
 ## Commands
@@ -91,9 +91,9 @@ npm run keygen                                            # new signing key (see
 python3 scripts/draw-badges.py                            # redraw the section badges
 ```
 
-## Rules for approving awards
+## Rules for approving reports
 
-`src/lib/review.ts` and `scripts/sign.ts` sign an award only if:
+`src/lib/review.ts` and `scripts/sign.ts` sign a report only if:
 
 - the pull request that last changed the submission was opened by the
   recipient or the nominator, and merged into `main`;
@@ -112,7 +112,7 @@ an error in the workflow run; re-running it after more approvals signs it.
 
 `submission-summary.yml` posts a summary on each submission's pull request:
 the submission, the section's criteria as a checklist, any evidence already
-used in another award, and the recipient's previous awards.
+used in another report, and the contributor's previous reports.
 
 1. Open each evidence link and tick the criteria. "Substantive" means the
    comments or changes affected the physics, the Lean code or the documentation.
@@ -156,14 +156,14 @@ The site has not been deployed yet. To go live:
 4. **Protect `main`** with a ruleset: require pull requests with review from
    code owners (`.github/CODEOWNERS` covers everything that runs with the key
    or is signed with it), dismiss stale approvals, and require approval of the
-   most recent push. The signing workflow commits signed awards to `main`
+   most recent push. The signing workflow commits signed reports to `main`
    using a write **deploy key** stored as `SIGNING_DEPLOY_KEY` in the `signing`
    environment; let deploy keys bypass the ruleset. (On a personal account,
    GitHub does not allow the GitHub Actions app itself as a bypass actor.)
    The signing script also ignores approvals that are not on a pull request's
    final commit.
 5. **List the maintainers** in `config/maintainers.json`.
-6. Push to `main`. The workflow signs the specimen award and deploys the site.
+6. Push to `main`. The workflow signs the specimen report and deploys the site.
 
 Without the secret, merged submissions stay unsigned ("awaiting signature")
 and the site still deploys.
@@ -173,7 +173,7 @@ and the site still deploys.
 The issuer is identified as `did:web:<site host>[:<path>]`, derived from
 `siteUrl`. The site publishes the DID document at `/did.json` and
 `/.well-known/did.json`. It lists every key in `config/keys.json` except
-revoked ones, so awards signed with a retired key keep verifying.
+revoked ones, so reports signed with a retired key keep verifying.
 
 The key will also be tied to Physlib's DNS: the site looks up a TXT record at
 `_openbadges.physlib.io` over DNS-over-HTTPS and checks that it names the
@@ -193,19 +193,19 @@ moving to a physlib.io domain):
 3. Store the new `.keys/key-N.json` as `OB_SIGNING_KEY` in the `signing`
    environment, then commit `config/keys.json`.
 4. Add the TXT record to the DNS zone.
-5. Run the **Sign and deploy** workflow manually with *Re-sign every award*
-   ticked. Each award is re-signed with its content unchanged; only the issuer
+5. Run the **Sign and deploy** workflow manually with *Re-sign every report*
+   ticked. Each report is re-signed with its content unchanged; only the issuer
    and the URLs under the old site address are updated.
 
 **If a key is compromised**, set its status to `revoked` in `config/keys.json`
 (it disappears from the DID document, so nothing it signed verifies any more),
 generate a new key, and re-sign as above.
 
-## Revoking an award
+## Revoking a report
 
 Add `{ "id": "<credential id>", "reason": "…", "date": "YYYY-MM-DD" }` to
 `config/revocations.json`. Verifiers on this site and `npm run verify` will
-then reject the credential, and it is marked "Revoked" in the list of awards.
+then reject the credential, and it is marked "Revoked" in the list of reports.
 Published credential files are never edited.
 
 ## Standards and testing
@@ -222,7 +222,7 @@ them over the network. The test suite checks that:
 - generated credentials validate against 1EdTech's official OB 3.0
   AchievementCredential JSON schema,
 - verification rejects tampering, unknown keys, issuer mismatches,
-  untrusted issuers, revoked awards and credentials that are not yet valid,
+  untrusted issuers, revoked reports and credentials that are not yet valid,
 - the approval rules reject non-maintainers, conflicts of interest and
   withdrawn approvals,
 - baked SVG badges round-trip.

@@ -1,5 +1,5 @@
 /**
- * Checks an award from the command line.
+ * Checks a report from the command line.
  *
  *   npm run verify -- public/credentials/<slug>.json --local   # against this checkout's DID document
  *   npm run verify -- https://…/credentials/<slug>.json        # resolves the issuer's did:web online

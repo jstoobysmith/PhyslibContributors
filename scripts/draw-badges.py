@@ -73,10 +73,10 @@ DIAGRAMS = {
 
 
 def badge(section):
-    sid, numeral, name = section["id"], section["section"], section["name"]
+    sid, numeral, name = section["id"], section["numeral"], section["name"]
     bottom = f"SECTION {numeral} · {name.upper()}"
-    return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400" role="img" aria-label="{section["awardName"]}">
-  <title>{section["awardName"]}</title>
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400" role="img" aria-label="{section["reportName"]}">
+  <title>{section["reportName"]}</title>
   <defs>
     <path id="top" d="M 62,200 A 138,138 0 0 1 338,200"/>
     <path id="bottom" d="M 52,200 A 148,148 0 0 0 348,200"/>

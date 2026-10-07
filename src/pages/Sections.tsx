@@ -1,8 +1,8 @@
 import { Link, useParams } from 'react-router-dom';
-import { AwardList } from '../components/AwardListing';
+import { ReportList } from '../components/ReportListing';
 import { BadgeImage, Container, PageTitle, Spinner } from '../components/ui';
 import { EVIDENCE_KINDS, SECTIONS, sectionById } from '../lib/config';
-import { asset, useAwards } from '../site/data';
+import { asset, useReports } from '../site/data';
 import NotFound from './NotFound';
 import { useTitle } from '../site/useTitle';
 
@@ -11,7 +11,7 @@ export function SectionsIndex() {
   return (
     <Container className="max-w-4xl">
       <PageTitle title="Sections">
-        Awards are given in four sections, each with its own criteria. The maintainers apply these criteria when they review a
+        Reports are published in four sections, each with its own criteria. The maintainers apply these criteria when they review a
         submission.
       </PageTitle>
       <ol className="space-y-5">
@@ -24,7 +24,7 @@ export function SectionsIndex() {
             </h2>
             <p className="mt-1">{s.description}</p>
             <p className="mt-1 text-sm">
-              <Link to={`/sections/${s.id}`}>Criteria</Link> · <Link to={`/archive?section=${s.id}`}>Awards</Link> ·{' '}
+              <Link to={`/sections/${s.id}`}>Criteria</Link> · <Link to={`/archive?section=${s.id}`}>Reports</Link> ·{' '}
               <Link to={`/submit?section=${s.id}`}>Submit</Link>
             </p>
           </li>
@@ -37,10 +37,10 @@ export function SectionsIndex() {
 export function SectionPage() {
   const { id = '' } = useParams();
   const section = sectionById(id);
-  const awards = useAwards();
+  const reports = useReports();
   useTitle(section ? `${section.numeral}. ${section.name}` : undefined);
   if (!section) return <NotFound />;
-  const entries = awards.status === 'ready' ? awards.data.published.filter((e) => e.section === section.id) : [];
+  const entries = reports.status === 'ready' ? reports.data.published.filter((e) => e.section === section.id) : [];
 
   return (
     <Container className="grid gap-10 lg:grid-cols-[1fr_16rem]">
@@ -48,7 +48,7 @@ export function SectionPage() {
         <p className="text-sm text-muted">
           <Link to="/sections">Sections</Link> › {section.numeral}. {section.name}
         </p>
-        <PageTitle title={`${section.numeral}. ${section.name}`}>{section.awardName}</PageTitle>
+        <PageTitle title={`${section.numeral}. ${section.name}`}>{section.reportName}</PageTitle>
         <div className="prose-long max-w-3xl">
           <p>{section.description}</p>
           <h2>Criteria</h2>
@@ -58,7 +58,7 @@ export function SectionPage() {
               <li key={c}>{c}</li>
             ))}
           </ol>
-          <h2>How much work is one award?</h2>
+          <h2>How much work is one report?</h2>
           <p>{section.guidance}</p>
           <p>
             Typical evidence:{' '}
@@ -70,22 +70,22 @@ export function SectionPage() {
           </p>
         </div>
 
-        <h2 className="mt-8 border-b border-rule pb-1 font-serif text-xl font-bold">Awards in this section</h2>
-        {awards.status === 'loading' && <Spinner />}
-        {awards.status === 'ready' && entries.length === 0 && (
+        <h2 className="mt-8 border-b border-rule pb-1 font-serif text-xl font-bold">Reports in this section</h2>
+        {reports.status === 'loading' && <Spinner />}
+        {reports.status === 'ready' && entries.length === 0 && (
           <p className="py-3 text-sm">
             None yet. <Link to={`/submit?section=${section.id}`}>Submit a contribution</Link>.
           </p>
         )}
-        <AwardList entries={entries} showSummary />
+        <ReportList entries={entries} showSummary />
       </div>
 
       <aside className="space-y-4 text-sm">
         <div className="panel">
-          <div className="panel-title">Award</div>
+          <div className="panel-title">Series</div>
           <div className="px-3 py-3 text-center">
             <BadgeImage section={section} className="mx-auto w-32" />
-            <p className="mt-2">{section.awardName}</p>
+            <p className="mt-2">{section.reportName}</p>
           </div>
         </div>
         <div className="panel">
@@ -95,7 +95,7 @@ export function SectionPage() {
               <Link to={`/submit?section=${section.id}`}>Submit to this section</Link>
             </li>
             <li>
-              <a href={asset(`achievements/${section.id}.json`)}>Award definition (Open Badges 3.0)</a>
+              <a href={asset(`achievements/${section.id}.json`)}>Series definition (Open Badges 3.0)</a>
             </li>
           </ul>
         </div>

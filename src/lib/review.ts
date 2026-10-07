@@ -1,5 +1,5 @@
 /**
- * Who may approve an award. Used by scripts/sign.ts before anything is signed.
+ * Who may approve a report. Used by scripts/sign.ts before anything is signed.
  */
 import { maintainerOf, SITE } from './config';
 import type { Submission } from './submission';
@@ -38,7 +38,7 @@ export function conflictedLogins(pr: { author: string }, s: Credited): Set<strin
  * maintainer who is not credited by, and did not put forward, the submission,
  * and who declared no conflict of interest in the review. The pull request
  * must be opened by the recipient or the nominator, and may not be merged by
- * anyone the award credits.
+ * anyone the report credits.
  */
 export function approvalDecision(
   reviews: PullRequestReview[],

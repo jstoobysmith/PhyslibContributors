@@ -47,7 +47,7 @@ export const evidenceSchema = z.object({
 
 /**
  * A submission is a JSON file under submissions/ that a contributor (or a
- * nominator) opens as a pull request. Merging it accepts the award; the
+ * nominator) opens as a pull request. Merging it accepts the report; the
  * signing workflow then signs it into an Open Badges 3.0 credential.
  */
 export const submissionSchema = z
@@ -67,7 +67,7 @@ export const submissionSchema = z
         .refine(validOrcid, 'This is not a valid ORCID iD (it looks like 0000-0002-1825-0097)')
         .optional(),
     }),
-    /** Others who did the work jointly. Each receives their own award, if they submit one. */
+    /** Others who did the work jointly. Each receives their own report, if they submit one. */
     collaborators: z.array(person).max(10).optional(),
     period: z
       .object({ from: month, to: month })
@@ -184,7 +184,7 @@ export function md(text: string): string {
 export function submissionMarkdown(s: Submission): string {
   const section = sectionById(s.section)!;
   const lines = [
-    `**Section ${section.numeral}. ${md(section.name)}**: ${md(section.awardName)}`,
+    `**Section ${section.numeral}. ${md(section.name)}**: ${md(section.reportName)}`,
     `**Recipient:** ${md(s.recipient.name)} (@${s.recipient.github})` + (s.nominatedBy ? `, nominated by @${s.nominatedBy}` : ''),
   ];
   if (s.nominatedBy) lines.push(`@${s.recipient.github}: please confirm on this pull request that you agree to this nomination.`);

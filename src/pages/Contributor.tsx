@@ -1,15 +1,15 @@
 import { useParams } from 'react-router-dom';
-import { AwardList } from '../components/AwardListing';
+import { ReportList } from '../components/ReportListing';
 import { Container, OrcidIcon, PageTitle, Spinner } from '../components/ui';
 import { urls } from '../lib/config';
-import { useAwards } from '../site/data';
+import { useReports } from '../site/data';
 import { useTitle } from '../site/useTitle';
 
 export default function Contributor() {
   const { login = '' } = useParams();
-  const awards = useAwards();
+  const reports = useReports();
   const same = (l?: string) => l?.toLowerCase() === login.toLowerCase();
-  const published = awards.status === 'ready' ? awards.data.published.filter((e) => !e.revoked) : [];
+  const published = reports.status === 'ready' ? reports.data.published.filter((e) => !e.revoked) : [];
   const own = published.filter((e) => same(e.recipient.github));
   const joint = published.filter((e) => e.collaborators?.some((c) => same(c.github)));
   const name = own[0]?.recipient.name ?? joint[0]?.collaborators?.find((c) => same(c.github))?.name ?? login;
@@ -29,18 +29,18 @@ export default function Contributor() {
           </>
         )}
       </PageTitle>
-      {awards.status === 'loading' && <Spinner />}
-      {awards.status === 'ready' && own.length === 0 && joint.length === 0 && <p>No awards.</p>}
+      {reports.status === 'loading' && <Spinner />}
+      {reports.status === 'ready' && own.length === 0 && joint.length === 0 && <p>No reports.</p>}
       {own.length > 0 && (
         <>
-          <h2 className="border-b border-rule pb-1 font-serif text-xl font-bold">Awards</h2>
-          <AwardList entries={own} showSummary />
+          <h2 className="border-b border-rule pb-1 font-serif text-xl font-bold">Reports</h2>
+          <ReportList entries={own} showSummary />
         </>
       )}
       {joint.length > 0 && (
         <>
           <h2 className="mt-8 border-b border-rule pb-1 font-serif text-xl font-bold">Named as joint work</h2>
-          <AwardList entries={joint} showSummary />
+          <ReportList entries={joint} showSummary />
         </>
       )}
     </Container>

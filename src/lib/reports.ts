@@ -1,14 +1,14 @@
 /**
- * The index of awards that the site reads (public/data/awards.json), and the
- * ways an award is referred to: its number, citation and LinkedIn entry.
+ * The index of reports that the site reads (public/data/reports.json), and the
+ * ways a report is referred to: its number, citation and LinkedIn entry.
  */
-import { SITE, sectionById, urls } from './config';
+import { sectionById, SITE, urls } from './config';
 import { evidenceOf, recipientOf, sectionIdOf, titleOf, type OpenBadgeCredential } from './credential';
 import type { Submission } from './submission';
 
-export interface AwardEntry {
+export interface ReportEntry {
   slug: string;
-  /** Permanent running number, assigned when the award is first signed (data/award-numbers.json). */
+  /** Permanent running number, assigned when the report is first signed (data/report-numbers.json). */
   number: number;
   year: number;
   section: string;
@@ -31,31 +31,31 @@ export interface PendingEntry {
   submittedAt: string;
 }
 
-export interface AwardsIndex {
+export interface ReportsIndex {
   generatedAt: string;
   /** Newest first. */
-  published: AwardEntry[];
+  published: ReportEntry[];
   pending: PendingEntry[];
 }
 
-/** Award numbers by slug. Numbers are never reused or changed. */
-export type AwardNumbers = Record<string, number>;
+/** Report numbers by slug. Numbers are never reused or changed. */
+export type ReportNumbers = Record<string, number>;
 
-export function nextAwardNumber(numbers: AwardNumbers): number {
+export function nextReportNumber(numbers: ReportNumbers): number {
   return Math.max(0, ...Object.values(numbers)) + 1;
 }
 
-export function buildAwardsIndex(
+export function buildReportsIndex(
   credentials: { slug: string; credential: OpenBadgeCredential }[],
   submissions: Map<string, Submission>,
-  numbers: AwardNumbers,
+  numbers: ReportNumbers,
   revokedIds: string[],
-): AwardsIndex {
+): ReportsIndex {
   const published = credentials
-    .map(({ slug, credential }): AwardEntry => {
+    .map(({ slug, credential }): ReportEntry => {
       const submission = submissions.get(slug);
       const number = numbers[slug];
-      if (!number) throw new Error(`No award number for ${slug} in data/award-numbers.json`);
+      if (!number) throw new Error(`No report number for ${slug} in data/report-numbers.json`);
       return {
         slug,
         number,
@@ -87,35 +87,31 @@ export function buildAwardsIndex(
   return { generatedAt: new Date().toISOString(), published, pending };
 }
 
-/** Short reference to an award, e.g. "Physlib Contributions award no. 3 (2026)". */
-export function awardReference(e: Pick<AwardEntry, 'number' | 'year'>) {
-  return `${SITE.title} award no. ${e.number} (${e.year})`;
+/** Short reference to a report, e.g. "Physlib Contribution Report no. 3 (2026)". */
+export function reportReference(e: Pick<ReportEntry, 'number' | 'year'>) {
+  return `${SITE.reportSeries} no. ${e.number} (${e.year})`;
 }
 
-export function citationKey(e: Pick<AwardEntry, 'recipient' | 'year' | 'number'>) {
+export function citationKey(e: Pick<ReportEntry, 'recipient' | 'year' | 'number'>) {
   const who = (e.recipient.github ?? e.recipient.name).toLowerCase().replace(/[^a-z0-9]/g, '');
   return `physlib${e.year}-${who}-${e.number}`;
 }
 
-/** A line the recipient can put on a CV. */
-export function cvLine(c: OpenBadgeCredential, slug: string, entry?: AwardEntry) {
-  const year = c.validFrom.slice(0, 4);
-  return `${c.credentialSubject.achievement.name} (${year}) for “${titleOf(c)}”, ${SITE.title}${entry ? `, award no. ${entry.number}` : ''}. ${urls.award(slug)}`;
-}
-
-export function citations(c: OpenBadgeCredential, slug: string, entry?: AwardEntry) {
+/** How to cite a report: as text (also the line for a CV) and as a BibTeX technical report. */
+export function citations(c: OpenBadgeCredential, slug: string, entry?: ReportEntry) {
   const r = recipientOf(c);
   const title = titleOf(c);
   const year = c.validFrom.slice(0, 4);
-  const ref = entry ? awardReference(entry) : `${SITE.title} (${year})`;
-  const text = `${r.name}, “${title},” ${ref}. ${c.credentialSubject.achievement.name}. ${urls.award(slug)}`;
-  const bibtex = `@misc{${entry ? citationKey(entry) : `physlib${year}-${slug}`},
-  author       = {${r.name}},
-  title        = {{${title}}},
-  howpublished = {${SITE.title}${entry ? `, award no. ${entry.number}` : ''}},
-  note         = {${c.credentialSubject.achievement.name}. Open Badges 3.0 credential},
-  year         = {${year}},
-  url          = {${urls.award(slug)}}
+  const ref = entry ? reportReference(entry) : `${SITE.reportSeries} (${year})`;
+  const text = `${r.name}, “${title},” ${ref}. ${urls.report(slug)}`;
+  const bibtex = `@techreport{${entry ? citationKey(entry) : `physlib${year}-${slug}`},
+  author      = {${r.name}},
+  title       = {{${title}}},
+  institution = {${SITE.title}},
+  type        = {${SITE.reportSeries}},${entry ? `\n  number      = {${entry.number}},` : ''}
+  year        = {${year}},
+  note        = {${c.credentialSubject.achievement.name}},
+  url         = {${urls.report(slug)}}
 }`;
   return { text, bibtex };
 }
@@ -128,16 +124,16 @@ export function linkedInUrl(c: OpenBadgeCredential, slug: string) {
     organizationName: SITE.issuer.name,
     issueYear: String(d.getUTCFullYear()),
     issueMonth: String(d.getUTCMonth() + 1),
-    certUrl: urls.award(slug),
+    certUrl: urls.report(slug),
     certId: c.id,
   });
   return `https://www.linkedin.com/profile/add?${params}`;
 }
 
-/** One plain sentence on what the award certifies, for readers outside the field. */
+/** One plain sentence on what the report certifies, for readers outside the field. */
 export function whatItMeans(c: OpenBadgeCredential) {
   const section = sectionById(sectionIdOf(c));
-  return `This award records that the maintainers of ${SITE.title} checked the evidence above and agreed that it meets the published criteria for ${
-    section ? `the ${section.name} section` : 'this award'
+  return `This report records that the maintainers of ${SITE.title} checked the evidence above and agreed that it meets the published criteria for ${
+    section ? `the ${section.name} section` : 'this report'
   }. Physlib is an open-source library of physics formalised in the Lean 4 proof assistant.`;
 }

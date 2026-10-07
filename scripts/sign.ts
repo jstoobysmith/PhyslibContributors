@@ -2,10 +2,10 @@
  * Signs accepted submissions: every submission merged into the main branch
  * that does not yet have a credential is turned into an Open Badges 3.0
  * credential, signed with the Physlib Contributions key, and given the next
- * award number.
+ * report number.
  *
  * In GitHub Actions the key comes from the OB_SIGNING_KEY secret and the review
- * record (pull request, approvals, merger) from the GitHub API. An award is only
+ * record (pull request, approvals, merger) from the GitHub API. A report is only
  * signed if enough maintainers (config/maintainers.json) other than the
  * recipient, the nominator and the pull request author approved it.
  *
@@ -28,17 +28,17 @@ import {
   urls,
   verificationMethodId,
 } from '../src/lib/config';
-import { nextAwardNumber } from '../src/lib/awards';
+import { nextReportNumber } from '../src/lib/reports';
 import { buildCredential, rehomeCredential, type OpenBadgeCredential, type ReviewRecord } from '../src/lib/credential';
 import { publicKeyFor, sign, verifySignature, type JsonObject } from '../src/lib/dataIntegrity';
 import { approvalDecision, type PullRequestReview } from '../src/lib/review';
 import type { Submission } from '../src/lib/submission';
 import {
-  AWARD_NUMBERS_FILE,
+  REPORT_NUMBERS_FILE,
   CREDENTIALS_DIR,
   listSubmissionFiles,
   loadSubmission,
-  readAwardNumbers,
+  readReportNumbers,
   readJson,
   ROOT,
   writeJson,
@@ -168,7 +168,7 @@ async function reviewRecord(file: string, s: Submission): Promise<ReviewRecord |
 /**
  * Before re-signing, the existing signature must be valid under one of our
  * published (non-revoked) keys, so a hand-edited file never gets a genuine
- * signature. Revoked awards are not re-signed.
+ * signature. Revoked reports are not re-signed.
  */
 async function mayResign(c: OpenBadgeCredential): Promise<string | undefined> {
   if (revoked.has(c.id)) return 'it is revoked';
@@ -179,7 +179,7 @@ async function mayResign(c: OpenBadgeCredential): Promise<string | undefined> {
   return undefined;
 }
 
-const numbers = readAwardNumbers();
+const numbers = readReportNumbers();
 const revoked = new Set(readJson<Revocation[]>(join(ROOT, 'config', 'revocations.json')).map((r) => r.id));
 
 async function signSubmission(slug: string, file: string, submission: Submission): Promise<boolean> {
@@ -202,13 +202,13 @@ async function signSubmission(slug: string, file: string, submission: Submission
     return false;
   }
   writeJson(path, await sign(buildCredential(slug, submission, record), { secretKeyMultibase, verificationMethod }));
-  numbers[slug] ??= nextAwardNumber(numbers);
-  writeJson(AWARD_NUMBERS_FILE, numbers); // saved with each award, in case a later one fails
-  console.log(`signed ${slug} as award no. ${numbers[slug]}`);
+  numbers[slug] ??= nextReportNumber(numbers);
+  writeJson(REPORT_NUMBERS_FILE, numbers); // saved with each report, in case a later one fails
+  console.log(`signed ${slug} as report no. ${numbers[slug]}`);
   return true;
 }
 
-/** The specimen award (examples/) is re-signed whenever the signing key changes. */
+/** The specimen report (examples/) is re-signed whenever the signing key changes. */
 async function signSpecimen() {
   const path = join(ROOT, 'public', 'specimen.json');
   const existing = existsSync(path) ? readJson<OpenBadgeCredential>(path) : undefined;
@@ -216,7 +216,7 @@ async function signSpecimen() {
   const submission = readJson<Submission>(join(ROOT, 'examples', 'specimen.submission.json'));
   const unsigned = buildCredential(SPECIMEN_SLUG, submission, { acceptedAt: submission.submittedAt });
   writeJson(path, await sign(unsigned, { secretKeyMultibase, verificationMethod }));
-  console.log(`signed the specimen award (${urls.credential(SPECIMEN_SLUG)})`);
+  console.log(`signed the specimen report (${urls.credential(SPECIMEN_SLUG)})`);
 }
 
 await signSpecimen();
@@ -224,7 +224,7 @@ let count = 0;
 for (const file of listSubmissionFiles()) {
   const loaded = loadSubmission(file);
   if (!loaded.submission || loaded.errors.length) {
-    // Reported, but does not stop the other awards from being signed.
+    // Reported, but does not stop the other reports from being signed.
     console.error(`::error file=${file}::Invalid submission on the main branch, not signed: ${loaded.errors.join('; ')}`);
     continue;
   }
@@ -234,5 +234,5 @@ for (const file of listSubmissionFiles()) {
     console.error(`::error file=${file}::Could not sign: ${(e as Error).message}`);
   }
 }
-writeJson(AWARD_NUMBERS_FILE, numbers);
+writeJson(REPORT_NUMBERS_FILE, numbers);
 console.log(`${count} credential(s) ${resignAll ? 're-signed' : 'signed'} with ${verificationMethod}`);

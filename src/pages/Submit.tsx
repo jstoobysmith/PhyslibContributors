@@ -29,7 +29,7 @@ function Preview({ d }: { d: Draft }) {
         <p className="text-xs text-muted">{section && `${section.numeral}. ${section.name}`}</p>
         <p className="mt-1 font-serif text-base font-bold leading-snug">{d.title || <span className="font-normal text-muted">Title</span>}</p>
         <p>
-          {d.name || <span className="text-muted">Recipient</span>}
+          {d.name || <span className="text-muted">Contributor</span>}
           {d.collaborators.some((c) => c.name) && (
             <span className="text-muted"> (joint work with {d.collaborators.filter((c) => c.name).map((c) => c.name).join(', ')})</span>
           )}
@@ -94,7 +94,7 @@ export default function Submit() {
         <PageTitle title="Submit a contribution">
           Describe the work and link to it. You can submit your own work or nominate someone else. The submission becomes a pull
           request on GitHub, where the maintainers check it; you need a free GitHub account. See{' '}
-          <Link to="/about#process">how an award is made</Link>.
+          <Link to="/about#process">how a report is made</Link>.
         </PageTitle>
 
         <form className="max-w-3xl space-y-8" onSubmit={(e) => e.preventDefault()} noValidate>
@@ -113,7 +113,9 @@ export default function Submit() {
               ))}
             </div>
             <div className="mt-3 border border-rule bg-shade px-3 py-2 text-sm">
-              <p className="font-bold">The maintainers will check that:</p>
+              <p className="font-bold">
+                The maintainers will check that:
+              </p>
               <ol className="mt-1 ml-5 list-decimal space-y-0.5">
                 {section.criteria.map((c) => (
                   <li key={c}>{c}</li>
@@ -131,7 +133,7 @@ export default function Submit() {
               <Field label="GitHub username" error={err('recipient.github')}>
                 <Input value={draft.github} onChange={(e) => set('github', e.target.value)} data-invalid={!!err('recipient.github')} />
               </Field>
-              <Field label="ORCID iD (optional)" error={err('recipient.orcid')} hint="Shown on the award.">
+              <Field label="ORCID iD (optional)" error={err('recipient.orcid')} hint="Shown on the report.">
                 <Input value={draft.orcid} onChange={(e) => set('orcid', e.target.value)} placeholder="0000-0002-1825-0097" data-invalid={!!err('recipient.orcid')} />
               </Field>
             </div>
@@ -156,8 +158,8 @@ export default function Submit() {
             <div className="mt-4">
               <p className="text-sm font-bold">Joint work (optional)</p>
               <p className="text-xs text-muted">
-                If others did this work with the recipient, name them here. They are shown on the award; each can submit for their
-                own award too.
+                If others did this work with the contributor, name them here. They are shown on the report as joint work; each can
+                also submit a report of their own.
               </p>
               {draft.collaborators.map((c, i) => (
                 <div key={i} className="mt-2 flex flex-wrap items-end gap-2">
@@ -199,7 +201,7 @@ export default function Submit() {
 
           <Step n={4} title="Evidence">
             <p className="mb-3 text-sm text-muted">
-              Links to the pull requests, reviews, commits, modules or Zulip threads that make up the work. One award can cover
+              Links to the pull requests, reviews, commits, modules or Zulip threads that make up the work. One report can cover
               many links.
             </p>
             {err('evidence') && <p className="mb-2 text-xs text-danger">{err('evidence')}</p>}
@@ -333,7 +335,7 @@ export default function Submit() {
           <ol className="ml-8 list-decimal space-y-1 py-2 pr-3">
             <li>An automatic check reads the submission and posts a summary on the pull request.</li>
             <li>The maintainers check the evidence there and may ask questions.</li>
-            <li>When it is approved and merged, the award is signed and appears on this site.</li>
+            <li>When it is approved and merged, the report is signed and appears on this site.</li>
           </ol>
           <p className="border-t border-rule px-3 py-2 text-xs text-muted">
             Maintainers review as volunteers, so there is no fixed turnaround. Submitting is optional: plenty of good work is

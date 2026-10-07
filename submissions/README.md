@@ -1,7 +1,7 @@
 # Submissions
 
 Each file in this directory is a submission to *Physlib Contributions*: one
-JSON file per award, named `<date>-<section>-<github>-<title>.json`.
+JSON file per report, named `<date>-<section>-<github>-<title>.json`.
 
 The easiest way to create one is the form at `/submit` on the website. It
 fills in the file and opens the pull request for you. To write one by hand,
@@ -10,5 +10,5 @@ and check it with `npm run validate`.
 
 Merging a pull request that adds a file here accepts the submission. The
 signing workflow then signs it into `public/credentials/<same name>.json`.
-Once that credential exists, do not edit the submission. If an award has to
+Once that credential exists, do not edit the submission. If a report has to
 be withdrawn, add it to `config/revocations.json`.

@@ -6,11 +6,11 @@ import { useTitle } from '../site/useTitle';
 
 const CONTENTS = [
   ['purpose', 'Purpose'],
-  ['maintainers', 'Who reviews awards'],
-  ['process', 'How an award is made'],
-  ['meaning', 'What an award certifies'],
+  ['maintainers', 'Who reviews reports'],
+  ['process', 'How a report is made'],
+  ['meaning', 'What a report certifies'],
   ['sections', 'Sections'],
-  ['revocation', 'Revoking an award'],
+  ['revocation', 'Revoking a report'],
   ['trust', 'Signatures and keys'],
 ];
 
@@ -28,20 +28,21 @@ export default function About() {
           <p>
             Much of the work that makes <a href={SITE.physlib.site}>Physlib</a> usable is not credited by papers: reviewing other
             people’s changes, keeping the library building as Lean and Mathlib change, restructuring code, and setting up basic
-            definitions. {SITE.title} gives that work a public record that the contributor can point to, with links to the work
-            itself and the names of the maintainers who checked it.
+            definitions. {SITE.title} gives that work a citable record: a short report, much like a technical report, describing
+            the contribution, linking to the work itself and naming the maintainers who checked it. Contributors can list
+            reports on a CV next to their papers.
           </p>
           <p>
-            Awards are optional. Many valuable contributions are never submitted, and the absence of an award says nothing about
-            a person’s work. Awards record work; they do not rank people.
+            Reports are optional. Many valuable contributions are never submitted, and the absence of a report says nothing about
+            a person’s work. Reports record work; they do not rank people.
           </p>
 
           <h2 id="maintainers" className="scroll-mt-4">
-            Who reviews awards
+            Who reviews reports
           </h2>
           <p>
             {SITE.title} is run by the maintainers of its <a href={urls.repo()}>GitHub repository</a>. They review submissions
-            and approve awards:
+            and approve reports:
           </p>
           <ul>
             {MAINTAINERS.map((m) => (
@@ -53,8 +54,8 @@ export default function About() {
           </ul>
           <p>{SITE.review.appointment}</p>
           <p>
-            Awards are signed by an automatic step on GitHub (the signing workflow), which runs when a submission is merged. It will
-            only sign an award when all of these hold:
+            Reports are signed by an automatic step on GitHub (the signing workflow), which runs when a submission is merged. It will
+            only sign a report when all of these hold:
           </p>
           <ul>
             <li>
@@ -62,16 +63,16 @@ export default function About() {
               submission’s pull request, writing “{SITE.review.conflictDeclaration}” in their approval;
             </li>
             <li>
-              none of those approvals comes from the recipient, anyone named as joint work, the nominator, or whoever opened the
+              none of those approvals comes from the contributor, anyone named as joint work, the nominator, or whoever opened the
               pull request;
             </li>
-            <li>the pull request was not merged by anyone the award credits.</li>
+            <li>the pull request was not merged by anyone the report credits.</li>
           </ul>
           <p>
             The workflow can check who is named in a submission, but not other relationships: a maintainer who supervises or
-            works closely with the recipient is trusted not to approve. If every listed maintainer has such a conflict, the
-            submission waits until another maintainer is appointed. Maintainers can receive awards
-            themselves under the same rules, approved by the others.
+            works closely with the contributor is trusted not to approve. If every listed maintainer has such a conflict, the
+            submission waits until another maintainer is appointed. Reports on maintainers’ own work follow the same rules and are
+            approved by the other maintainers.
           </p>
           <p>
             Maintainers review submissions as volunteers, with no promised turnaround. They may ask for changes, and may close a
@@ -79,7 +80,7 @@ export default function About() {
           </p>
 
           <h2 id="process" className="scroll-mt-4">
-            How an award is made
+            How a report is made
           </h2>
           <ol>
             <li>
@@ -89,20 +90,21 @@ export default function About() {
             <li>The maintainers check the evidence against the section’s criteria, in public on the pull request, and may ask for changes.</li>
             <li>When the pull request has the required approvals, a maintainer merges it.</li>
             <li>
-              A GitHub workflow then signs the award and publishes it here, usually within a few minutes. The award records the
+              A GitHub workflow then signs the report and publishes it here, usually within a few minutes. The report records the
               pull request, who approved it and who merged it.
             </li>
           </ol>
           <p>
-            Awards are numbered in the order they are signed, starting from 1, and keep their number permanently. They are
-            usually referred to as, for example, “Physlib Contributions award no. 3 (2026)”.
+            Reports are numbered in the order they are signed, starting from 1, and keep their number permanently. They are
+            cited like other technical reports, for example “{SITE.reportSeries} no. 3 (2026)”.
           </p>
 
           <h2 id="meaning" className="scroll-mt-4">
-            What an award certifies
+            What a report certifies
           </h2>
           <p>
-            For readers such as hiring or promotion committees: an award certifies that Physlib maintainers looked at the linked
+            For readers such as hiring or promotion committees: a report is like a short technical report about one contribution.
+            Its publication certifies that Physlib maintainers looked at the linked
             work and agreed that it meets the published criteria of its section. It does not measure the quality of the work
             beyond that, and it is not peer review of a research result. The linked pull requests are the primary record, and
             they show the work in full.
@@ -123,11 +125,11 @@ export default function About() {
           </ul>
 
           <h2 id="revocation" className="scroll-mt-4">
-            Revoking an award
+            Revoking a report
           </h2>
           <p>
-            A signed award is never edited. If one has to be withdrawn, because it was given in error or because its recipient
-            asks for it to be removed, the maintainers add it to a public revocation list. The award page and this site’s
+            A signed report is never edited. If one has to be withdrawn, because it was published in error or because its contributor
+            asks for it to be removed, the maintainers add it to a public revocation list. The report page and this site’s
             verifier then show it as revoked.
           </p>
 
@@ -135,7 +137,7 @@ export default function About() {
             Signatures and keys
           </h2>
           <p>
-            Each award is an <a href="https://www.imsglobal.org/spec/ob/v3p0/">Open Badges 3.0</a> credential, a standard format
+            Each report is an <a href="https://www.imsglobal.org/spec/ob/v3p0/">Open Badges 3.0</a> credential, a standard format
             for digital certificates. It is signed with a private key held as a secret of a protected GitHub environment, which only
             the signing workflow on the main branch can use; any change to the workflows or code on the main branch needs a
             maintainer’s review. The matching
@@ -144,11 +146,11 @@ export default function About() {
             any other Open Badges 3.0 verifier.
           </p>
           <p>
-            Awards are currently signed with a temporary key while the site is being set up. The permanent key will be
+            Reports are currently signed with a temporary key while the site is being set up. The permanent key will be
             published in the DNS of physlib.io (at <code className="font-mono text-sm">{SITE.dns.txtName}</code>), which ties it
-            to the Physlib project independently of this website. When a key is replaced, existing awards are signed again with
+            to the Physlib project independently of this website. When a key is replaced, existing reports are signed again with
             the new key without changing their content. If a key were ever compromised, it would be removed from the DID
-            document, so that nothing it signed would verify, and the affected awards would be signed again.
+            document, so that nothing it signed would verify, and the affected reports would be signed again.
           </p>
         </div>
       </article>

@@ -10,7 +10,7 @@ export const OB_CONTEXT = [
 /** Wording used in review records; read back by reviewParticipants. */
 const DECLARED_NO_CONFLICT = 'declared no conflict of interest';
 
-/** Evidence genre of the pull request in which an award was reviewed and accepted. */
+/** Evidence genre of the pull request in which a report was reviewed and accepted. */
 export const REVIEW_GENRE = 'Maintainer review';
 
 /** The review record of a submission, taken from its merged pull request. */
@@ -32,18 +32,19 @@ export function issuerProfile() {
   };
 }
 
+/** The Open Badges Achievement for one series, e.g. "Physlib Review Report". */
 export function achievement(section: Section) {
   return {
     id: urls.achievement(section.id),
     type: ['Achievement'],
-    achievementType: 'Award',
-    name: section.awardName,
+    achievementType: 'Award', // Open Badges vocabulary; it has no "report" type
+    name: section.reportName,
     description: section.description,
     criteria: {
       id: urls.section(section.id),
       narrative: section.criteria.map((c) => `- ${c}`).join('\n'),
     },
-    image: { id: urls.badgeImage(section.id), type: 'Image', caption: `${section.awardName} badge` },
+    image: { id: urls.badgeImage(section.id), type: 'Image', caption: `${section.reportName} badge` },
     creator: issuerProfile(),
     tag: ['Physlib', 'Lean 4', 'formalization', section.name],
   };
@@ -78,7 +79,7 @@ export function buildCredential(slug: string, submission: Submission, record: Re
   }));
 
   if (record.pullRequest) {
-    // Names are recorded at signing time, so the award stays readable if the maintainer list changes.
+    // Names are recorded at signing time, so the report stays readable if the maintainer list changes.
     const who = (login: string) => (maintainerByLogin(login) ? `${maintainerByLogin(login)!.name} (@${login})` : `@${login}`);
     const names = (record.reviewers ?? []).map(who);
     const list = names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names.at(-1)}` : names[0];
@@ -91,7 +92,7 @@ export function buildCredential(slug: string, submission: Submission, record: Re
       id: record.pullRequest.url,
       type: ['Evidence'],
       name: `Review of the submission: pull request #${record.pullRequest.number}`,
-      description: `${author}${reviewers}${merged}`.trim() || 'Pull request in which this award was reviewed and accepted.',
+      description: `${author}${reviewers}${merged}`.trim() || 'Pull request in which this report was reviewed and accepted.',
       genre: REVIEW_GENRE,
     });
   }
@@ -100,9 +101,9 @@ export function buildCredential(slug: string, submission: Submission, record: Re
     '@context': OB_CONTEXT,
     id: urls.credential(slug),
     type: ['VerifiableCredential', 'OpenBadgeCredential'],
-    name: `${section.awardName}: ${submission.title}`,
+    name: `${section.reportName}: ${submission.title}`,
     description:
-      `${recipient.name} received the ${section.awardName} from ${SITE.issuer.name} for “${submission.title}”` +
+      `${SITE.reportSeries} on work by ${recipient.name}: “${submission.title}”` +
       (submission.collaborators?.length ? `, joint work with ${submission.collaborators.map((c) => c.name).join(', ')}.` : '.'),
     issuer: issuerProfile(),
     validFrom: record.acceptedAt,
@@ -162,13 +163,13 @@ export function recipientOf(c: OpenBadgeCredential) {
 
 export const sectionIdOf = (c: OpenBadgeCredential) => c.credentialSubject.achievement.id.split('/').pop()!.replace(/\.json$/, '');
 
-/** The award title, without the award name that prefixes the credential name. */
+/** The report title, without the report name that prefixes the credential name. */
 export const titleOf = (c: OpenBadgeCredential) => c.name.replace(`${c.credentialSubject.achievement.name}: `, '');
 
 /** The slug of one of our credentials, from its id. */
 export const slugOf = (c: Pick<OpenBadgeCredential, 'id'>) => c.id.split('/').pop()!.replace(/\.json$/, '');
 
-/** The evidence that makes up the work, and the separate record of how the award was reviewed. */
+/** The evidence that makes up the work, and the separate record of how the report was reviewed. */
 export function evidenceOf(c: OpenBadgeCredential) {
   const all = c.evidence ?? [];
   return { work: all.filter((e) => e.genre !== REVIEW_GENRE), review: all.find((e) => e.genre === REVIEW_GENRE) };
