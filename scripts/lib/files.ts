@@ -10,6 +10,8 @@ export const SUBMISSIONS_DIR = join(ROOT, 'submissions');
 export const CREDENTIALS_DIR = join(ROOT, 'public', 'credentials');
 /** Committed, append-only record of report numbers, written by scripts/sign.ts. */
 export const REPORT_NUMBERS_FILE = join(ROOT, 'data', 'report-numbers.json');
+/** Submissions accepted on an issue: slug -> issue number. Written by scripts/issue-submission.ts. */
+export const ISSUE_SUBMISSIONS_FILE = join(ROOT, 'data', 'issue-submissions.json');
 
 export function readJson<T = unknown>(path: string): T {
   return JSON.parse(readFileSync(path, 'utf8')) as T;
@@ -20,6 +22,8 @@ export function writeJson(path: string, data: unknown, mode?: number) {
   mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, JSON.stringify(data, null, 2) + '\n', mode === undefined ? undefined : { mode });
 }
+
+export const readIssueSubmissions = (): Record<string, number> => (existsSync(ISSUE_SUBMISSIONS_FILE) ? readJson(ISSUE_SUBMISSIONS_FILE) : {});
 
 export const readReportNumbers = () => (existsSync(REPORT_NUMBERS_FILE) ? readJson<ReportNumbers>(REPORT_NUMBERS_FILE) : {});
 

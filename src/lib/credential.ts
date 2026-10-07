@@ -13,9 +13,10 @@ const DECLARED_NO_CONFLICT = 'declared no conflict of interest';
 /** Evidence genre of the pull request in which a report was reviewed and accepted. */
 export const REVIEW_GENRE = 'Maintainer review';
 
-/** The review record of a submission, taken from its merged pull request. */
+/** The review record of a submission, taken from its merged pull request or accepted issue. */
 export interface ReviewRecord {
-  pullRequest?: { number: number; url: string; author?: string };
+  /** Where the submission was reviewed: its pull request, or its issue (kind "issue"). */
+  pullRequest?: { number: number; url: string; author?: string; kind?: 'pull request' | 'issue' };
   reviewers?: string[];
   mergedBy?: string;
   acceptedAt: string;
@@ -91,8 +92,8 @@ export function buildCredential(slug: string, submission: Submission, record: Re
     evidence.push({
       id: record.pullRequest.url,
       type: ['Evidence'],
-      name: `Review of the submission: pull request #${record.pullRequest.number}`,
-      description: `${author}${reviewers}${merged}`.trim() || 'Pull request in which this report was reviewed and accepted.',
+      name: `Review of the submission: ${record.pullRequest.kind ?? 'pull request'} #${record.pullRequest.number}`,
+      description: `${author}${reviewers}${merged}`.trim() || 'The page on which this report was reviewed and accepted.',
       genre: REVIEW_GENRE,
     });
   }

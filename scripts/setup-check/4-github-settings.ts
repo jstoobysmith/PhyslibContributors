@@ -4,17 +4,19 @@
  * lets the workflow push signed reports, and the workflows themselves.
  */
 import { spawnSync, execFileSync } from 'node:child_process';
-import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { SITE, SITE_URL } from '../../src/lib/config';
+import { ISSUE_FORM } from '../../src/lib/issue-submission';
 import { ROOT } from '../lib/files';
 import { definePart, fail, listing, pass, skip, warn } from './checks';
 import { github, IN_ACTIONS, REPO, SECRETS, secretNotHere, TOKEN } from './context';
 
 const BRANCH = SITE.repository.branch;
 const SETUP = 'README: Setting up the repository';
-const WORKFLOWS = ['check.yml', 'submission-summary.yml', 'sign-and-deploy.yml', 'setup-check.yml'];
+const WORKFLOWS = ['check.yml', 'submission-summary.yml', 'submission-issue.yml', 'sign-and-deploy.yml', 'setup-check.yml'];
+const ISSUE_FORM_FILE = join(ROOT, '.github', 'ISSUE_TEMPLATE', ISSUE_FORM);
 
 /** A verdict for an API call that was refused, which usually means missing permissions rather than a problem. */
 const noAccess = (what: string, status: number) =>
@@ -137,12 +139,16 @@ export default definePart({
     await check('4.6', 'Workflows', async () => {
       const missing = WORKFLOWS.filter((f) => !existsSync(join(ROOT, '.github', 'workflows', f)));
       if (missing.length) return fail(`Missing from .github/workflows: ${listing(missing)}.`, 'Restore them from the repository history.');
+      if (!existsSync(ISSUE_FORM_FILE)) return fail(`The issue form .github/ISSUE_TEMPLATE/${ISSUE_FORM} is missing, so the site cannot open submission issues.`, 'Restore it from the repository history.');
+      if (!readFileSync(ISSUE_FORM_FILE, 'utf8').includes(`${SITE_URL}/submit`)) {
+        return warn(`The issue form does not link to ${SITE_URL}/submit.`, `Update the link in .github/ISSUE_TEMPLATE/${ISSUE_FORM} (it is not taken from config/site.json).`);
+      }
       const { status, data } = await github<{ workflows: { path: string; state: string }[] }>(`/repos/${REPO}/actions/workflows`);
       if (!data) return noAccess('the workflows', status);
       const off = data.workflows.filter((w) => WORKFLOWS.some((f) => w.path.endsWith(f)) && w.state !== 'active').map((w) => w.path);
       return off.length
         ? fail(`Disabled: ${listing(off)}.`, 'Actions → select the workflow → Enable workflow.')
-        : pass(`${listing(WORKFLOWS)} are present and enabled.`);
+        : pass(`${listing(WORKFLOWS)} are present and enabled, and so is the submission issue form.`);
     });
 
     await check('4.7', 'Last "Sign and deploy" run', async () => {

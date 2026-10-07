@@ -9,8 +9,8 @@ import { issuerDidDocument, ISSUER_DID, isTestSection, SIGNING_KEY, SPECIMEN_SLU
 import { sectionIdOf, type OpenBadgeCredential } from '../../src/lib/credential';
 import type { JsonObject } from '../../src/lib/dataIntegrity';
 import { verifyCredential } from '../../src/lib/verify';
-import { CREDENTIALS_DIR, listCredentials, listSubmissionFiles, loadSubmission, readJson, readReportNumbers, ROOT } from '../lib/files';
-import { githubApi, reviewRecord } from '../lib/review-record';
+import { CREDENTIALS_DIR, listCredentials, listSubmissionFiles, loadSubmission, readIssueSubmissions, readJson, readReportNumbers, ROOT } from '../lib/files';
+import { githubApi, issueReviewRecord, reviewRecord } from '../lib/review-record';
 import { definePart, fail, listing, pass, plural, warn } from './checks';
 import { REPO, TOKEN } from './context';
 
@@ -53,11 +53,13 @@ export default definePart({
       if (unsigned.length === 0) return pass(submissions.length ? 'Every accepted submission has a signed report.' : 'Nothing to sign yet.');
       // Ask GitHub why, with the same rules the signing workflow uses.
       const api = githubApi(REPO, TOKEN);
+      const issueSubmissions = readIssueSubmissions();
       const reasons: string[] = [];
       for (const s of unsigned) {
         let why: string;
         try {
-          const record = await reviewRecord(api, s.file, s.submission!);
+          const issue = issueSubmissions[s.slug];
+          const record = issue ? await issueReviewRecord(api, REPO, issue, s.submission!) : await reviewRecord(api, s.file, s.submission!);
           why = 'refused' in record ? `not signed because ${record.refused}` : 'approved: it will be signed by the next “Sign and deploy” run';
         } catch (e) {
           why = `could not ask GitHub (${(e as Error).message})`;
@@ -66,7 +68,7 @@ export default definePart({
       }
       return warn(
         `${plural(unsigned.length, 'submission')} on main ${unsigned.length === 1 ? 'is' : 'are'} not signed. ${reasons.join(' | ')}`,
-        'A maintainer who is not involved approves the pull request (writing the conflict declaration), then re-run “Sign and deploy”. To withdraw a submission instead, delete its file with a pull request.',
+        'A maintainer who is not involved approves it (on its issue, a “/accept” comment; on its pull request, an approving review, each with the conflict declaration), then re-run “Sign and deploy”. To withdraw a submission instead, delete its file with a pull request.',
       );
     });
 

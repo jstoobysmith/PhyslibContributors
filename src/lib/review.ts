@@ -2,6 +2,7 @@
  * Who may approve a report. Used by scripts/sign.ts before anything is signed.
  */
 import { isTestSection, maintainerOf, SITE } from './config';
+import { ACCEPT_COMMAND, isAcceptComment } from './issue-submission';
 import type { Submission } from './submission';
 
 export interface PullRequestReview {
@@ -59,7 +60,7 @@ export function approvalDecision(
 function strictDecision(reviews: PullRequestReview[], pr: PullRequestFacts, submission: Credited, requiredApprovals: number): ApprovalDecision {
   const author = pr.author.toLowerCase();
   if (author !== submission.recipient.github.toLowerCase() && author !== submission.nominatedBy?.toLowerCase()) {
-    return { ok: false, reason: `the pull request was opened by @${pr.author}, who is neither the recipient nor the nominator` };
+    return { ok: false, reason: `it was opened by @${pr.author}, who is neither the recipient nor the nominator` };
   }
 
   const latest = new Map<string, PullRequestReview>();
@@ -77,7 +78,7 @@ function strictDecision(reviews: PullRequestReview[], pr: PullRequestFacts, subm
     return {
       ok: false,
       reason:
-        `it needs ${requiredApprovals} approval(s), on the final version of the pull request, from listed maintainers who are not involved in it and who wrote “${CONFLICT_DECLARATION}” in their review; it has ${declared.length}` +
+        `it needs ${requiredApprovals} approval(s), on its final version, from listed maintainers who are not involved in it and who wrote “${CONFLICT_DECLARATION}” in their approval; it has ${declared.length}` +
         (undeclared ? ` (${undeclared} approval(s) without the declaration)` : ''),
     };
   }
@@ -85,4 +86,54 @@ function strictDecision(reviews: PullRequestReview[], pr: PullRequestFacts, subm
     return { ok: false, reason: 'it was merged by someone it credits' };
   }
   return { ok: true, approvers: declared.map((r) => r.user!.login) };
+}
+
+// --- Submissions made as issues ----------------------------------------------------------
+
+export interface IssueComment {
+  user: { login: string; id?: number } | null;
+  body?: string | null;
+  created_at: string;
+}
+
+export interface IssueFacts {
+  /** Who opened the issue. */
+  author: string;
+  /** When the issue's text was last edited, if ever. */
+  lastEditedAt?: string | null;
+}
+
+/**
+ * The same rules for a submission made as an issue. Each "/accept" comment is
+ * an approval of the issue's text as it stood when the comment was made, so an
+ * edit to the issue afterwards voids it (as a new commit voids a pull request
+ * approval). The issue must be opened by the recipient or the nominator.
+ *
+ * A test submission needs no approvals, but is accepted only when a listed
+ * maintainer comments "/accept" (for a pull request, a maintainer's merge).
+ */
+export function issueApprovalDecision(
+  comments: IssueComment[],
+  issue: IssueFacts,
+  submission: Credited & { section?: string },
+  requiredApprovals = SITE.review.requiredApprovals,
+): ApprovalDecision {
+  const CURRENT = 'current';
+  const accepts = comments.filter((c) => c.user && isAcceptComment(c.body));
+  const reviews: PullRequestReview[] = accepts.map((c) => ({
+    state: 'APPROVED',
+    user: c.user,
+    body: c.body,
+    commit_id: !issue.lastEditedAt || c.created_at > issue.lastEditedAt ? CURRENT : 'earlier',
+    submitted_at: c.created_at,
+  }));
+  if (submission.section && isTestSection(submission.section)) {
+    const byMaintainer = reviews.some((r) => r.commit_id === CURRENT && maintainerOf(r.user!));
+    if (!byMaintainer) return { ok: false, reason: 'a listed maintainer has not yet commented “/accept” on its current text' };
+  }
+  const decision = approvalDecision(reviews, { author: issue.author, headSha: CURRENT }, submission, requiredApprovals);
+  const voided = reviews.filter((r) => r.commit_id !== CURRENT && maintainerOf(r.user!)).length;
+  return decision.ok || !voided
+    ? decision
+    : { ok: false, reason: `${decision.reason} (${voided} earlier “${ACCEPT_COMMAND}” no longer count${voided === 1 ? 's' : ''}, because the submission was edited after it)` };
 }

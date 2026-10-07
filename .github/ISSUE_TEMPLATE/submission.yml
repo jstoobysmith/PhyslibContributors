@@ -1,0 +1,21 @@
+# The issue form for submissions. The submission form on the site opens it
+# with the "submission" field filled in (?template=submission.yml&submission=...).
+name: Submission
+description: Submit a contribution to Physlib for a report. Easiest from the form on the site.
+title: "Submission: "
+labels: [submission]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **The easiest way to fill this in is the [submission form](https://jstoobysmith.github.io/PhyslibContributors/submit) on the site**, which writes the text below for you. If you came from the form, just click **Create** at the bottom.
+
+        This issue must be opened by the contributor, or by the person nominating them. The maintainers will review it here; an automatic check posts a summary below.
+  - type: textarea
+    id: submission
+    attributes:
+      label: Submission
+      description: Written by the submission form on the site. Please don't edit it by hand unless you know the format.
+      render: json
+    validations:
+      required: true

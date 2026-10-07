@@ -4,7 +4,7 @@ import { buttonClass, Container, ErrorNote, Field, Input, inputClass, linkButton
 import { EVIDENCE_KINDS, SECTIONS, SITE, sectionById, TEST_SECTION, urls, type EvidenceKind, type Section } from '../lib/config';
 import { evidenceTitle, githubLoginFromInput, guessEvidenceKind, normaliseUrl, type Submission } from '../lib/submission';
 import { download } from '../site/data';
-import { SendOnGitHub } from '../components/SendOnGitHub';
+import { SendAsIssue, SendWithFork } from '../components/SendOnGitHub';
 import { openSubmissionPullRequest, submissionJson, whoAmI } from '../site/github';
 import { chooseSection, emptyEvidence, useSubmissionDraft, type Draft, type EvidenceDraft, type PersonDraft } from '../site/useSubmissionDraft';
 import { useTitle } from '../site/useTitle';
@@ -125,7 +125,7 @@ export default function Submit() {
   const [result, setResult] = useState<{ url?: string; error?: string }>();
 
   const err = (path: string) => (attempted ? errors[path] : undefined);
-  // The pull request must come from the recipient, or from the nominator when nominating.
+  // The submission must come from the recipient, or from the nominator when nominating.
   const senderField = draft.nominating ? 'nominatedBy' : 'recipient.github';
   const senderInput = githubLoginFromInput(draft.nominating ? draft.nominatedBy : draft.github);
   const sender = senderInput && !errors[senderField] ? senderInput : undefined;
@@ -160,8 +160,8 @@ export default function Submit() {
     <Container className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_17rem]">
       <div className="min-w-0">
         <PageTitle title="Submit a contribution">
-          Describe the work and link to it. You can submit your own work or nominate someone else. The submission becomes a pull
-          request on GitHub, where the maintainers check it; you need a free GitHub account. See{' '}
+          Describe the work and link to it. You can submit your own work or nominate someone else. The submission becomes an
+          issue on GitHub, where the maintainers check it; you need a free GitHub account. See{' '}
           <Link to="/about#process">how a report is made</Link>.
         </PageTitle>
 
@@ -182,8 +182,8 @@ export default function Submit() {
                 <p className="font-bold">Test submission</p>
                 <p className="mt-1">
                   The form is filled in with example data, except your GitHub username (and ORCID iD, which is optional). It needs
-                  no maintainer approval: once its pull request is merged, it is signed like a real report, but marked as a test, not
-                  numbered and not listed with real reports.
+                  no approvals: once a maintainer accepts it, it is signed like a real report, but marked as a test, not numbered and
+                  not listed with real reports.
                 </p>
                 <p className="mt-1 font-bold">Enter your GitHub username in step 2, then go to step 5 to send it.</p>
               </div>
@@ -351,18 +351,23 @@ export default function Submit() {
                 <ErrorNote>Some fields need attention; they are marked above.</ErrorNote>
               </div>
             )}
-            <SendOnGitHub
-              sender={sender}
-              senderRole={draft.nominating ? 'nominator' : 'contributor'}
-              slug={slug}
-              submission={submission}
-              guard={guard}
-              onDownload={downloadJson}
-            />
+            <SendAsIssue sender={sender} senderRole={draft.nominating ? 'nominator' : 'contributor'} guard={guard} />
 
             <details className="mt-5 text-sm">
-              <summary className="cursor-pointer text-link">Other ways to send it</summary>
+              <summary className="cursor-pointer text-link">Other ways to send it (as a pull request)</summary>
               <div className="mt-3 space-y-4 border-l-2 border-rule pl-4">
+                <div>
+                  <p className="font-bold">As a pull request from a fork</p>
+                  <p className="mt-1 mb-2 text-muted">For people who prefer pull requests. The maintainers review it there instead.</p>
+                  <SendWithFork
+                    sender={sender}
+                    senderRole={draft.nominating ? 'nominator' : 'contributor'}
+                    slug={slug}
+                    submission={submission}
+                    guard={guard}
+                    onDownload={downloadJson}
+                  />
+                </div>
                 <div>
                   <p className="font-bold">Open the pull request from this page</p>
                   <p className="mt-1 text-muted">
@@ -421,9 +426,9 @@ export default function Submit() {
         <div className="panel">
           <div className="panel-title">What happens next</div>
           <ol className="ml-8 list-decimal space-y-1 py-2 pr-3">
-            <li>An automatic check reads the submission and posts a summary on the pull request.</li>
+            <li>An automatic check reads the submission and posts a summary on its issue.</li>
             <li>The maintainers check the evidence there and may ask questions.</li>
-            <li>When it is approved and merged, the report is signed and appears on this site.</li>
+            <li>When it is accepted, the report is signed and appears on this site.</li>
           </ol>
           <p className="border-t border-rule px-3 py-2 text-xs text-muted">
             Maintainers review as volunteers, so there is no fixed turnaround. Submitting is optional: plenty of good work is

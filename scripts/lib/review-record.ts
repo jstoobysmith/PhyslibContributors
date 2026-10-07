@@ -7,38 +7,55 @@
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { isoSeconds, SITE } from '../../src/lib/config';
+import { isoSeconds, maintainerOf, SITE } from '../../src/lib/config';
 import type { ReviewRecord } from '../../src/lib/credential';
-import { approvalDecision, type PullRequestReview } from '../../src/lib/review';
-import type { Submission } from '../../src/lib/submission';
+import { approvalDecision, issueApprovalDecision, type IssueComment, type PullRequestReview } from '../../src/lib/review';
+import { isAcceptComment, sameJson, submissionFromIssueBody } from '../../src/lib/issue-submission';
+import { submissionSchema, type Submission } from '../../src/lib/submission';
 import { ROOT } from './files';
 
 export interface GitHubApi {
   get<T>(path: string): Promise<T>;
   /** All pages of a list endpoint (following the Link header). */
   all<T>(path: string): Promise<T[]>;
+  /** POST, PATCH or PUT with a JSON body. */
+  send<T>(method: 'POST' | 'PATCH' | 'PUT', path: string, body: unknown): Promise<T>;
+  graphql<T>(query: string, variables: Record<string, unknown>): Promise<T>;
 }
+
+/** GitHub's API (GITHUB_API_URL in Actions, or for tests). */
+export const API_URL = (process.env.GITHUB_API_URL ?? 'https://api.github.com').replace(/\/$/, '');
 
 /** The REST API of one repository; paths are relative to /repos/<repo>. */
 export function githubApi(repo: string, token?: string): GitHubApi {
   const headers: Record<string, string> = { Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' };
   if (token) headers.Authorization = `Bearer ${token}`;
+  const call = async <T>(url: string, init: RequestInit = {}) => {
+    const res = await fetch(url, { ...init, headers: { ...headers, ...(init.body ? { 'Content-Type': 'application/json' } : {}) } });
+    if (!res.ok) throw new Error(`GitHub API ${url.replace(API_URL, '')}: HTTP ${res.status}`);
+    return { res, data: (res.status === 204 ? undefined : await res.json()) as T };
+  };
   return {
     async get<T>(path: string) {
-      const res = await fetch(`https://api.github.com/repos/${repo}${path}`, { headers });
-      if (!res.ok) throw new Error(`GitHub API ${path}: HTTP ${res.status}`);
-      return res.json() as Promise<T>;
+      return (await call<T>(`${API_URL}/repos/${repo}${path}`)).data;
     },
     async all<T>(path: string) {
       const items: T[] = [];
-      let url: string | undefined = `https://api.github.com/repos/${repo}${path}${path.includes('?') ? '&' : '?'}per_page=100`;
+      let url: string | undefined = `${API_URL}/repos/${repo}${path}${path.includes('?') ? '&' : '?'}per_page=100`;
       while (url) {
-        const res: Response = await fetch(url, { headers });
-        if (!res.ok) throw new Error(`GitHub API ${path}: HTTP ${res.status}`);
-        items.push(...((await res.json()) as T[]));
-        url = res.headers.get('link')?.match(/<([^>]+)>;\s*rel="next"/)?.[1];
+        const page: { res: Response; data: T[] } = await call<T[]>(url);
+        items.push(...page.data);
+        url = page.res.headers.get('link')?.match(/<([^>]+)>;\s*rel="next"/)?.[1];
       }
       return items;
+    },
+    async send<T>(method: 'POST' | 'PATCH' | 'PUT', path: string, body: unknown) {
+      return (await call<T>(`${API_URL}/repos/${repo}${path}`, { method, body: JSON.stringify(body) })).data;
+    },
+    async graphql<T>(query: string, variables: Record<string, unknown>) {
+      const { data } = await call<{ data?: T; errors?: { message: string }[] }>(`${API_URL}/graphql`, { method: 'POST', body: JSON.stringify({ query, variables }) });
+      if (!data.data) throw new Error(`GitHub GraphQL: ${data.errors?.map((e) => e.message).join('; ') ?? 'no data'}`);
+      return data.data;
     },
   };
 }
@@ -90,5 +107,56 @@ export async function reviewRecord(api: GitHubApi, file: string, s: Submission):
     pullRequest: { number: pr.number, url: pr.html_url, author: pr.user.login },
     reviewers: decision.approvers,
     mergedBy: pr.merged_by?.login,
+  };
+}
+
+// --- Submissions made as issues --------------------------------------------------------
+
+export interface IssueJson {
+  number: number;
+  html_url: string;
+  state: string;
+  body: string | null;
+  user: { login: string };
+  labels: { name: string }[];
+  pull_request?: unknown;
+}
+
+/** An issue, with when its text was last edited (only GraphQL has that). */
+export async function fetchIssue(api: GitHubApi, repo: string, number: number) {
+  const issue = await api.get<IssueJson>(`/issues/${number}`);
+  const [owner, name] = repo.split('/');
+  const { repository } = await api.graphql<{ repository: { issue: { lastEditedAt: string | null } | null } }>(
+    'query($owner: String!, $name: String!, $number: Int!) { repository(owner: $owner, name: $name) { issue(number: $number) { lastEditedAt } } }',
+    { owner, name, number },
+  );
+  return { ...issue, lastEditedAt: repository.issue?.lastEditedAt ?? null };
+}
+
+/**
+ * The review record of a submission made as an issue, or why it may not be
+ * signed: the issue must still hold exactly this submission, and its "/accept"
+ * comments must meet the rules (see issueApprovalDecision in src/lib/review.ts).
+ */
+export async function issueReviewRecord(api: GitHubApi, repo: string, number: number, s: Submission): Promise<ReviewRecord | { refused: string }> {
+  const issue = await fetchIssue(api, repo, number);
+  if (issue.pull_request) return { refused: `#${number} is a pull request, not an issue` };
+  const parsed = submissionFromIssueBody(issue.body);
+  const fromIssue = parsed.data === undefined ? undefined : submissionSchema.safeParse(parsed.data);
+  // "$schema" only says which format the file follows; it is not part of the submission.
+  if (!fromIssue?.success || !sameJson({ ...fromIssue.data, $schema: undefined }, { ...s, $schema: undefined })) {
+    return { refused: `the file differs from the submission in issue #${number}` };
+  }
+
+  const comments = await api.all<IssueComment>(`/issues/${number}/comments`);
+  const decision = issueApprovalDecision(comments, { author: issue.user.login, lastEditedAt: issue.lastEditedAt }, s);
+  if (!decision.ok) return { refused: `${decision.reason} (issue #${number})` };
+  // Accepted when the last "/accept" from a listed maintainer on the current text was made.
+  const accepted = comments.filter((c) => isAcceptComment(c.body) && c.user && maintainerOf(c.user) && (!issue.lastEditedAt || c.created_at > issue.lastEditedAt));
+  const acceptedAt = accepted.map((c) => c.created_at).sort().at(-1) ?? new Date().toISOString();
+  return {
+    acceptedAt: isoSeconds(acceptedAt),
+    pullRequest: { kind: 'issue', number, url: issue.html_url, author: issue.user.login },
+    reviewers: decision.approvers,
   };
 }

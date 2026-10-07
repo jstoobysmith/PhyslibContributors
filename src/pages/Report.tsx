@@ -220,7 +220,7 @@ export default function Report() {
           {review ? (
             <>
               <p>
-                Reviewed on <a href={review.id}>pull request #{review.id?.split('/').pop()}</a>
+                Reviewed on <a href={review.id}>{review.id?.includes('/issues/') ? 'issue' : 'pull request'} #{review.id?.split('/').pop()}</a>
                 {people.submittedBy &&
                   (people.submittedBy.toLowerCase() === recipient.github?.toLowerCase() ? (
                     ', submitted by the contributor'
@@ -246,7 +246,7 @@ export default function Report() {
               )}
             </>
           ) : (
-            <p className="text-muted">{specimen ? 'A real report links the pull request on which it was reviewed.' : 'Accepted by the maintainers.'}</p>
+            <p className="text-muted">{specimen ? 'A real report links the page on GitHub where it was reviewed.' : 'Accepted by the maintainers.'}</p>
           )}
           <p className="pt-1 text-muted">{whatItMeans(c)}</p>
         </div>

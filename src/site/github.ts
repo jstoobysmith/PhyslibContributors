@@ -1,10 +1,16 @@
 import { SITE, SUBMISSION_BRANCH_PREFIX, SUBMISSION_LABEL, SUBMISSION_TITLE_PREFIX, urls } from '../lib/config';
+import { ISSUE_FIELD, ISSUE_FORM } from '../lib/issue-submission';
 import { submissionMarkdown, type Submission } from '../lib/submission';
 
 /**
- * Two ways to turn a submission into a pull request on the reports repository:
+ * The usual way to send a submission is as an issue (`issueUrl`): GitHub's
+ * new-issue page with the submission form filled in, so no fork is needed;
+ * `findSubmissionIssue` finds it afterwards. A maintainer accepts it there
+ * (see src/lib/issue-submission.ts).
  *
- * 1. In the browser, without a token (the usual way; see SendOnGitHub.tsx):
+ * Two other ways turn a submission into a pull request on the reports repository:
+ *
+ * 1. In the browser, without a token (see SendOnGitHub.tsx):
  *    the contributor forks the repository (`forkUrl`), adds the file to their
  *    fork on GitHub's pre-filled "create new file" page (`newFileUrl`), and
  *    opens the pull request (`pullRequestUrl`). `findFork` and `changedInFork` read
@@ -36,6 +42,26 @@ const upstreamRepo = () => `${SITE.repository.owner}/${SITE.repository.name}`;
 export function newFileUrl(slug: string, s: Submission, repo = upstreamRepo()) {
   const params = new URLSearchParams({ filename: submissionPath(slug), value: submissionJson(s) });
   return `https://github.com/${repo}/new/${SITE.repository.branch}?${params}`;
+}
+
+/** The JSON put into the issue form: the submission without the $schema line. */
+export const issueJson = (s: Submission) => JSON.stringify(s, null, 2);
+
+/** GitHub's new-issue page with the submission form filled in; without `s`, the empty form. */
+export function issueUrl(s?: Submission) {
+  const params = new URLSearchParams({ template: ISSUE_FORM, title: s ? prTitle(s) : SUBMISSION_TITLE_PREFIX });
+  if (s) params.set(ISSUE_FIELD, issueJson(s));
+  return `https://github.com/${upstreamRepo()}/issues/new?${params}`;
+}
+
+/** The submission issue that `login` opened with this title, if any (newest first). */
+export async function findSubmissionIssue(login: string, s: Submission): Promise<{ url: string; number: number; open: boolean } | undefined> {
+  const issues =
+    (await publicApi<{ html_url: string; number: number; title: string; state: string; pull_request?: unknown }[]>(
+      `/repos/${upstreamRepo()}/issues?creator=${encodeURIComponent(login)}&labels=${SUBMISSION_LABEL}&state=all&per_page=20`,
+    )) ?? [];
+  const mine = issues.find((i) => !i.pull_request && i.title.trim() === prTitle(s).trim());
+  return mine && { url: mine.html_url, number: mine.number, open: mine.state === 'open' };
 }
 
 /** GitHub's page for uploading files into submissions/ of `repo`: the fallback when a submission is too long for a link. */
@@ -229,23 +255,25 @@ export interface OpenSubmission {
   createdAt: string;
 }
 
-/** Open submission pull requests ("under review"), read from the public GitHub API. */
+/** Open submissions ("under review"), issues and pull requests, read from the public GitHub API. */
 export async function fetchUnderReview(): Promise<OpenSubmission[]> {
   const { owner, name } = SITE.repository;
-  const res = await fetch(`https://api.github.com/repos/${owner}/${name}/pulls?state=open&per_page=50`, {
-    headers: { Accept: 'application/vnd.github+json' },
-  });
-  if (!res.ok) throw new Error(`GitHub API: HTTP ${res.status}`);
-  const pulls = (await res.json()) as {
-    number: number;
-    title: string;
-    html_url: string;
-    created_at: string;
-    user: { login: string };
-    head: { ref: string };
-    labels: { name: string }[];
-  }[];
-  return pulls
+  const get = async <T,>(path: string) => {
+    const res = await fetch(`https://api.github.com/repos/${owner}/${name}/${path}`, { headers: { Accept: 'application/vnd.github+json' } });
+    if (!res.ok) throw new Error(`GitHub API: HTTP ${res.status}`);
+    return (await res.json()) as T;
+  };
+  const issues = (
+    await get<{ number: number; title: string; html_url: string; created_at: string; user: { login: string }; pull_request?: unknown }[]>(
+      `issues?state=open&labels=${SUBMISSION_LABEL}&per_page=50`,
+    )
+  )
+    .filter((i) => !i.pull_request)
+    .map((i) => ({ number: i.number, title: i.title.replace(SUBMISSION_TITLE_PREFIX, ''), url: i.html_url, user: i.user.login, createdAt: i.created_at }));
+  const pulls = await get<
+    { number: number; title: string; html_url: string; created_at: string; user: { login: string }; head: { ref: string }; labels: { name: string }[] }[]
+  >('pulls?state=open&per_page=50');
+  const submissionPulls = pulls
     .filter(
       (p) =>
         p.labels.some((l) => l.name === SUBMISSION_LABEL) ||
@@ -259,4 +287,5 @@ export async function fetchUnderReview(): Promise<OpenSubmission[]> {
       user: p.user.login,
       createdAt: p.created_at,
     }));
+  return [...issues, ...submissionPulls].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }

@@ -4,6 +4,9 @@ import type { Submission } from '../lib/submission';
 import {
   changedInFork,
   findFork,
+  findSubmissionIssue,
+  issueJson,
+  issueUrl,
   forkUrl,
   newFileUrl,
   openPullRequestFrom,
@@ -92,11 +95,12 @@ const Button = ({ onClick, primary, children }: { onClick: () => void; primary?:
 const open = (url: string) => window.open(url, '_blank', 'noopener');
 
 /**
- * Step 5 of the form, the usual way to send a submission: fork the reports
- * repository, add the file to the fork, open a pull request. GitHub does each
- * step in another tab; this panel says what to click and shows what is done.
+ * Sending a submission as a pull request (an alternative to an issue): fork
+ * the reports repository, add the file to the fork, open a pull request.
+ * GitHub does each step in another tab; this panel says what to click and
+ * shows what is done.
  */
-export function SendOnGitHub({
+export function SendWithFork({
   sender,
   senderRole,
   slug,
@@ -290,6 +294,98 @@ export function SendOnGitHub({
           )}
         </Task>
       </ol>
+    </div>
+  );
+}
+
+/**
+ * Step 5 of the form, the usual way to send a submission: as an issue on
+ * GitHub, opened with the submission filled in. No fork is needed. When the
+ * person comes back to the page, it looks for their issue and links to it.
+ */
+export function SendAsIssue({
+  sender,
+  senderRole,
+  guard,
+}: {
+  sender: string | undefined;
+  senderRole: 'contributor' | 'nominator';
+  guard: (fn: (s: Submission) => void) => () => void;
+}) {
+  const [sent, setSent] = useState<{ submission: Submission; pasted: boolean }>();
+  const [found, setFound] = useState<{ url: string; number: number; open: boolean } | 'none' | 'error'>();
+
+  const look = useCallback(async () => {
+    if (!sender || !sent) return;
+    try {
+      setFound((await findSubmissionIssue(sender, sent.submission)) ?? 'none');
+    } catch {
+      setFound('error');
+    }
+  }, [sender, sent]);
+
+  // Look for the issue whenever the person comes back from GitHub.
+  useEffect(() => {
+    if (!sent) return;
+    window.addEventListener('focus', look);
+    return () => window.removeEventListener('focus', look);
+  }, [sent, look]);
+
+  if (!sender) {
+    return (
+      <p className="text-sm">
+        Enter {senderRole === 'nominator' ? 'your' : 'the contributor’s'} GitHub username in step 2 first: the submission is sent from
+        that account.
+      </p>
+    );
+  }
+
+  const send = guard(async (s) => {
+    const url = issueUrl(s);
+    // Very long submissions may not fit in a link: copy them, to paste into the empty form instead.
+    const pasted = url.length > LONG_URL;
+    if (pasted) await navigator.clipboard?.writeText(issueJson(s)).catch(() => undefined);
+    open(pasted ? issueUrl() : url);
+    setSent({ submission: s, pasted });
+    setFound(undefined);
+  });
+
+  return (
+    <div className="space-y-3 text-sm">
+      <p>
+        The submission is sent as an issue on GitHub (a public page where the maintainers review it), from the account of{' '}
+        {senderRole === 'nominator' ? 'the person nominating' : 'the contributor'}: <strong>@{sender}</strong>.{' '}
+        <a href="https://github.com/login">Sign in to GitHub</a> as @{sender} first.
+      </p>
+      <Button primary onClick={send}>
+        Submit on GitHub
+      </Button>
+      {sent?.pasted ? (
+        <p className="border border-warning/40 bg-[#fdf8ec] px-3 py-2">
+          This submission is too long to fill in through a link, so it has been copied. On GitHub, paste it into the{' '}
+          <em>Submission</em> box, replacing what is there, and click <em>Create</em>.
+        </p>
+      ) : (
+        <p>
+          GitHub opens a new issue with your submission filled in. Check it, and click <em>Create</em> at the bottom. That is
+          all: an automatic check posts a summary on the issue, and the maintainers review it there.
+        </p>
+      )}
+      {sent && typeof found === 'object' && (
+        <Status tone="success">
+          Your submission is {found.open ? 'open' : 'closed'}: <a href={found.url}>issue #{found.number}</a>.
+          {found.open ? ' You will be notified on GitHub when the maintainers comment.' : ''}
+        </Status>
+      )}
+      {sent && found === 'none' && (
+        <Status>
+          No issue from @{sender} with this title yet.{' '}
+          <button type="button" className={linkButtonClass} onClick={look}>
+            Check again
+          </button>
+        </Status>
+      )}
+      {sent && found === 'error' && <Status tone="warning">Could not check GitHub just now; your issue will be listed under “Under review” on the archive page.</Status>}
     </div>
   );
 }
