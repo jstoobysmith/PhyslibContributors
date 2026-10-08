@@ -54,7 +54,10 @@ function Header() {
       <div className="bg-band text-white">
         <Container className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3 py-3">
           <Link to="/" className="text-white hover:no-underline">
-            <span className="block font-serif text-[1.75rem] leading-none">{SITE.title}</span>
+            <span className="block font-serif text-[1.75rem] leading-none">
+              {SITE.title}
+              <BetaTag />
+            </span>
             <span className="mt-1 block text-xs text-white/80">{SECTIONS.map((s) => s.name).join(' · ')}</span>
           </Link>
           <SearchBox />
@@ -98,18 +101,22 @@ function Footer() {
       </Container>
       <Container className="border-t border-rule py-3 text-xs text-muted">
         Reports are digitally signed, so anyone can check that they are genuine. <Link to="/verify">How to check a report</Link>.
+        {SITE.beta && <> This site is in beta: its look and process may still change, but reports are signed and permanent.</>}
       </Container>
     </footer>
   );
 }
 
-/** A "Draft" watermark over every page while config/site.json has "draft": true. */
-function DraftWatermark() {
-  if (!SITE.draft) return null;
+/** A small "Beta" tag beside the site's name while config/site.json has "beta": true. */
+function BetaTag() {
+  if (!SITE.beta) return null;
   return (
-    <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-40 flex items-center justify-center overflow-hidden select-none">
-      <span className="-rotate-30 font-serif text-[22vw] font-bold leading-none tracking-widest text-band/10 whitespace-nowrap">DRAFT</span>
-    </div>
+    <span
+      className="ml-2.5 inline-block rounded-sm border border-white/60 px-1.5 py-0.5 align-[0.35em] font-sans text-[0.65rem] font-bold uppercase leading-none tracking-wider text-white/90"
+      title="This site is new, and its look and process may still change. Reports are signed and permanent."
+    >
+      Beta
+    </span>
   );
 }
 
@@ -124,8 +131,6 @@ export default function Layout() {
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-50 focus:bg-white focus:px-2 focus:py-1">
         Skip to content
       </a>
-      <DraftWatermark />
-      {SITE.draft && <p className="sr-only">This site is a draft and not yet in use.</p>}
       <Header />
       <main id="main" className="min-w-0 flex-1 pt-6">
         <Outlet />

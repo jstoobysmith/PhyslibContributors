@@ -122,10 +122,12 @@ export default definePart({
       return pass(list.length ? `${plural(list.length, 'report')} revoked.` : 'No reports revoked.');
     });
 
-    await check('2.9', 'Draft notice', () =>
-      SITE.draft
-        ? warn('The site shows a “Draft” watermark.', 'At launch, set "draft": false in config/site.json.')
-        : pass('The site is not marked as a draft.'),
+    await check('2.9', 'Beta label', () =>
+      pass(
+        SITE.beta
+          ? 'The site is marked as beta (a tag beside its name, and a line in the footer). Remove "beta" from config/site.json when that is no longer needed.'
+          : 'The site is not marked as beta.',
+      ),
     );
   },
 });
