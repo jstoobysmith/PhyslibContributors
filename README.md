@@ -240,7 +240,7 @@ The checks are grouped into seven numbered parts, one file each in
 | Part | Checks |
 | --- | --- |
 | 1. Tests and build | the unit tests and the site build (run in a first job without secrets) |
-| 2. Configuration | `config/` and `.github/CODEOWNERS`: site address, sections, maintainers and their GitHub ids, approval rules, draft flag |
+| 2. Configuration | `config/` and `.github/CODEOWNERS`: site address, sections, maintainers and their GitHub ids, approval rules, beta label |
 | 3. Signing keys | `config/keys.json`; that `OB_SIGNING_KEY` is the private half of the active key and signs; the DNS record |
 | 4. GitHub settings | Pages; the `signing` environment is limited to `main`; the rules on `main`; `SIGNING_DEPLOY_KEY` can push (by `git push --dry-run`, which pushes nothing); the workflows; the last *Sign and deploy* run |
 | 5. Submissions and signed reports | every submission is valid; why any accepted submission is unsigned; every report verifies; report numbers; revocations; the specimen |

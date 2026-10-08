@@ -2,7 +2,7 @@
   "title": "Physlib Contributions",
   "reportSeries": "Physlib Contribution Report",
   "subtitle": "Signed reports on reviewing, maintenance, refactoring, foundations, formalisation and documentation of Physlib",
-  "draft": true,
+  "beta": true,
   "siteUrl": "https://contributions.physlib.io",
   "basePath": "/",
   "repository": {
