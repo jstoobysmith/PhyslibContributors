@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { canonicalUrl, evidenceTitle, fitsSlug, formatIssues, githubLoginFromInput, guessEvidenceKind, md, normaliseUrl, submissionMarkdown, submissionSchema, submissionSlug, validOrcid } from '../src/lib/submission';
+import { canonicalUrl, evidenceTitle, fitsSlug, parsePullRequestList, formatIssues, githubLoginFromInput, guessEvidenceKind, md, normaliseUrl, submissionMarkdown, submissionSchema, submissionSlug, validOrcid } from '../src/lib/submission';
 import { loadSubmission } from '../scripts/lib/files';
 import { exampleSubmission } from './fixtures/example';
 
@@ -45,6 +45,18 @@ describe('submission schema', () => {
 });
 
 describe('submission helpers', () => {
+  it('reads a pasted list of pull requests', () => {
+    const repo = 'leanprover-community/physlib';
+    expect(parsePullRequestList('12, 34,#56 ;78\n90', repo)).toEqual({ numbers: [12, 34, 56, 78, 90], invalid: [] });
+    expect(parsePullRequestList('https://github.com/leanprover-community/physlib/pull/101/files, github.com/leanprover-community/physlib/pull/102', repo).numbers).toEqual([101, 102]);
+    expect(parsePullRequestList('12, 12, #12', repo).numbers).toEqual([12]);
+    expect(parsePullRequestList('12, abc, 0, https://github.com/other/repo/pull/5', repo)).toEqual({
+      numbers: [12],
+      invalid: ['abc', '0', 'https://github.com/other/repo/pull/5'],
+    });
+    expect(parsePullRequestList('  ', repo)).toEqual({ numbers: [], invalid: [] });
+  });
+
   it('allows a number after a file name that was already taken', () => {
     expect(fitsSlug('2026-10-07-test-a-test', '2026-10-07-test-a-test')).toBe(true);
     expect(fitsSlug('2026-10-07-test-a-test-2', '2026-10-07-test-a-test')).toBe(true);

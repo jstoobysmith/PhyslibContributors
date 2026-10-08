@@ -4,6 +4,7 @@ import { buttonClass, Container, ErrorNote, Field, Input, inputClass, linkButton
 import { EVIDENCE_KINDS, SECTIONS, SITE, sectionById, TEST_SECTION, urls, type EvidenceKind, type Section } from '../lib/config';
 import { evidenceTitle, githubLoginFromInput, guessEvidenceKind, normaliseUrl, type Submission } from '../lib/submission';
 import { download } from '../site/data';
+import { ImportPullRequests } from '../components/ImportPullRequests';
 import { SendAsIssue, SendWithFork } from '../components/SendOnGitHub';
 import { openSubmissionPullRequest, submissionJson, whoAmI } from '../site/github';
 import { chooseSection, emptyEvidence, useSubmissionDraft, type Draft, type EvidenceDraft, type PersonDraft } from '../site/useSubmissionDraft';
@@ -130,6 +131,8 @@ export default function Submit() {
   const senderInput = githubLoginFromInput(draft.nominating ? draft.nominatedBy : draft.github);
   const sender = senderInput && !errors[senderField] ? senderInput : undefined;
   const section = sectionById(draft.section)!;
+  // Imported pull requests are evidence of this kind: reviews in the Review section, pull requests elsewhere.
+  const prKind: EvidenceKind = section.evidenceKinds[0] === 'pull-request-review' ? 'pull-request-review' : 'pull-request';
   const setEvidence = (i: number, patch: Partial<EvidenceDraft>) =>
     update((d) => ({ ...d, evidence: d.evidence.map((e, j) => (j === i ? { ...e, ...patch } : e)) }));
   const setCollaborator = (i: number, patch: Partial<PersonDraft>) =>
@@ -291,6 +294,28 @@ export default function Submit() {
               Links to the pull requests, reviews, commits, modules or Zulip threads that make up the work. One report can cover
               many links.
             </p>
+            <ImportPullRequests
+              kind={prKind}
+              existingUrls={draft.evidence.map((e) => e.url)}
+              onAdd={(urls) =>
+                update((d) => ({
+                  ...d,
+                  // Imported links replace the empty row the form starts with.
+                  evidence: [
+                    ...d.evidence.filter((e) => e.url.trim() || e.title.trim()),
+                    ...urls.map((url) => ({ ...emptyEvidence(prKind), url, kindChosen: true })),
+                  ],
+                }))
+              }
+              onLookedUp={(titles) =>
+                update((d) => {
+                  const evidence = d.evidence
+                    .filter((e) => e.title || titles.get(e.url) !== null)
+                    .map((e) => (!e.title && titles.get(e.url) ? { ...e, title: titles.get(e.url)! } : e));
+                  return { ...d, evidence: evidence.length ? evidence : [emptyEvidence(prKind)] };
+                })
+              }
+            />
             {err('evidence') && <p className="mb-2 text-xs text-danger">{err('evidence')}</p>}
             <ol className="space-y-3">
               {draft.evidence.map((e, i) => (
