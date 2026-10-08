@@ -3,7 +3,7 @@
     "https://www.w3.org/ns/credentials/v2",
     "https://purl.imsglobal.org/spec/ob/v3p0/context-3.0.3.json"
   ],
-  "id": "https://jstoobysmith.github.io/PhyslibContributors/specimen.json",
+  "id": "https://contributions.physlib.io/specimen.json",
   "type": [
     "VerifiableCredential",
     "OpenBadgeCredential"
@@ -11,15 +11,15 @@
   "name": "Physlib Foundations Report: Specimen: index notation for Lorentz tensors",
   "description": "Physlib Contribution Report on work by A. N. Example: “Specimen: index notation for Lorentz tensors”.",
   "issuer": {
-    "id": "did:web:jstoobysmith.github.io:PhyslibContributors",
+    "id": "did:web:contributions.physlib.io",
     "type": [
       "Profile"
     ],
     "name": "Physlib Contributions",
     "url": "https://physlib.io",
-    "description": "An open-source community project to digitalize results from physics into Lean 4. Physlib Contributions publishes signed reports on reviewing, maintenance, refactoring and foundational work on Physlib.",
+    "description": "An open-source community project to digitalize results from physics into Lean 4. Physlib Contributions publishes signed reports on reviewing, maintenance, refactoring, foundations, formalisation and documentation of Physlib.",
     "image": {
-      "id": "https://jstoobysmith.github.io/PhyslibContributors/images/physlib-logo.png",
+      "id": "https://contributions.physlib.io/images/physlib-logo.png",
       "type": "Image"
     }
   },
@@ -47,7 +47,7 @@
     "activityStartDate": "2026-01-01T00:00:00Z",
     "activityEndDate": "2026-06-30T00:00:00Z",
     "achievement": {
-      "id": "https://jstoobysmith.github.io/PhyslibContributors/achievements/foundations.json",
+      "id": "https://contributions.physlib.io/achievements/foundations.json",
       "type": [
         "Achievement"
       ],
@@ -55,24 +55,24 @@
       "name": "Physlib Foundations Report",
       "description": "For setting up the basic definitions and first properties of an area of physics in Physlib, such as spacetime, tensors, quantum states or thermodynamic systems, so that other results can be stated and proved.",
       "criteria": {
-        "id": "https://jstoobysmith.github.io/PhyslibContributors/sections/foundations",
+        "id": "https://contributions.physlib.io/sections/foundations",
         "narrative": "- The work introduced or substantially developed basic definitions and their elementary properties in Physlib.\n- The work was merged and is used, or is designed to be used, by other parts of the library.\n- Links to the relevant pull requests and modules are given as evidence."
       },
       "image": {
-        "id": "https://jstoobysmith.github.io/PhyslibContributors/badges/foundations.svg",
+        "id": "https://contributions.physlib.io/badges/foundations.svg",
         "type": "Image",
         "caption": "Physlib Foundations Report badge"
       },
       "creator": {
-        "id": "did:web:jstoobysmith.github.io:PhyslibContributors",
+        "id": "did:web:contributions.physlib.io",
         "type": [
           "Profile"
         ],
         "name": "Physlib Contributions",
         "url": "https://physlib.io",
-        "description": "An open-source community project to digitalize results from physics into Lean 4. Physlib Contributions publishes signed reports on reviewing, maintenance, refactoring and foundational work on Physlib.",
+        "description": "An open-source community project to digitalize results from physics into Lean 4. Physlib Contributions publishes signed reports on reviewing, maintenance, refactoring, foundations, formalisation and documentation of Physlib.",
         "image": {
-          "id": "https://jstoobysmith.github.io/PhyslibContributors/images/physlib-logo.png",
+          "id": "https://contributions.physlib.io/images/physlib-logo.png",
           "type": "Image"
         }
       },
@@ -98,9 +98,9 @@
   "proof": {
     "type": "DataIntegrityProof",
     "cryptosuite": "eddsa-rdfc-2022",
-    "created": "2026-10-07T05:03:31Z",
-    "verificationMethod": "did:web:jstoobysmith.github.io:PhyslibContributors#key-1",
+    "created": "2026-10-08T08:14:32Z",
+    "verificationMethod": "did:web:contributions.physlib.io#key-1",
     "proofPurpose": "assertionMethod",
-    "proofValue": "z5J21voduHwnfNnYqMUi3ydNWwFDbq4fP6tJKYZ6GfBMyn6UvZ12JAFch25Mvqn3a4iY8uNdPED8AapZunq6regTr"
+    "proofValue": "z2FhumJieozgxDQjWpwEqycyNg7aso4dWcz3gpRtpi48NvaHWbpHupy7uau1fmDjQfFKm9mn2XNLkhMPUGY9uALa1"
   }
 }
