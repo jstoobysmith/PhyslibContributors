@@ -1,0 +1,67 @@
+{
+  "$schema": "https://jstoobysmith.github.io/PhyslibContributors/schemas/submission.schema.json",
+  "section": "review",
+  "title": "Reviewed 10 pull requests to Physlib",
+  "summary": "Reviewed 10 pull requests across a range of different areas, including classical mechanics, quantum mechanics, tensors and maintenance.",
+  "recipient": {
+    "github": "nateabr",
+    "name": "Nathaneal Sajan"
+  },
+  "period": {
+    "from": "2026-07",
+    "to": "2026-07"
+  },
+  "evidence": [
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1351",
+      "kind": "pull-request-review",
+      "title": "Review of #1351: Add extensionality for finite-measure distributions"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1348",
+      "kind": "pull-request-review",
+      "title": "Review of #1348: refactor: Rising and lowering indices with notation"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1328",
+      "kind": "pull-request-review",
+      "title": "Review of #1328: feat: Add Quarks"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1361",
+      "kind": "pull-request-review",
+      "title": "Review of #1361: feat: Add reviewer checklist"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1360",
+      "kind": "pull-request-review",
+      "title": "Review of #1360: refactor: Weyl fermions"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1358",
+      "kind": "pull-request-review",
+      "title": "Review of #1358: feat: Add equivariance to ConjTensorSpecies"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1375",
+      "kind": "pull-request-review",
+      "title": "Review of #1375: feat(Tensors/Contraction): slot-addressed cross contraction and the general-rank raise/lower round trip"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1380",
+      "kind": "pull-request-review",
+      "title": "Review of #1380: feat(QuantumMechanics): generalize `SpaceDHilbertSpace`"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1379",
+      "kind": "pull-request-review",
+      "title": "Review of #1379: feat: Add action of gauge group on Quark Doublets"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1401",
+      "kind": "pull-request-review",
+      "title": "Review of #1401: feat(ClassicalMechanics): add the total kinetic energy and prove the König decomposition"
+    }
+  ],
+  "submittedAt": "2026-10-08T06:08:24Z"
+}
