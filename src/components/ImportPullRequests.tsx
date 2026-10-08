@@ -1,16 +1,10 @@
 import { useState } from 'react';
 import { EVIDENCE_KINDS, SITE, type EvidenceKind } from '../lib/config';
-import { canonicalUrl, parsePullRequestList } from '../lib/submission';
+import { canonicalUrl, parsePullRequestList, pullRequestEvidenceTitle, pullRequestUrl } from '../lib/submission';
 import { pullRequestTitles, TITLE_LOOKUPS } from '../site/github';
 import { buttonClass, inputClass } from './ui';
 
-const prUrl = (n: number) => `https://github.com/${SITE.physlib.repository}/pull/${n}`;
-
-/** An evidence title from a pull request's own title, within the 200 characters a title may have. */
-function evidenceTitleFor(n: number, title: string, kind: EvidenceKind) {
-  const text = `${kind === 'pull-request-review' ? 'Review of ' : ''}#${n}: ${title.replace(/\p{Cc}+/gu, ' ').trim()}`;
-  return text.length > 200 ? `${text.slice(0, 199)}…` : text;
-}
+const prUrl = (n: number) => pullRequestUrl(SITE.physlib.repository, n);
 
 /**
  * Adds many pull requests to the evidence at once: the contributor pastes
@@ -56,7 +50,7 @@ export function ImportPullRequests({
     setBusy(true);
     const { titles, complete } = await pullRequestTitles(fresh);
     setBusy(false);
-    onLookedUp(new Map([...titles].map(([n, title]) => [prUrl(n), title && evidenceTitleFor(n, title, kind)])));
+    onLookedUp(new Map([...titles].map(([n, title]) => [prUrl(n), title && pullRequestEvidenceTitle(n, title, kind)])));
     const missing = [...titles].filter(([, t]) => t === null).map(([n]) => `#${n}`);
     if (missing.length) {
       notes[0] = `Added ${fresh.length - missing.length} pull request${fresh.length - missing.length === 1 ? '' : 's'}.`;

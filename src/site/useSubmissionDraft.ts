@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { isoSeconds, isTestSection, SITE, sectionById, type EvidenceKind, type SectionId } from '../lib/config';
-import { githubLoginFromInput, normaliseUrl, submissionSchema, submissionSlug } from '../lib/submission';
+import { readPrefill, splitEvidenceLinks, type Prefill } from '../lib/prefill';
+import { githubLoginFromInput, guessEvidenceKind, normaliseUrl, pullRequestUrl, submissionSchema, submissionSlug } from '../lib/submission';
 
 export interface EvidenceDraft {
   url: string;
@@ -122,7 +123,74 @@ export function chooseSection(d: Draft, section: SectionId): Draft {
   return { ...d, section };
 }
 
-function loadDraft(section: string | null): Draft {
+/** The kind of evidence a Physlib pull request is in a section: a review in Review, a pull request elsewhere. */
+export const pullRequestKind = (section: SectionId): EvidenceKind =>
+  sectionById(section)?.evidenceKinds[0] === 'pull-request-review' ? 'pull-request-review' : 'pull-request';
+
+/** The draft with the fields a link fills in (see src/lib/prefill.ts). */
+function withPrefill(d: Draft, p: Prefill): Draft {
+  const section = p.section ?? d.section;
+  const kind = pullRequestKind(section);
+  const evidence: EvidenceDraft[] = [
+    ...(p.prs ?? []).map((n) => ({ ...emptyEvidence(kind), url: pullRequestUrl(SITE.physlib.repository, n), kindChosen: true })),
+    ...(p.links ?? []).map((url) => ({ ...emptyEvidence(kind), url, kind: guessEvidenceKind(url, sectionById(section)!.evidenceKinds[0]) })),
+  ];
+  return {
+    ...d,
+    section,
+    name: p.name ?? d.name,
+    github: p.github ?? d.github,
+    orcid: p.orcid ?? d.orcid,
+    nominating: p.nominator ? true : d.nominating,
+    nominatedBy: p.nominator ?? d.nominatedBy,
+    title: p.title ?? d.title,
+    summary: p.summary ?? d.summary,
+    from: p.from ?? d.from,
+    to: p.to ?? d.to,
+    evidence: evidence.length ? evidence : d.evidence,
+  };
+}
+
+/** The fields of a link that fills in the form with this draft. */
+export function prefillFromDraft(d: Draft): Prefill {
+  return {
+    section: d.section,
+    name: d.name,
+    github: githubLoginFromInput(d.github),
+    orcid: d.orcid,
+    nominator: d.nominating ? githubLoginFromInput(d.nominatedBy) : undefined,
+    title: d.title,
+    summary: d.summary,
+    from: d.from,
+    to: d.to,
+    ...splitEvidenceLinks(d.evidence.map((e) => normaliseUrl(e.url))),
+  };
+}
+
+/**
+ * Titles looked up on GitHub for evidence links (see ImportPullRequests):
+ * links still without a title get theirs; links to pull requests that do
+ * not exist (null) are removed.
+ */
+export function withLookedUpTitles(d: Draft, titles: Map<string, string | null>): Draft {
+  const evidence = d.evidence
+    .filter((e) => e.title || titles.get(e.url) !== null)
+    .map((e) => (!e.title && titles.get(e.url) ? { ...e, title: titles.get(e.url)! } : e));
+  return { ...d, evidence: evidence.length ? evidence : [emptyEvidence(pullRequestKind(d.section))] };
+}
+
+/**
+ * The form when the page opens. A link that fills in the form (prefill.ts)
+ * starts from a blank form; otherwise the draft saved in this browser is
+ * restored, with ?section= choosing the section.
+ */
+function loadDraft(params: URLSearchParams): Draft {
+  const section = params.get('section');
+  const prefill = readPrefill(params);
+  if (prefill) {
+    const blank = blankDraft(prefill.section ?? null);
+    return withPrefill(prefill.section && isTestSection(prefill.section) ? testDraft(blank) : blank, prefill);
+  }
   const blank = blankDraft(section);
   let draft = blank;
   try {
@@ -157,8 +225,10 @@ export function toSubmission(d: Draft, submittedAt: string): unknown {
 }
 
 /** The submission form's state, saved in the browser between visits, with live validation. */
-export function useSubmissionDraft(initialSection: string | null) {
-  const [draft, setDraft] = useState<Draft>(() => loadDraft(initialSection));
+export function useSubmissionDraft(params: URLSearchParams) {
+  const [draft, setDraft] = useState<Draft>(() => loadDraft(params));
+  /** Whether the form was filled in from the link that opened it. */
+  const [prefilled] = useState(() => readPrefill(params) !== undefined);
   const [submittedAt] = useState(() => isoSeconds());
 
   useEffect(() => {
@@ -179,6 +249,7 @@ export function useSubmissionDraft(initialSection: string | null) {
 
   return {
     draft,
+    prefilled,
     set: <K extends keyof Draft>(k: K, v: Draft[K]) => setDraft((d) => ({ ...d, [k]: v })),
     update: (fn: (d: Draft) => Draft) => setDraft(fn),
     errors,

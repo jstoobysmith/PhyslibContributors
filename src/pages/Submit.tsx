@@ -1,13 +1,24 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { buttonClass, Container, ErrorNote, Field, Input, inputClass, linkButtonClass, PageTitle } from '../components/ui';
-import { EVIDENCE_KINDS, SECTIONS, SITE, sectionById, TEST_SECTION, urls, type EvidenceKind, type Section } from '../lib/config';
-import { evidenceTitle, githubLoginFromInput, guessEvidenceKind, normaliseUrl, type Submission } from '../lib/submission';
+import { EVIDENCE_KINDS, SECTIONS, SITE, SITE_URL, sectionById, TEST_SECTION, urls, type EvidenceKind, type Section } from '../lib/config';
+import { prefillParams } from '../lib/prefill';
+import { evidenceTitle, githubLoginFromInput, guessEvidenceKind, normaliseUrl, parsePullRequestList, pullRequestEvidenceTitle, type Submission } from '../lib/submission';
 import { download } from '../site/data';
 import { ImportPullRequests } from '../components/ImportPullRequests';
 import { SendAsIssue, SendWithFork } from '../components/SendOnGitHub';
-import { openSubmissionPullRequest, submissionJson, whoAmI } from '../site/github';
-import { chooseSection, emptyEvidence, useSubmissionDraft, type Draft, type EvidenceDraft, type PersonDraft } from '../site/useSubmissionDraft';
+import { openSubmissionPullRequest, pullRequestTitles, submissionJson, whoAmI } from '../site/github';
+import {
+  chooseSection,
+  emptyEvidence,
+  prefillFromDraft,
+  pullRequestKind,
+  useSubmissionDraft,
+  withLookedUpTitles,
+  type Draft,
+  type EvidenceDraft,
+  type PersonDraft,
+} from '../site/useSubmissionDraft';
 import { useTitle } from '../site/useTitle';
 
 function Step({ n, title, children }: { n: number; title: string; children: ReactNode }) {
@@ -86,6 +97,39 @@ function SectionOption({ section, checked, onChoose }: { section: Section; check
   );
 }
 
+/** A link that opens this form filled in as it is now, to send to someone (see src/lib/prefill.ts). */
+function ShareLink({ draft }: { draft: Draft }) {
+  const [link, setLink] = useState<string>();
+  const [copied, setCopied] = useState(false);
+  const make = async () => {
+    const url = `${SITE_URL}/submit?${prefillParams(prefillFromDraft(draft)).toString().replace(/%2C/g, ',')}`; // plain commas are easier to read
+    setLink(url);
+    setCopied(await navigator.clipboard?.writeText(url).then(() => true, () => false) ?? false);
+  };
+  return (
+    <div className="panel">
+      <div className="panel-title">Send this form to someone</div>
+      <div className="space-y-2 px-3 py-2">
+        <p className="text-xs text-muted">
+          A link that opens this form already filled in, for example to nominate someone or to start a submission for them to
+          check. Notes on links are not included.
+        </p>
+        <button type="button" onClick={make} className={buttonClass()}>
+          Copy a link to this form
+        </button>
+        {link && (
+          <>
+            <p className="text-xs" role="status">
+              {copied ? 'Copied.' : 'Copy this link:'}
+            </p>
+            <input readOnly value={link} onFocus={(e) => e.target.select()} aria-label="Link to this form" className={`${inputClass} font-mono text-xs`} />
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function Preview({ d }: { d: Draft }) {
   const section = sectionById(d.section);
   const evidence = d.evidence.filter((e) => e.url || e.title);
@@ -118,8 +162,25 @@ function Preview({ d }: { d: Draft }) {
 
 export default function Submit() {
   useTitle('Submit a contribution');
-  const [params] = useSearchParams();
-  const { draft, set, update, errors, submission, slug, clear } = useSubmissionDraft(params.get('section'));
+  const [params, setParams] = useSearchParams();
+  const { draft, prefilled, set, update, errors, submission, slug, clear } = useSubmissionDraft(params);
+
+  // A link that filled in the form: take its fields out of the address (so reloading keeps any edits),
+  // and look up the titles of the pull requests it listed.
+  useEffect(() => {
+    if (!prefilled) return;
+    setParams({}, { replace: true });
+    const numbers = draft.evidence.flatMap((e) => (e.title ? [] : parsePullRequestList(e.url, SITE.physlib.repository).numbers));
+    if (!numbers.length) return;
+    const kind = pullRequestKind(draft.section);
+    pullRequestTitles(numbers).then(({ titles }) =>
+      update((d) =>
+        withLookedUpTitles(d, new Map([...titles].map(([n, t]) => [`https://github.com/${SITE.physlib.repository}/pull/${n}`, t && pullRequestEvidenceTitle(n, t, kind)]))),
+      ),
+    );
+    // Once, when the page opens.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [attempted, setAttempted] = useState(false);
   const [token, setToken] = useState('');
   const [progress, setProgress] = useState<string>();
@@ -132,7 +193,7 @@ export default function Submit() {
   const sender = senderInput && !errors[senderField] ? senderInput : undefined;
   const section = sectionById(draft.section)!;
   // Imported pull requests are evidence of this kind: reviews in the Review section, pull requests elsewhere.
-  const prKind: EvidenceKind = section.evidenceKinds[0] === 'pull-request-review' ? 'pull-request-review' : 'pull-request';
+  const prKind = pullRequestKind(section.id);
   const setEvidence = (i: number, patch: Partial<EvidenceDraft>) =>
     update((d) => ({ ...d, evidence: d.evidence.map((e, j) => (j === i ? { ...e, ...patch } : e)) }));
   const setCollaborator = (i: number, patch: Partial<PersonDraft>) =>
@@ -168,6 +229,12 @@ export default function Submit() {
           <Link to="/about#process">how a report is made</Link>.
         </PageTitle>
 
+        {prefilled && (
+          <p className="mb-6 max-w-3xl border border-warning/40 bg-[#fdf8ec] px-3 py-2 text-sm">
+            <strong>This form was filled in from the link you opened.</strong> Check every field, add anything missing, and send
+            it in step 5. Nothing has been sent yet.
+          </p>
+        )}
         <form className="max-w-3xl space-y-8" onSubmit={(e) => e.preventDefault()} noValidate>
           <Step n={1} title="Section">
             <div className="space-y-2">
@@ -307,14 +374,7 @@ export default function Submit() {
                   ],
                 }))
               }
-              onLookedUp={(titles) =>
-                update((d) => {
-                  const evidence = d.evidence
-                    .filter((e) => e.title || titles.get(e.url) !== null)
-                    .map((e) => (!e.title && titles.get(e.url) ? { ...e, title: titles.get(e.url)! } : e));
-                  return { ...d, evidence: evidence.length ? evidence : [emptyEvidence(prKind)] };
-                })
-              }
+              onLookedUp={(titles) => update((d) => withLookedUpTitles(d, titles))}
             />
             {err('evidence') && <p className="mb-2 text-xs text-danger">{err('evidence')}</p>}
             <ol className="space-y-3">
@@ -460,6 +520,7 @@ export default function Submit() {
             never submitted.
           </p>
         </div>
+        <ShareLink draft={draft} />
         <p>
           <button type="button" className={linkButtonClass} onClick={() => (clear(), setAttempted(false))}>
             Clear the form
