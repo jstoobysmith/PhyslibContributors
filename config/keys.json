@@ -2,6 +2,11 @@
   {
     "id": "key-1",
     "publicKeyMultibase": "z6MkpkS6BTNZJxZkdN4J4DLVdypYKBsRcghobj7Wvrdb9hRK",
-    "status": "temporary"
+    "status": "retired"
+  },
+  {
+    "id": "key-2",
+    "publicKeyMultibase": "z6Mkh3mf4GCKN8ck3bpktjX91XQNJAU3Z5YL5Luiw5YTd7JE",
+    "status": "active"
   }
 ]
