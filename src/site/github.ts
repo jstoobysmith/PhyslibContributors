@@ -104,6 +104,27 @@ async function publicApi<T>(path: string): Promise<T | undefined> {
   return res.json() as Promise<T>;
 }
 
+/** At most this many titles are looked up per import, to stay within GitHub's limit on calls without a token. */
+export const TITLE_LOOKUPS = 30;
+
+/**
+ * The titles of Physlib pull requests, for imported evidence: number -> title,
+ * or null if there is no such pull request. Stops early (keeping what it has)
+ * if GitHub's limit is reached.
+ */
+export async function pullRequestTitles(numbers: number[]): Promise<{ titles: Map<number, string | null>; complete: boolean }> {
+  const titles = new Map<number, string | null>();
+  try {
+    for (const n of numbers.slice(0, TITLE_LOOKUPS)) {
+      const pr = await publicApi<{ title: string }>(`/repos/${SITE.physlib.repository}/pulls/${n}`);
+      titles.set(n, pr ? pr.title : null);
+    }
+  } catch {
+    return { titles, complete: false };
+  }
+  return { titles, complete: numbers.length <= TITLE_LOOKUPS };
+}
+
 interface RepoJson {
   name: string;
   full_name: string;

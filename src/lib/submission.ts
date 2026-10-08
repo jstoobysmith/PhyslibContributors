@@ -113,6 +113,26 @@ export function normaliseUrl(url: string): string {
   return u && !/^[a-z]+:/i.test(u) && /^[\w-]+(\.[\w-]+)+/.test(u) ? `https://${u}` : u;
 }
 
+/**
+ * Pull request numbers from a pasted list, for importing evidence: numbers,
+ * "#numbers" or links to pull requests of `repo`, separated by commas,
+ * semicolons, spaces or new lines. Repeats are dropped; anything else is
+ * returned as `invalid`.
+ */
+export function parsePullRequestList(text: string, repo: string): { numbers: number[]; invalid: string[] } {
+  const numbers: number[] = [];
+  const invalid: string[] = [];
+  const link = new RegExp(`^(?:https?://)?(?:www\\.)?github\\.com/${repo.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/pull/(\\d+)(?:[/?#].*)?$`, 'i');
+  for (const token of text.split(/[\s,;]+/).filter(Boolean)) {
+    const m = token.match(/^#?(\d+)$/) ?? token.match(link);
+    const n = m ? Number(m[1]) : NaN;
+    if (Number.isSafeInteger(n) && n > 0) {
+      if (!numbers.includes(n)) numbers.push(n);
+    } else invalid.push(token);
+  }
+  return { numbers, invalid };
+}
+
 /** The likely kind of an evidence link, from its URL; `fallback` for anything unrecognised. */
 export function guessEvidenceKind(url: string, fallback: Evidence['kind']): Evidence['kind'] {
   if (/github\.com\/[^/]+\/[^/]+\/commit\//i.test(url)) return 'commit';
