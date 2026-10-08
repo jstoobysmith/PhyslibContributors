@@ -105,6 +105,30 @@ npm run setup-check -- --json public/data/status.json     # also preview the res
 python3 scripts/draw-badges.py                            # redraw the section badges
 ```
 
+## Links that fill in the form
+
+A link to `/submit` can fill in the form, so you can send someone a submission
+that is ready to check and send, for example to nominate them. Build one with
+*Copy a link to this form* on the form, or by hand:
+
+```
+https://jstoobysmith.github.io/PhyslibContributors/submit?section=review&name=Ada%20Example&github=ada&title=Reviewed%2010%20pull%20requests%20on%20quantum%20mechanics&prs=1749,1747,1744
+```
+
+| Parameter | Fills in |
+| --- | --- |
+| `section` | `review`, `maintenance`, `refactoring`, `foundations`, `formalisation`, `documentation` or `test` |
+| `name`, `github`, `orcid` | who did the work |
+| `nominator` | the GitHub username of whoever is nominating them (they still confirm consent themselves) |
+| `title`, `summary` | the work (URL-encoded; `%0A` for a new line) |
+| `from`, `to` | months, `YYYY-MM` |
+| `prs` | Physlib pull request numbers, separated by commas (their titles are looked up) |
+| `link` | any other evidence link; repeat for several |
+
+Opening such a link replaces any draft saved in that browser, says that the
+form was filled in from a link, and sends nothing. The code is in
+`src/lib/prefill.ts`.
+
 ## Rules for approving reports
 
 `src/lib/review.ts` and `scripts/sign.ts` sign a report only if:

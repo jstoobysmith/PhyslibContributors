@@ -133,6 +133,15 @@ export function parsePullRequestList(text: string, repo: string): { numbers: num
   return { numbers, invalid };
 }
 
+/** The link to a pull request of `repo`. */
+export const pullRequestUrl = (repo: string, n: number) => `https://github.com/${repo}/pull/${n}`;
+
+/** An evidence title from a pull request's own title, within the 200 characters a title may have. */
+export function pullRequestEvidenceTitle(n: number, title: string, kind: Evidence['kind']): string {
+  const text = `${kind === 'pull-request-review' ? 'Review of ' : ''}#${n}: ${title.replace(/\p{Cc}+/gu, ' ').trim()}`;
+  return text.length > 200 ? `${text.slice(0, 199)}…` : text;
+}
+
 /** The likely kind of an evidence link, from its URL; `fallback` for anything unrecognised. */
 export function guessEvidenceKind(url: string, fallback: Evidence['kind']): Evidence['kind'] {
   if (/github\.com\/[^/]+\/[^/]+\/commit\//i.test(url)) return 'commit';
