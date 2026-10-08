@@ -2,7 +2,7 @@
   {
     "id": "key-1",
     "publicKeyMultibase": "z6MkpkS6BTNZJxZkdN4J4DLVdypYKBsRcghobj7Wvrdb9hRK",
-    "status": "retired"
+    "status": "revoked"
   },
   {
     "id": "key-2",
