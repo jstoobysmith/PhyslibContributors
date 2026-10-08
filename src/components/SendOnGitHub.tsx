@@ -102,15 +102,13 @@ const open = (url: string) => window.open(url, '_blank', 'noopener');
  */
 export function SendWithFork({
   sender,
-  senderRole,
   slug,
   submission,
   guard,
   onDownload,
 }: {
-  /** The GitHub account the pull request must come from (the recipient or the nominator), once valid. */
+  /** The GitHub account the pull request must come from (the contributor's), once valid. */
   sender: string | undefined;
-  senderRole: 'contributor' | 'nominator';
   slug: string;
   /** The submission, once the form is valid. */
   submission: Submission | undefined;
@@ -132,7 +130,7 @@ export function SendWithFork({
   if (!sender) {
     return (
       <p className="text-sm">
-        Enter {senderRole === 'nominator' ? 'your' : 'the contributor’s'} GitHub username in step 2 first: the submission is sent from
+        Enter the contributor’s GitHub username in step 2 first: the submission is sent from
         that account.
       </p>
     );
@@ -141,7 +139,7 @@ export function SendWithFork({
   const intro = (
     <p className="text-sm">
       The submission is sent as a pull request (a proposed change) on GitHub, from the account of{' '}
-      {senderRole === 'nominator' ? 'the person nominating' : 'the contributor'}: <strong>@{sender}</strong>.{' '}
+      the contributor: <strong>@{sender}</strong>.{' '}
       <a href="https://github.com/login">Sign in to GitHub</a> as @{sender} before you start. Each step opens GitHub in a new tab;
       come back here after each one.
     </p>
@@ -305,11 +303,9 @@ export function SendWithFork({
  */
 export function SendAsIssue({
   sender,
-  senderRole,
   guard,
 }: {
   sender: string | undefined;
-  senderRole: 'contributor' | 'nominator';
   guard: (fn: (s: Submission) => void) => () => void;
 }) {
   const [sent, setSent] = useState<{ submission: Submission; pasted: boolean }>();
@@ -334,7 +330,7 @@ export function SendAsIssue({
   if (!sender) {
     return (
       <p className="text-sm">
-        Enter {senderRole === 'nominator' ? 'your' : 'the contributor’s'} GitHub username in step 2 first: the submission is sent from
+        Enter the contributor’s GitHub username in step 2 first: the submission is sent from
         that account.
       </p>
     );
@@ -354,7 +350,7 @@ export function SendAsIssue({
     <div className="space-y-3 text-sm">
       <p>
         The submission is sent as an issue on GitHub (a public page where the maintainers review it), from the account of{' '}
-        {senderRole === 'nominator' ? 'the person nominating' : 'the contributor'}: <strong>@{sender}</strong>.{' '}
+        the contributor: <strong>@{sender}</strong>.{' '}
         <a href="https://github.com/login">Sign in to GitHub</a> as @{sender} first.
       </p>
       <Button primary onClick={send}>

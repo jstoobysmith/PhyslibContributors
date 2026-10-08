@@ -89,7 +89,7 @@ export default definePart({
       const otherAuthor = issueApprovalDecision(approvers.map((m) => accept(m, 2)), { ...issue, author: 'someone-else' }, s);
       if (!accepted.ok) return fail(`“${ACCEPT_COMMAND}” from ${approvers.map((m) => '@' + m.github).join(', ')} was refused: ${accepted.reason}.`);
       if (beforeEdit.ok) return fail('An acceptance made before the issue was last edited still counted.');
-      if (otherAuthor.ok) return fail('A submission opened by someone other than the contributor or nominator was accepted.');
+      if (otherAuthor.ok) return fail('A submission opened by someone other than the contributor was accepted.');
       return pass(`Accepted by “${ACCEPT_COMMAND} I have ${CONFLICT_DECLARATION}”; refused when the issue was edited afterwards, or opened by someone else.`);
     });
 

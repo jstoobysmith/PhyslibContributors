@@ -42,14 +42,11 @@ function readSubmission(body: string | null): { submission?: Submission; errors:
   return parsed.success ? { submission: parsed.data, errors: [] } : { errors: formatIssues(parsed.error) };
 }
 
-/** Whether the issue was opened by the person who may submit it: the recipient, or the nominator. */
+/** Whether the issue was opened by the person who may submit it: the contributor. */
 function openedByWrongPerson(s: Submission, author: string): string | undefined {
-  const allowed = [s.recipient.github, s.nominatedBy].filter(Boolean).map((l) => l!.toLowerCase());
-  return allowed.includes(author.toLowerCase())
+  return author.toLowerCase() === s.recipient.github.toLowerCase()
     ? undefined
-    : `This issue was opened by @${author}, but a submission must be opened by the contributor (@${s.recipient.github})${
-        s.nominatedBy ? ` or the nominator (@${s.nominatedBy})` : ''
-      }. Please open it again from that account.`;
+    : `This issue was opened by @${author}, but a submission must be opened by the contributor (@${s.recipient.github}). Please open it again from that account.`;
 }
 
 async function comment(body: string) {

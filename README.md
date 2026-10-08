@@ -108,7 +108,7 @@ python3 scripts/draw-badges.py                            # redraw the section b
 ## Links that fill in the form
 
 A link to `/submit` can fill in the form, so you can send someone a submission
-that is ready to check and send, for example to nominate them. Build one with
+that is ready to check and send from their own account. Build one with
 *Copy a link to this form* on the form, or by hand:
 
 ```
@@ -119,7 +119,6 @@ https://contributions.physlib.io/submit?section=review&name=Ada%20Example&github
 | --- | --- |
 | `section` | `review`, `maintenance`, `refactoring`, `foundations`, `formalisation`, `documentation` or `test` |
 | `name`, `github`, `orcid` | who did the work |
-| `nominator` | the GitHub username of whoever is nominating them (they still confirm consent themselves) |
 | `title`, `summary` | the work (URL-encoded; `%0A` for a new line) |
 | `from`, `to` | months, `YYYY-MM` |
 | `prs` | Physlib pull request numbers, separated by commas (their titles are looked up) |
@@ -133,8 +132,8 @@ form was filled in from a link, and sends nothing. The code is in
 
 `src/lib/review.ts` and `scripts/sign.ts` sign a report only if:
 
-- it was submitted by the recipient or the nominator: they opened its issue,
-  or the pull request that last changed it, which was merged into `main`;
+- it was submitted by the contributor it credits: they opened its issue, or
+  the pull request that last changed it, which was merged into `main`;
 - the file on `main` is exactly the submission in the issue, or exactly what
   that pull request merged;
 - it has at least `review.requiredApprovals` (in `config/site.json`) approvals
@@ -144,8 +143,8 @@ form was filled in from a link, and sends nothing. The code is in
   approval is a comment starting `/accept`; an edit to the issue afterwards
   voids it. On a pull request, it is an *Approve* review on its last commit;
 - none of those approvals comes from the recipient, anyone named as joint
-  work, the nominator or whoever opened the issue or pull request, and none
-  of them merged it.
+  work or whoever opened the issue or pull request, and none of them merged
+  it.
 
 The *Submission issue* workflow checks the same rules before it commits an
 accepted submission (`scripts/issue-submission.ts`), and records the issue in

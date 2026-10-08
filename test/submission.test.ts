@@ -33,10 +33,8 @@ describe('submission schema', () => {
     expect(bad('https://github.com/x')).toBeUndefined();
   });
 
-  it('requires consent for nominations, and no self-nomination', () => {
-    expect(errorsFor({ ...exampleSubmission, nominatedBy: 'someone-else' }).recipientConsent).toBeDefined();
-    expect(errorsFor({ ...exampleSubmission, nominatedBy: 'someone-else', recipientConsent: true })).toEqual({});
-    expect(errorsFor({ ...exampleSubmission, nominatedBy: 'Example-Reviewer', recipientConsent: true }).nominatedBy).toBeDefined();
+  it('has no nominations: a submission is the contributor’s own', () => {
+    expect(Object.keys(errorsFor({ ...exampleSubmission, nominatedBy: 'someone-else' }))).toEqual(['']);
   });
 
   it('requires the period to end after it starts', () => {

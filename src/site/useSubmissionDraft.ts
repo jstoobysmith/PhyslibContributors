@@ -24,9 +24,6 @@ export interface Draft {
   name: string;
   github: string;
   orcid: string;
-  nominating: boolean;
-  nominatedBy: string;
-  consent: boolean;
   collaborators: PersonDraft[];
   from: string;
   to: string;
@@ -46,9 +43,6 @@ function blankDraft(section: string | null): Draft {
     name: '',
     github: '',
     orcid: '',
-    nominating: false,
-    nominatedBy: '',
-    consent: false,
     collaborators: [],
     from: '',
     to: '',
@@ -92,9 +86,6 @@ export function testDraft(d: Draft): Draft {
     ...testContent(),
     section: 'test',
     name: d.name.trim() || TEST_NAME,
-    nominating: false,
-    nominatedBy: '',
-    consent: false,
     collaborators: [],
   };
 }
@@ -141,8 +132,6 @@ function withPrefill(d: Draft, p: Prefill): Draft {
     name: p.name ?? d.name,
     github: p.github ?? d.github,
     orcid: p.orcid ?? d.orcid,
-    nominating: p.nominator ? true : d.nominating,
-    nominatedBy: p.nominator ?? d.nominatedBy,
     title: p.title ?? d.title,
     summary: p.summary ?? d.summary,
     from: p.from ?? d.from,
@@ -158,7 +147,6 @@ export function prefillFromDraft(d: Draft): Prefill {
     name: d.name,
     github: githubLoginFromInput(d.github),
     orcid: d.orcid,
-    nominator: d.nominating ? githubLoginFromInput(d.nominatedBy) : undefined,
     title: d.title,
     summary: d.summary,
     from: d.from,
@@ -219,7 +207,6 @@ export function toSubmission(d: Draft, submittedAt: string): unknown {
     evidence: d.evidence
       .filter((e) => e.url.trim() || e.title.trim())
       .map((e) => ({ url: normaliseUrl(e.url), kind: e.kind, title: opt(e.title), description: opt(e.description) })),
-    ...(d.nominating ? { nominatedBy: login(d.nominatedBy), recipientConsent: d.consent || undefined } : {}),
     submittedAt,
   };
 }

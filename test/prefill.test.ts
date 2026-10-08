@@ -11,7 +11,6 @@ describe('links that fill in the form', () => {
       name: 'Ada Example',
       github: 'ada',
       orcid: undefined,
-      nominator: undefined,
       title: 'Reviewed 10 pull requests',
       summary: undefined,
       from: '2026-01',

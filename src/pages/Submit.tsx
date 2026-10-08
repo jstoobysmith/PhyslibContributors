@@ -111,8 +111,8 @@ function ShareLink({ draft }: { draft: Draft }) {
       <div className="panel-title">Send this form to someone</div>
       <div className="space-y-2 px-3 py-2">
         <p className="text-xs text-muted">
-          A link that opens this form already filled in, for example to nominate someone or to start a submission for them to
-          check. Notes on links are not included.
+          A link that opens this form already filled in, for example to start a submission for someone to check and
+          send. Notes on links are not included.
         </p>
         <button type="button" onClick={make} className={buttonClass()}>
           Copy a link to this form
@@ -187,10 +187,9 @@ export default function Submit() {
   const [result, setResult] = useState<{ url?: string; error?: string }>();
 
   const err = (path: string) => (attempted ? errors[path] : undefined);
-  // The submission must come from the recipient, or from the nominator when nominating.
-  const senderField = draft.nominating ? 'nominatedBy' : 'recipient.github';
-  const senderInput = githubLoginFromInput(draft.nominating ? draft.nominatedBy : draft.github);
-  const sender = senderInput && !errors[senderField] ? senderInput : undefined;
+  // The submission must come from the contributor's own GitHub account.
+  const senderInput = githubLoginFromInput(draft.github);
+  const sender = senderInput && !errors['recipient.github'] ? senderInput : undefined;
   const section = sectionById(draft.section)!;
   // Imported pull requests are evidence of this kind: reviews in the Review section, pull requests elsewhere.
   const prKind = pullRequestKind(section.id);
@@ -224,7 +223,7 @@ export default function Submit() {
     <Container className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_17rem]">
       <div className="min-w-0">
         <PageTitle title="Submit a contribution">
-          Describe the work and link to it. You can submit your own work or nominate someone else. The submission becomes an
+          Describe your work and link to it. The submission becomes an
           issue on GitHub, where the maintainers check it; you need a free GitHub account. See{' '}
           <Link to="/about#process">how a report is made</Link>.
         </PageTitle>
@@ -290,23 +289,6 @@ export default function Submit() {
                 <Input value={draft.orcid} onChange={(e) => set('orcid', e.target.value)} placeholder="0000-0002-1825-0097" data-invalid={!!err('recipient.orcid')} />
               </Field>
             </div>
-
-            <label className="mt-4 flex gap-2 text-sm">
-              <input type="checkbox" checked={draft.nominating} onChange={(e) => set('nominating', e.target.checked)} className="mt-1" />
-              <span>I am nominating someone else</span>
-            </label>
-            {draft.nominating && (
-              <div className="mt-3 space-y-3 border-l-2 border-rule pl-4">
-                <div className="max-w-sm">
-                  <GitHubUsernameField label="Your GitHub username" value={draft.nominatedBy} onChange={(v) => set('nominatedBy', v)} error={err('nominatedBy')} />
-                </div>
-                <label className="flex gap-2 text-sm" data-invalid={!!err('recipientConsent')}>
-                  <input type="checkbox" checked={draft.consent} onChange={(e) => set('consent', e.target.checked)} className="mt-1" />
-                  <span>I have asked {draft.name || 'them'} and they agree to be named on this site.</span>
-                </label>
-                {err('recipientConsent') && <p className="text-xs text-danger">{err('recipientConsent')}</p>}
-              </div>
-            )}
 
             <div className="mt-4">
               <p className="text-sm font-bold">Joint work (optional)</p>
@@ -436,7 +418,7 @@ export default function Submit() {
                 <ErrorNote>Some fields need attention; they are marked above.</ErrorNote>
               </div>
             )}
-            <SendAsIssue sender={sender} senderRole={draft.nominating ? 'nominator' : 'contributor'} guard={guard} />
+            <SendAsIssue sender={sender} guard={guard} />
 
             <details className="mt-5 text-sm">
               <summary className="cursor-pointer text-link">Other ways to send it (as a pull request)</summary>
@@ -446,7 +428,6 @@ export default function Submit() {
                   <p className="mt-1 mb-2 text-muted">For people who prefer pull requests. The maintainers review it there instead.</p>
                   <SendWithFork
                     sender={sender}
-                    senderRole={draft.nominating ? 'nominator' : 'contributor'}
                     slug={slug}
                     submission={submission}
                     guard={guard}
