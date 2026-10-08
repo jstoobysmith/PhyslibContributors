@@ -13,7 +13,9 @@ const cache = new Map<string, Promise<unknown>>();
 
 export function fetchJson<T>(path: string): Promise<T> {
   if (!cache.has(path)) {
-    const p = fetch(path).then((r) => {
+    // GitHub Pages lets browsers reuse files for 10 minutes; "no-cache" asks the server each time whether a
+    // file has changed (a quick check when it has not), so new reports and status results show at once.
+    const p = fetch(path, { cache: 'no-cache' }).then((r) => {
       if (!r.ok) throw new Error(`${path}: HTTP ${r.status}`);
       return r.json();
     });
