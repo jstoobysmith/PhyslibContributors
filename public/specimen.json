@@ -98,9 +98,9 @@
   "proof": {
     "type": "DataIntegrityProof",
     "cryptosuite": "eddsa-rdfc-2022",
-    "created": "2026-10-08T08:15:53Z",
-    "verificationMethod": "did:web:contributions.physlib.io#key-1",
+    "created": "2026-10-08T08:24:45Z",
+    "verificationMethod": "did:web:contributions.physlib.io#key-2",
     "proofPurpose": "assertionMethod",
-    "proofValue": "z2hEU9ciTuuht1uu62ESqd5Gf3FhbmqvogXLDJvPZ7bS1x6yXcAVuTdTA1BuCyhb6SgmXwmTRGayajXqLQhGNvXQW"
+    "proofValue": "z4mEEZ7jXfDzzZTuHa7zpG5cmUpERhEbUXuuB6pALjyRWADs2VcX6QeuVLraiFnefKWyY3mVaZtUMrR4o91h2TL6V"
   }
 }
