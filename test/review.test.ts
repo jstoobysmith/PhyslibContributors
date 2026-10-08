@@ -31,17 +31,15 @@ describe('approval rules', () => {
     expect(approvalDecision([review(maintainer, 'APPROVED', '1', undefined, 'older-sha')], pr(), submission, 1).ok).toBe(false);
   });
 
-  it('requires the pull request to be opened by the recipient or the nominator', () => {
+  it('requires the pull request to be opened by the contributor', () => {
     const d = approvalDecision([review(maintainer, 'APPROVED', '1')], pr({ author: 'mallory' }), submission, 1);
     expect(d.ok).toBe(false);
-    const nominated = { ...submission, nominatedBy: 'bob' };
-    expect(approvalDecision([review(maintainer, 'APPROVED', '1')], pr({ author: 'bob' }), nominated, 1).ok).toBe(true);
+    expect(approvalDecision([review(maintainer, 'APPROVED', '1')], pr({ author: 'alice' }), submission, 1).ok).toBe(true);
   });
 
-  it('ignores approvals from the recipient, nominator or people named as joint work', () => {
+  it('ignores approvals from the recipient or people named as joint work', () => {
     const self = { recipient: { github: maintainer, name: 'M' } };
     expect(approvalDecision([review(maintainer, 'APPROVED', '1')], pr({ author: maintainer }), self, 1).ok).toBe(false);
-    expect(approvalDecision([review(maintainer, 'APPROVED', '1')], pr({ author: maintainer }), { ...submission, nominatedBy: maintainer }, 1).ok).toBe(false);
     const joint = { ...submission, collaborators: [{ github: maintainer, name: 'M' }] };
     expect(approvalDecision([review(maintainer, 'APPROVED', '1')], pr(), joint, 1).ok).toBe(false);
   });

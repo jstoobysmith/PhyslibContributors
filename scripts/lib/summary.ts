@@ -90,7 +90,7 @@ export function maintainerNote(venue: Venue): string {
       : `To approve, submit an *Approve* review whose text includes “${CONFLICT_DECLARATION}”, then merge.`;
   return (
     `**For maintainers.** Check each criterion against the evidence. ${approve} ` +
-    `Approvals from anyone credited by the submission, the nominator or whoever opened this ${venue} do not count. ` +
+    `Approvals from anyone credited by the submission or whoever opened this ${venue} do not count. ` +
     'You may ask for changes, or close a submission that does not clearly meet the criteria.'
   );
 }

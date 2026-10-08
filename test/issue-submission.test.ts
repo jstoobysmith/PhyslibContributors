@@ -50,7 +50,7 @@ describe('submissions made as issues', () => {
     expect(issueApprovalDecision([accept(3)], { ...issue, lastEditedAt: at(2) }, submission, 1).ok).toBe(true);
   });
 
-  it('must be opened by the recipient or nominator, and not accepted by anyone involved', () => {
+  it('must be opened by the contributor, and not accepted by anyone involved', () => {
     expect(issueApprovalDecision([accept(1)], { ...issue, author: 'mallory' }, submission, 1).ok).toBe(false);
     const own = { ...submission, recipient: { github: m.github, name: m.name } };
     expect(issueApprovalDecision([accept(1)], { ...issue, author: m.github }, own, 1).ok).toBe(false);

@@ -61,9 +61,9 @@ export const evidenceSchema = z.object({
 });
 
 /**
- * A submission is a JSON file under submissions/ that a contributor (or a
- * nominator) opens as a pull request. Merging it accepts the report; the
- * signing workflow then signs it into an Open Badges 3.0 credential.
+ * A submission is a JSON file under submissions/, sent by the contributor
+ * whose work it describes (as an issue, or a pull request). When it is
+ * accepted, the signing workflow signs it into an Open Badges 3.0 credential.
  */
 export const submissionSchema = z
   .object({
@@ -89,20 +89,9 @@ export const submissionSchema = z
       .refine((p) => p.from <= p.to, { message: 'The work must end after it starts', path: ['to'] })
       .optional(),
     evidence: z.array(evidenceSchema).min(1, 'Please give at least one link').max(50),
-    nominatedBy: githubLogin.optional(),
-    /** A nominator confirms that the recipient agrees to be named. */
-    recipientConsent: z.literal(true).optional(),
     submittedAt: z.iso.datetime({ offset: true }),
   })
-  .strict()
-  .refine((s) => !s.nominatedBy || s.nominatedBy.toLowerCase() !== s.recipient.github.toLowerCase(), {
-    message: 'Leave this empty when submitting your own work',
-    path: ['nominatedBy'],
-  })
-  .refine((s) => !s.nominatedBy || s.recipientConsent === true, {
-    message: 'Please confirm that the person you are nominating agrees to be named',
-    path: ['recipientConsent'],
-  });
+  .strict();
 
 export type Submission = z.infer<typeof submissionSchema>;
 export type Evidence = z.infer<typeof evidenceSchema>;
@@ -238,9 +227,8 @@ export function submissionMarkdown(s: Submission): string {
   const section = sectionById(s.section)!;
   const lines = [
     `**Section ${section.numeral}. ${md(section.name)}**: ${md(section.reportName)}`,
-    `**Recipient:** ${md(s.recipient.name)} (@${s.recipient.github})` + (s.nominatedBy ? `, nominated by @${s.nominatedBy}` : ''),
+    `**Recipient:** ${md(s.recipient.name)} (@${s.recipient.github})`,
   ];
-  if (s.nominatedBy) lines.push(`@${s.recipient.github}: please confirm on this pull request that you agree to this nomination.`);
   if (s.collaborators?.length) {
     lines.push(`**Joint work with:** ${s.collaborators.map((c) => `${md(c.name)} (@${c.github})`).join(', ')}`);
   }

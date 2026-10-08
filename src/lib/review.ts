@@ -26,11 +26,11 @@ export type ApprovalDecision = { ok: true; approvers: string[] } | { ok: false; 
 /** The phrase an approving maintainer includes in their review, e.g. "I have no conflict of interest". */
 export const CONFLICT_DECLARATION = SITE.review.conflictDeclaration;
 
-type Credited = Pick<Submission, 'recipient' | 'nominatedBy' | 'collaborators'>;
+type Credited = Pick<Submission, 'recipient' | 'collaborators'>;
 
 /** People who may not approve a submission: those it credits, and those who put it forward. */
 export function conflictedLogins(pr: { author: string }, s: Credited): Set<string> {
-  return new Set([s.recipient.github, pr.author, s.nominatedBy ?? '', ...(s.collaborators ?? []).map((c) => c.github)].filter(Boolean).map((l) => l.toLowerCase()));
+  return new Set([s.recipient.github, pr.author, ...(s.collaborators ?? []).map((c) => c.github)].filter(Boolean).map((l) => l.toLowerCase()));
 }
 
 /**
@@ -38,7 +38,7 @@ export function conflictedLogins(pr: { author: string }, s: Credited): Set<strin
  * commit that was merged. An approval counts only if it is from a listed
  * maintainer who is not credited by, and did not put forward, the submission,
  * and who declared no conflict of interest in the review. The pull request
- * must be opened by the recipient or the nominator, and may not be merged by
+ * must be opened by the contributor, and may not be merged by
  * anyone the report credits.
  *
  * Test submissions (the test section) are exempt, to make the process easy to
@@ -59,8 +59,8 @@ export function approvalDecision(
 
 function strictDecision(reviews: PullRequestReview[], pr: PullRequestFacts, submission: Credited, requiredApprovals: number): ApprovalDecision {
   const author = pr.author.toLowerCase();
-  if (author !== submission.recipient.github.toLowerCase() && author !== submission.nominatedBy?.toLowerCase()) {
-    return { ok: false, reason: `it was opened by @${pr.author}, who is neither the recipient nor the nominator` };
+  if (author !== submission.recipient.github.toLowerCase()) {
+    return { ok: false, reason: `it was opened by @${pr.author}, not by the contributor (@${submission.recipient.github})` };
   }
 
   const latest = new Map<string, PullRequestReview>();
@@ -107,7 +107,7 @@ export interface IssueFacts {
  * The same rules for a submission made as an issue. Each "/accept" comment is
  * an approval of the issue's text as it stood when the comment was made, so an
  * edit to the issue afterwards voids it (as a new commit voids a pull request
- * approval). The issue must be opened by the recipient or the nominator.
+ * approval). The issue must be opened by the contributor.
  *
  * A test submission needs no approvals, but is accepted only when a listed
  * maintainer comments "/accept" (for a pull request, a maintainer's merge).

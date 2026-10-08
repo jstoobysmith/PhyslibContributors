@@ -2,7 +2,8 @@ import { Link } from 'react-router-dom';
 import { ACCEPT_COMMAND } from '../lib/issue-submission';
 import { Container, PageTitle } from '../components/ui';
 import { WorkflowDiagram } from '../components/WorkflowDiagram';
-import { ISSUER_DID, MAINTAINERS, SECTIONS, SIGNING_KEY, SITE, urls } from '../lib/config';
+import { ISSUER_DID, MAINTAINERS, SECTIONS, SIGNING_KEY, SITE, SITE_URL, urls } from '../lib/config';
+import { PREFILL_PARAMETERS, prefillParams } from '../lib/prefill';
 import { asset } from '../site/data';
 import { useTitle } from '../site/useTitle';
 
@@ -10,11 +11,27 @@ const CONTENTS = [
   ['purpose', 'Purpose'],
   ['maintainers', 'Who reviews reports'],
   ['process', 'How a report is made'],
+  ['prefill', 'Links that fill in the form'],
   ['meaning', 'What a report certifies'],
   ['sections', 'Sections'],
   ['revocation', 'Revoking a report'],
   ['trust', 'Signatures and keys'],
 ];
+
+/** The example on this page: the link the form's "Copy a link" would make for it. */
+const EXAMPLE_QUERY = prefillParams({
+  section: 'review',
+  name: 'Ada Example',
+  github: 'ada-example',
+  title: 'Reviewed 10 pull requests on quantum mechanics',
+  from: '2026-07',
+  to: '2026-07',
+  prs: [1351, 1348, 1328],
+})
+  .toString()
+  .replace(/\+/g, '%20')
+  .replace(/%2C/g, ',');
+const EXAMPLE_LINK = `${SITE_URL}/submit?${EXAMPLE_QUERY}`;
 
 export default function About() {
   useTitle('About');
@@ -66,10 +83,10 @@ export default function About() {
               {SITE.review.conflictDeclaration}” in their approval;
             </li>
             <li>
-              none of those approvals comes from the contributor, anyone named as joint work, the nominator, or whoever opened the
-              issue or pull request;
+              none of those approvals comes from the contributor, anyone named as joint work, or whoever opened the issue or pull
+              request;
             </li>
-            <li>the submission was opened by the contributor or the nominator, and has not been changed since it was approved;</li>
+            <li>the submission was opened by the contributor, and has not been changed since it was approved;</li>
             <li>a pull request was not merged by anyone the report credits.</li>
           </ul>
           <p>
@@ -98,6 +115,51 @@ export default function About() {
           <p>
             Reports are numbered in the order they are signed, starting from 1, and keep their number permanently. They are
             cited like other technical reports, for example “{SITE.reportSeries} no. 3 (2026)”.
+          </p>
+
+          <h2 id="prefill" className="scroll-mt-4">
+            Links that fill in the form
+          </h2>
+          <p>
+            A link to the submission form can fill it in, so you can send a contributor a submission that is ready to check and
+            send: for example, one that collects the pull requests they reviewed. Opening such a link sends nothing; the
+            contributor checks every field and sends it from their own GitHub account.
+          </p>
+          <p>The link is the address of the form, followed by any of the parameters below, joined with “&amp;”:</p>
+          <pre className="my-3 overflow-x-auto border border-rule bg-shade p-3 font-mono text-xs leading-relaxed">
+            {`${SITE_URL}/submit?section=…&name=…&github=…&title=…&prs=…`}
+          </pre>
+          <div className="my-3 overflow-x-auto">
+            <table className="w-full font-sans text-sm">
+              <thead>
+                <tr className="border-b border-rule text-left">
+                  <th className="py-1 pr-3 font-bold">Parameter</th>
+                  <th className="py-1 pr-3 font-bold">Fills in</th>
+                  <th className="py-1 font-bold">Example</th>
+                </tr>
+              </thead>
+              <tbody>
+                {PREFILL_PARAMETERS.map((p) => (
+                  <tr key={p.name} className="border-b border-rule/60 align-top">
+                    <td className="py-1.5 pr-3 font-mono text-xs whitespace-nowrap">{p.name}</td>
+                    <td className="py-1.5 pr-3">{p.fills}</td>
+                    <td className="py-1.5 font-mono text-xs [overflow-wrap:anywhere]">{p.example}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p>
+            Spaces and other special characters are written in the usual way for web addresses: a space as %20, a comma inside a
+            title or summary as %2C. For example, this link fills in a review report with three pull requests:
+          </p>
+          <pre className="my-3 overflow-x-auto border border-rule bg-shade p-3 font-mono text-xs leading-relaxed whitespace-pre-wrap [overflow-wrap:anywhere]">
+            {EXAMPLE_LINK}
+          </pre>
+          <p>
+            <Link to={`/submit?${EXAMPLE_QUERY}`}>Open this example</Link>
+            . There is no need to write links by hand: fill in the <Link to="/submit">submission form</Link> and use{' '}
+            <em>Copy a link to this form</em>, beside it. Opening a link replaces any draft saved in that browser.
           </p>
 
           <h2 id="meaning" className="scroll-mt-4">
