@@ -1,0 +1,25 @@
+{
+  "$schema": "https://contributions.physlib.io/schemas/submission.schema.json",
+  "section": "maintenance",
+  "title": "Improvements to the Physlib website",
+  "summary": "- Added monthly contributions page, AI guidelines, GitHub contribution guide.\n- Redesigned the website home page.\n- Added 'lake exe get_cache' to speed up the setup process for new users.",
+  "recipient": {
+    "github": "alex-zughaid",
+    "name": "Alex Zughaid"
+  },
+  "period": {
+    "from": "2026-07",
+    "to": "2026-09"
+  },
+  "evidence": [
+    {
+      "url": "https://github.com/Kernel-Science/physlib-website/pull/3",
+      "kind": "pull-request"
+    },
+    {
+      "url": "https://github.com/Kernel-Science/physlib-website/pull/6",
+      "kind": "pull-request"
+    }
+  ],
+  "submittedAt": "2026-10-08T11:16:08Z"
+}
