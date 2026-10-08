@@ -3,8 +3,8 @@
   "reportSeries": "Physlib Contribution Report",
   "subtitle": "Signed reports on reviewing, maintenance, refactoring, foundations, formalisation and documentation of Physlib",
   "draft": true,
-  "siteUrl": "https://jstoobysmith.github.io/PhyslibContributors",
-  "basePath": "/PhyslibContributors/",
+  "siteUrl": "https://contributions.physlib.io",
+  "basePath": "/",
   "repository": {
     "owner": "jstoobysmith",
     "name": "PhyslibContributors",

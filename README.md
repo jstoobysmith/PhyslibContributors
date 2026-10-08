@@ -92,7 +92,7 @@ cryptographically signed with an OB 3.0 Data Integrity proof, not merely hosted.
 
 ```bash
 npm install
-npm run dev          # local site at http://localhost:5173/PhyslibContributors/
+npm run dev          # local site at http://localhost:5173/
 npm test             # unit tests (see "Standards and testing")
 npm run build        # static site in dist/
 
@@ -112,7 +112,7 @@ that is ready to check and send, for example to nominate them. Build one with
 *Copy a link to this form* on the form, or by hand:
 
 ```
-https://jstoobysmith.github.io/PhyslibContributors/submit?section=review&name=Ada%20Example&github=ada&title=Reviewed%2010%20pull%20requests%20on%20quantum%20mechanics&prs=1749,1747,1744
+https://contributions.physlib.io/submit?section=review&name=Ada%20Example&github=ada&title=Reviewed%2010%20pull%20requests%20on%20quantum%20mechanics&prs=1749,1747,1744
 ```
 
 | Parameter | Fills in |
@@ -281,8 +281,10 @@ _openbadges.physlib.io.  TXT  "v=OB3; did=<issuer DID>; key=<publicKeyMultibase>
 **Replacing the temporary key with the permanent one** (for example when
 moving to a physlib.io domain):
 
-1. If the domain changes, set `siteUrl`, and set `basePath` to `/`. Add a
-   `public/CNAME` file. The DID becomes `did:web:<new host>`.
+1. If the domain changes, set `siteUrl`, and set `basePath` to `/`, and set
+   the custom domain in the Pages settings (a `public/CNAME` file is not
+   needed: Pages is deployed by a workflow). Point the domain at
+   `<owner>.github.io` with a CNAME record. The DID becomes `did:web:<new host>`.
 2. Run `npm run keygen -- --status active`. This marks `key-1` as retired and
    prints the exact TXT record to add.
 3. Store the new `.keys/key-N.json` as `OB_SIGNING_KEY` in the `signing`
