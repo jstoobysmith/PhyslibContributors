@@ -187,6 +187,8 @@ export const urls = {
   issuerImage: () => `${SITE_URL}/${site.issuer.image}`,
   submissionSchema: () => `${SITE_URL}/schemas/submission.schema.json`,
   repo: () => `https://github.com/${site.repository.owner}/${site.repository.name}`,
+  /** Submissions waiting for review: the open issues labelled "submission". */
+  reviewQueue: () => `https://github.com/${site.repository.owner}/${site.repository.name}/issues?q=is%3Aissue%20is%3Aopen%20label%3A${SUBMISSION_LABEL}`,
   physlibRepo: () => `https://github.com/${site.physlib.repository}`,
   goodFirstIssues: () => `https://github.com/${site.physlib.repository}/issues?q=is%3Aopen+label%3A%22good+first+issue%22`,
   github: (login: string) => `https://github.com/${login}`,

@@ -4,11 +4,13 @@ import { SECTIONS, SITE, urls } from '../lib/config';
 import { asset } from '../site/data';
 import { Container } from './ui';
 
-const NAV = [
+/** The main menu. Entries with `href` lead off the site (to GitHub). */
+const NAV: ({ to: string; label: string; end?: boolean } | { href: string; label: string; title: string })[] = [
   { to: '/', label: 'Home', end: true },
   { to: '/sections', label: 'Sections' },
   { to: '/archive', label: 'All reports' },
   { to: '/submit', label: 'Submit' },
+  { href: urls.reviewQueue(), label: 'Review', title: 'Submissions waiting for review, on GitHub' },
   { to: '/verify', label: 'Verify' },
   { to: '/about', label: 'About' },
 ];
@@ -65,11 +67,21 @@ function Header() {
       </div>
       <nav className="border-b border-rule bg-shade" aria-label="Main">
         <Container className="flex flex-wrap gap-x-5 gap-y-1 py-1.5 text-sm">
-          {NAV.map((n) => (
-            <NavLink key={n.to} to={n.to} end={n.end} className={({ isActive }) => (isActive ? 'font-bold text-foreground' : '')}>
-              {n.label}
-            </NavLink>
-          ))}
+          {NAV.map((n) =>
+            'href' in n ? (
+              <a key={n.href} href={n.href} title={n.title}>
+                {n.label}
+                <span aria-hidden="true" className="ml-0.5 text-xs">
+                  ↗
+                </span>
+                <span className="sr-only"> (on GitHub)</span>
+              </a>
+            ) : (
+              <NavLink key={n.to} to={n.to} end={n.end} className={({ isActive }) => (isActive ? 'font-bold text-foreground' : '')}>
+                {n.label}
+              </NavLink>
+            ),
+          )}
         </Container>
       </nav>
     </header>
