@@ -8,7 +8,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        **The easiest way to fill this in is the [submission form](https://jstoobysmith.github.io/PhyslibContributors/submit) on the site**, which writes the text below for you. If you came from the form, just click **Create** at the bottom.
+        **The easiest way to fill this in is the [submission form](https://contributions.physlib.io/submit) on the site**, which writes the text below for you. If you came from the form, just click **Create** at the bottom.
 
         This issue must be opened by the contributor, or by the person nominating them. The maintainers will review it here; an automatic check posts a summary below.
   - type: textarea
