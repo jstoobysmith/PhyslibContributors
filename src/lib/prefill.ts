@@ -27,7 +27,7 @@ export const PREFILL_PARAMETERS: { name: string; fills: string; example: string 
   { name: 'title', fills: 'The title of the report.', example: 'Reviewed 10 pull requests on quantum mechanics' },
   { name: 'summary', fills: 'The summary. %0A starts a new line.', example: 'Careful reviews of …' },
   { name: 'from, to', fills: 'The months the work covers, as YYYY-MM.', example: '2026-07' },
-  { name: 'prs', fills: 'Physlib pull requests, by number, separated by commas. Their titles are looked up when the form opens.', example: '1351,1348,1328' },
+  { name: 'prs', fills: 'Physlib pull requests, by number, separated by commas. Their titles are added automatically.', example: '1351,1348,1328' },
   { name: 'link', fills: 'Any other evidence link, in full. Repeat it for several.', example: 'https://leanprover.zulipchat.com/…' },
 ];
 

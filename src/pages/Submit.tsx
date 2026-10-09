@@ -3,18 +3,17 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { buttonClass, Container, ErrorNote, Field, Input, inputClass, linkButtonClass, PageTitle } from '../components/ui';
 import { EVIDENCE_KINDS, SECTIONS, SITE, SITE_URL, sectionById, TEST_SECTION, urls, type EvidenceKind, type Section } from '../lib/config';
 import { prefillParams } from '../lib/prefill';
-import { evidenceTitle, githubLoginFromInput, guessEvidenceKind, normaliseUrl, parsePullRequestList, pullRequestEvidenceTitle, type Submission } from '../lib/submission';
+import { evidenceTitle, githubLoginFromInput, guessEvidenceKind, normaliseUrl, type Submission } from '../lib/submission';
 import { download } from '../site/data';
 import { ImportPullRequests } from '../components/ImportPullRequests';
 import { SendAsIssue, SendWithFork } from '../components/SendOnGitHub';
-import { openSubmissionPullRequest, pullRequestTitles, submissionJson, whoAmI } from '../site/github';
+import { openSubmissionPullRequest, submissionJson, whoAmI } from '../site/github';
 import {
   chooseSection,
   emptyEvidence,
   prefillFromDraft,
   pullRequestKind,
   useSubmissionDraft,
-  withLookedUpTitles,
   type Draft,
   type EvidenceDraft,
   type PersonDraft,
@@ -165,19 +164,9 @@ export default function Submit() {
   const [params, setParams] = useSearchParams();
   const { draft, prefilled, set, update, errors, submission, slug, clear } = useSubmissionDraft(params);
 
-  // A link that filled in the form: take its fields out of the address (so reloading keeps any edits),
-  // and look up the titles of the pull requests it listed.
+  // A link that filled in the form: take its fields out of the address, so reloading keeps any edits.
   useEffect(() => {
-    if (!prefilled) return;
-    setParams({}, { replace: true });
-    const numbers = draft.evidence.flatMap((e) => (e.title ? [] : parsePullRequestList(e.url, SITE.physlib.repository).numbers));
-    if (!numbers.length) return;
-    const kind = pullRequestKind(draft.section);
-    pullRequestTitles(numbers).then(({ titles }) =>
-      update((d) =>
-        withLookedUpTitles(d, new Map([...titles].map(([n, t]) => [`https://github.com/${SITE.physlib.repository}/pull/${n}`, t && pullRequestEvidenceTitle(n, t, kind)]))),
-      ),
-    );
+    if (prefilled) setParams({}, { replace: true });
     // Once, when the page opens.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -356,7 +345,6 @@ export default function Submit() {
                   ],
                 }))
               }
-              onLookedUp={(titles) => update((d) => withLookedUpTitles(d, titles))}
             />
             {err('evidence') && <p className="mb-2 text-xs text-danger">{err('evidence')}</p>}
             <ol className="space-y-3">
@@ -393,16 +381,11 @@ export default function Submit() {
                         ))}
                       </select>
                     </Field>
-                    <Field label="Title (optional)" error={err(`evidence.${i}.title`)}>
-                      <Input
-                        value={e.title}
-                        onChange={(ev) => setEvidence(i, { title: ev.target.value })}
-                        placeholder={/^\S+\.\S+/.test(e.url) ? evidenceTitle({ url: normaliseUrl(e.url), kind: e.kind }) : ''}
-                      />
-                    </Field>
-                    <Field label="Note (optional)" error={err(`evidence.${i}.description`)}>
-                      <Input value={e.description} onChange={(ev) => setEvidence(i, { description: ev.target.value })} />
-                    </Field>
+                    <div className="sm:col-span-2">
+                      <Field label="Note (optional)" error={err(`evidence.${i}.description`)}>
+                        <Input value={e.description} onChange={(ev) => setEvidence(i, { description: ev.target.value })} />
+                      </Field>
+                    </div>
                   </div>
                 </li>
               ))}
