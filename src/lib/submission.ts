@@ -213,11 +213,27 @@ export function md(text: string): string {
   return text.replace(/[\\`*_{}[\]()#+\-.!|<>~]/g, '\\$&').replace(/@/g, '&#64;');
 }
 
+/** Who opened a pull request given as evidence, and who reviewed it (looked up by the workflows). */
+export interface PullRequestPeople {
+  author: string;
+  reviewers: string[];
+}
+
+/**
+ * "opened by @a; reviewed by @b, @c", with the contributor in bold, so that
+ * maintainers can see whether they wrote or reviewed each pull request. The
+ * "@" is escaped, so nobody is notified.
+ */
+export function pullRequestPeople(p: PullRequestPeople, contributor: string): string {
+  const who = (login: string) => (login.toLowerCase() === contributor.toLowerCase() ? `**${md(`@${login}`)}**` : md(`@${login}`));
+  return `opened by ${who(p.author)}; ${p.reviewers.length ? `reviewed by ${p.reviewers.map(who).join(', ')}` : 'no reviews'}`;
+}
+
 /**
  * A readable account of a submission, used for the pull request description
  * and the reviewers' job summary.
  */
-export function submissionMarkdown(s: Submission): string {
+export function submissionMarkdown(s: Submission, people: Map<string, PullRequestPeople> = new Map()): string {
   const section = sectionById(s.section)!;
   const lines = [
     `**Section ${section.numeral}. ${md(section.name)}**: ${md(section.reportName)}`,
@@ -235,7 +251,9 @@ export function submissionMarkdown(s: Submission): string {
     '',
     '### Evidence',
     ...s.evidence.map(
-      (e) => `- [${md(evidenceTitle(e))}](<${new URL(e.url).href}>) (${EVIDENCE_KINDS[e.kind]})${e.description ? `: ${md(e.description)}` : ''}`,
+      (e) =>
+        `- [${md(evidenceTitle(e))}](<${new URL(e.url).href}>) (${EVIDENCE_KINDS[e.kind]})${e.description ? `: ${md(e.description)}` : ''}` +
+        (people.has(e.url) ? ` — ${pullRequestPeople(people.get(e.url)!, s.recipient.github)}` : ''),
     ),
     '',
     '### Criteria',

@@ -17,7 +17,7 @@ import { isAcceptComment, submissionFromIssueBody } from '../src/lib/issue-submi
 import { formatIssues, md, submissionSchema, submissionSlug, type Submission } from '../src/lib/submission';
 import { freeSlug, ISSUE_SUBMISSIONS_FILE, readIssueSubmissions, ROOT, SUBMISSIONS_DIR, writeJson } from './lib/files';
 import { fetchIssue, githubApi, issueReviewRecord } from './lib/review-record';
-import { evidenceTitles, evidenceWarnings, maintainerNote, submissionSummary, summaryContext } from './lib/summary';
+import { evidenceDetails, evidenceWarnings, maintainerNote, submissionSummary, summaryContext } from './lib/summary';
 
 const command = process.argv[2];
 const repo = process.env.GITHUB_REPOSITORY ?? `${SITE.repository.owner}/${SITE.repository.name}`;
@@ -62,14 +62,14 @@ async function summary() {
     if (accepted) errors.push(`This submission has already been accepted, as submissions/${accepted}.json.`);
   }
   const ctx = summaryContext();
-  // Titles of GitHub evidence, as the report will show them.
-  const looked = submission ? await evidenceTitles(submission) : { titles: new Map<string, string>(), warnings: [] };
-  const warnings = submission ? [...evidenceWarnings(ctx, submission), ...looked.warnings] : [];
+  // Titles of GitHub evidence (as the report will show them), and who opened and reviewed each pull request.
+  const looked = submission ? await evidenceDetails(submission) : undefined;
+  const warnings = submission ? [...evidenceWarnings(ctx, submission), ...(looked?.warnings ?? [])] : [];
   const text = [
     SUMMARY_MARK,
     '## Submission summary',
     '',
-    ...submissionSummary(ctx, { heading: submission ? md(submission.title) : 'Submission', submission, errors, warnings, venue: 'issue', titles: looked.titles }),
+    ...submissionSummary(ctx, { heading: submission ? md(submission.title) : 'Submission', submission, errors, warnings, venue: 'issue', titles: looked?.titles, people: looked?.people }),
     '---',
     maintainerNote('issue'),
   ].join('\n');
