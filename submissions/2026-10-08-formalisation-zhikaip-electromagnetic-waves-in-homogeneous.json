@@ -1,0 +1,73 @@
+{
+  "$schema": "https://contributions.physlib.io/schemas/submission.schema.json",
+  "section": "formalisation",
+  "title": "Electromagnetic waves in homogeneous media, and Maxwell's equations in three dimensions",
+  "summary": "Formalised electromagnetic waves in homogeneous media: the wave equation from Maxwell's equations, plane and harmonic waves as solutions, and the transversality of E and B. Later stated Maxwell's equations in three dimensions on top of the electromagnetic potential, with the basic relations between the fields and the potential.",
+  "recipient": {
+    "github": "zhikaip",
+    "name": "Zhi Kai Pong",
+    "orcid": "0009-0004-2642-3981"
+  },
+  "period": {
+    "from": "2025-04",
+    "to": "2026-04"
+  },
+  "evidence": [
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/520",
+      "kind": "pull-request",
+      "title": "#520: feat: setting up homogeneous media for EM"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/533",
+      "kind": "pull-request",
+      "title": "#533: feat: api and fixes"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/535",
+      "kind": "pull-request",
+      "title": "#535: feat: EM wave equation"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/544",
+      "kind": "pull-request",
+      "title": "#544: feat: plane wave"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/550",
+      "kind": "pull-request",
+      "title": "#550: feat : properties of EM wave"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/579",
+      "kind": "pull-request",
+      "title": "#579: feat : E B s orthogonal for EMwave"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/596",
+      "kind": "pull-request",
+      "title": "#596: chore: refactor orthonormal proof"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/598",
+      "kind": "pull-request",
+      "title": "#598: feat : setting up harmonic wave"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/600",
+      "kind": "pull-request",
+      "title": "#600: feat: polarization ellipse"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1010",
+      "kind": "pull-request",
+      "title": "#1010: feat: EM in three dimensions (basic relations)"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1013",
+      "kind": "pull-request",
+      "title": "#1013: feat: Maxwell Equations in 3D"
+    }
+  ],
+  "submittedAt": "2026-10-08T20:36:29Z"
+}
