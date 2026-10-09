@@ -1,0 +1,73 @@
+{
+  "$schema": "https://contributions.physlib.io/schemas/submission.schema.json",
+  "section": "foundations",
+  "title": "Vector calculus on Space: gradient, divergence, curl, Laplacian and their commutation with time derivatives",
+  "summary": "Set up the vector calculus on Space: gradient, divergence, curl and Laplacian with their basic API, and the commutation of time derivatives with these operators, which Maxwell's equations and the wave equation are written with.",
+  "recipient": {
+    "github": "zhikaip",
+    "name": "Zhi Kai Pong",
+    "orcid": "0009-0004-2642-3981"
+  },
+  "period": {
+    "from": "2025-04",
+    "to": "2025-04"
+  },
+  "evidence": [
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/455",
+      "kind": "pull-request",
+      "title": "#455: feat: spaceGrad definition"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/466",
+      "kind": "pull-request",
+      "title": "#466: feat : basis and coord definitions for space"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/468",
+      "kind": "pull-request",
+      "title": "#468: derivatives for space + fix spaceGrad definition"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/479",
+      "kind": "pull-request",
+      "title": "#479: Feat: space and time derivatives"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/481",
+      "kind": "pull-request",
+      "title": "#481: feat: some vector calculus"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/486",
+      "kind": "pull-request",
+      "title": "#486: feat: smul and linearity of div and curl (+cleanup)"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/489",
+      "kind": "pull-request",
+      "title": "#489: feat: defining Laplacian and some related identities"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/506",
+      "kind": "pull-request",
+      "title": "#506: chore: clean up proofs"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/516",
+      "kind": "pull-request",
+      "title": "#516: Feat: time deriv and curl commute"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/517",
+      "kind": "pull-request",
+      "title": "#517: feat : create file for fderiv_curry functions"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/518",
+      "kind": "pull-request",
+      "title": "#518: feat: dt and curl commute"
+    }
+  ],
+  "submittedAt": "2026-10-08T20:36:29Z"
+}
