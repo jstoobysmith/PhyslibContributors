@@ -15,7 +15,7 @@ import { appendFileSync, existsSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { CREDENTIALS_DIR, listSubmissionFiles, loadSubmission } from './lib/files';
 import { option, positional } from './lib/args';
-import { evidenceWarnings, maintainerNote, submissionSummary, summaryContext } from './lib/summary';
+import { evidenceTitles, evidenceWarnings, maintainerNote, submissionSummary, summaryContext } from './lib/summary';
 
 const args = process.argv.slice(2);
 const changed = args.includes('--changed');
@@ -38,13 +38,15 @@ for (const path of files) {
   if (changed && existsSync(join(CREDENTIALS_DIR, `${slug}.json`))) {
     errors.push('This report has already been signed; signed reports cannot be edited');
   }
-  const warnings = submission ? evidenceWarnings(ctx, submission, slug) : [];
+  // Titles of GitHub evidence, as the report will show them (only with a token, as in the summary workflow).
+  const looked = submission ? await evidenceTitles(submission) : { titles: new Map<string, string>(), warnings: [] };
+  const warnings = submission ? [...evidenceWarnings(ctx, submission, slug), ...looked.warnings] : [];
 
   failed ||= errors.length > 0;
   console.log(`${errors.length ? '✗' : '✓'} ${file}`);
   errors.forEach((e) => console.log(`    error: ${e}`));
   warnings.forEach((w) => console.log(`    warning: ${w}`));
-  summary.push(...submissionSummary(ctx, { heading: `\`${file}\``, submission, errors, warnings, venue: 'pull request' }));
+  summary.push(...submissionSummary(ctx, { heading: `\`${file}\``, submission, errors, warnings, venue: 'pull request', titles: looked.titles }));
 }
 
 summary.push('---', maintainerNote('pull request'));

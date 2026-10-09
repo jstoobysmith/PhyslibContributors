@@ -11,6 +11,8 @@ import { ACCEPT_COMMAND } from '../../src/lib/issue-submission';
 import { CONFLICT_DECLARATION } from '../../src/lib/review';
 import { canonicalUrl, md, submissionMarkdown, type Submission } from '../../src/lib/submission';
 import { listCredentials, listSubmissionFiles, loadSubmission, readReportNumbers } from './files';
+import { lookUpEvidenceTitles } from './evidence-titles';
+import { untitledGitHubEvidence, withEvidenceTitles } from '../../src/lib/evidence-titles';
 
 const TRUSTED = [`https://github.com/${SITE.physlib.repository}/`, new URL(SITE.physlib.zulip).origin + '/'];
 
@@ -52,7 +54,14 @@ export function evidenceWarnings(ctx: SummaryContext, submission: Submission, ow
 /** The summary of one submission, as Markdown lines. */
 export function submissionSummary(
   ctx: SummaryContext,
-  { heading, submission, errors, warnings, venue }: { heading: string; submission?: Submission; errors: string[]; warnings: string[]; venue: Venue },
+  {
+    heading,
+    submission,
+    errors,
+    warnings,
+    venue,
+    titles = new Map(),
+  }: { heading: string; submission?: Submission; errors: string[]; warnings: string[]; venue: Venue; titles?: Map<string, string> },
 ): string[] {
   const out = [`### ${errors.length ? '❌' : '✅'} ${heading}`, ''];
   // Errors can echo text from the submission, so they are escaped like everything else.
@@ -71,7 +80,7 @@ export function submissionSummary(
     const previous = ctx.signed.filter(({ credential }) => recipientOf(credential).github?.toLowerCase() === submission.recipient.github.toLowerCase());
     out.push(
       '',
-      submissionMarkdown(submission),
+      submissionMarkdown(withEvidenceTitles(submission, titles)),
       '',
       previous.length
         ? `**Previous reports to @${submission.recipient.github}:** ${previous.map(({ slug, credential }) => `no. ${ctx.numbers[slug] ?? '?'} ${md(titleOf(credential))}`).join('; ')}`
@@ -80,6 +89,15 @@ export function submissionSummary(
     );
   }
   return out;
+}
+
+/**
+ * The titles of the submission's GitHub evidence (as its report will show them),
+ * and warnings for links to pull requests, issues or commits that do not exist.
+ */
+export async function evidenceTitles(submission: Submission): Promise<{ titles: Map<string, string>; warnings: string[] }> {
+  const { titles, missing } = await lookUpEvidenceTitles(untitledGitHubEvidence(submission.evidence));
+  return { titles, warnings: missing.map((url) => `<${url}> does not exist on GitHub; check the link.`) };
 }
 
 /** What maintainers do next, at the end of the summary. */

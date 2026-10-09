@@ -105,6 +105,20 @@ npm run setup-check -- --json public/data/status.json     # also preview the res
 python3 scripts/draw-badges.py                            # redraw the section badges
 ```
 
+## Evidence titles
+
+Contributors only give links; they do not type titles. For links to GitHub
+pull requests, issues and commits (in any repository), the workflows look up
+the title, with the token GitHub gives them (1,000 calls an hour), and the
+report shows it, e.g. "Review of #412: Add the Lorentz group". The submission
+summary shows the same titles, and warns about links to pull requests that do
+not exist. A title already in a submission is kept.
+
+Each *Sign and deploy* run also gives titles to signed reports whose GitHub
+evidence still has its automatic name (such as "Pull request #3"), and signs
+them again; nothing else in them changes. The code is in
+`src/lib/evidence-titles.ts` and `scripts/lib/evidence-titles.ts`.
+
 ## Links that fill in the form
 
 A link to `/submit` can fill in the form, so you can send someone a submission
@@ -121,7 +135,7 @@ https://contributions.physlib.io/submit?section=review&name=Ada%20Example&github
 | `name`, `github`, `orcid` | who did the work |
 | `title`, `summary` | the work (URL-encoded; `%0A` for a new line) |
 | `from`, `to` | months, `YYYY-MM` |
-| `prs` | Physlib pull request numbers, separated by commas (their titles are looked up) |
+| `prs` | Physlib pull request numbers, separated by commas |
 | `link` | any other evidence link; repeat for several |
 
 Opening such a link replaces any draft saved in that browser, says that the

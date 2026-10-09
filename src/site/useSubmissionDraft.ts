@@ -156,18 +156,6 @@ export function prefillFromDraft(d: Draft): Prefill {
 }
 
 /**
- * Titles looked up on GitHub for evidence links (see ImportPullRequests):
- * links still without a title get theirs; links to pull requests that do
- * not exist (null) are removed.
- */
-export function withLookedUpTitles(d: Draft, titles: Map<string, string | null>): Draft {
-  const evidence = d.evidence
-    .filter((e) => e.title || titles.get(e.url) !== null)
-    .map((e) => (!e.title && titles.get(e.url) ? { ...e, title: titles.get(e.url)! } : e));
-  return { ...d, evidence: evidence.length ? evidence : [emptyEvidence(pullRequestKind(d.section))] };
-}
-
-/**
  * The form when the page opens. A link that fills in the form (prefill.ts)
  * starts from a blank form; otherwise the draft saved in this browser is
  * restored, with ?section= choosing the section.
@@ -206,7 +194,8 @@ export function toSubmission(d: Draft, submittedAt: string): unknown {
     ...(d.from || d.to ? { period: { from: d.from, to: d.to } } : {}),
     evidence: d.evidence
       .filter((e) => e.url.trim() || e.title.trim())
-      .map((e) => ({ url: normaliseUrl(e.url), kind: e.kind, title: opt(e.title), description: opt(e.description) })),
+      // No titles: the workflows add them (src/lib/evidence-titles.ts).
+      .map((e) => ({ url: normaliseUrl(e.url), kind: e.kind, description: opt(e.description) })),
     submittedAt,
   };
 }

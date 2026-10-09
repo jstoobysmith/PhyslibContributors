@@ -38,6 +38,7 @@ import type { Submission } from '../src/lib/submission';
 import {
   REPORT_NUMBERS_FILE,
   CREDENTIALS_DIR,
+  listCredentials,
   listSubmissionFiles,
   loadSubmission,
   readIssueSubmissions,
@@ -48,6 +49,8 @@ import {
 } from './lib/files';
 import { option } from './lib/args';
 import { githubApi, issueReviewRecord, reviewRecord } from './lib/review-record';
+import { lookUpEvidenceTitles } from './lib/evidence-titles';
+import { retitledReport, untitledGitHubEvidence, untitledReportEvidence, withEvidenceTitles } from '../src/lib/evidence-titles';
 
 const args = process.argv.slice(2);
 const resignAll = args.includes('--resign-all');
@@ -140,7 +143,9 @@ async function signSubmission(slug: string, file: string, submission: Submission
     console.error(`::error file=${file}::Not signed: ${record.refused}.`);
     return false;
   }
-  writeJson(path, await sign(buildCredential(slug, submission, record), { secretKeyMultibase, verificationMethod }));
+  // GitHub evidence given no title gets its pull request's, issue's or commit's title (src/lib/evidence-titles.ts).
+  const { titles } = await lookUpEvidenceTitles(untitledGitHubEvidence(submission.evidence));
+  writeJson(path, await sign(buildCredential(slug, withEvidenceTitles(submission, titles), record), { secretKeyMultibase, verificationMethod }));
   if (isTestSection(submission.section)) {
     console.log(`signed ${slug} (a test report, not numbered)`);
     return true;
@@ -162,6 +167,31 @@ async function signSpecimen() {
   console.log(`signed the specimen report (${urls.credential(SPECIMEN_SLUG)})`);
 }
 
+/**
+ * Signed reports whose GitHub evidence still has its automatic name, such as
+ * "Pull request #3" (signed before titles were looked up, or while GitHub could
+ * not be reached), get the titles and are signed again. Nothing else in them
+ * changes, and evidence that already has a title keeps it.
+ */
+async function addMissingTitles(): Promise<number> {
+  let n = 0;
+  for (const { slug, credential } of listCredentials()) {
+    const untitled = untitledReportEvidence(credential);
+    if (!untitled.length) continue;
+    const unsigned = retitledReport(credential, (await lookUpEvidenceTitles(untitled)).titles);
+    if (!unsigned) continue;
+    const problem = await mayResign(credential);
+    if (problem) {
+      console.error(`::warning::Titles not added to ${slug}: ${problem}.`);
+      continue;
+    }
+    writeJson(join(CREDENTIALS_DIR, `${slug}.json`), await sign(unsigned, { secretKeyMultibase, verificationMethod }));
+    console.log(`added evidence titles to ${slug}`);
+    n++;
+  }
+  return n;
+}
+
 await signSpecimen();
 let count = 0;
 for (const file of listSubmissionFiles()) {
@@ -179,3 +209,5 @@ for (const file of listSubmissionFiles()) {
 }
 writeJson(REPORT_NUMBERS_FILE, numbers);
 console.log(`${count} credential(s) ${resignAll ? 're-signed' : 'signed'} with ${verificationMethod}`);
+const retitled = await addMissingTitles();
+if (retitled) console.log(`${retitled} report(s) given evidence titles and signed again`);
