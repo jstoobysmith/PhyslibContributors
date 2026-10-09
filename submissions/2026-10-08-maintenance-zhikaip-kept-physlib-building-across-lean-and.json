@@ -1,0 +1,118 @@
+{
+  "$schema": "https://contributions.physlib.io/schemas/submission.schema.json",
+  "section": "maintenance",
+  "title": "Kept Physlib building across Lean and Mathlib releases, moved it to the module system, and cleaned up options, imports and tooling",
+  "summary": "Kept Physlib building through Lean and Mathlib releases, including the move of the whole library to the Lean module system. Removed the backward-compatibility options and erw left by earlier bumps, cleaned up imports across the library, and fixed the build tooling on Windows.",
+  "recipient": {
+    "github": "zhikaip",
+    "name": "Zhi Kai Pong",
+    "orcid": "0009-0004-2642-3981"
+  },
+  "period": {
+    "from": "2025-05",
+    "to": "2026-10"
+  },
+  "evidence": [
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/566",
+      "kind": "pull-request",
+      "title": "#566: chore: Bump to v4.20.0-rc5"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/929",
+      "kind": "pull-request",
+      "title": "#929: bump to v4.27.0"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/933",
+      "kind": "pull-request",
+      "title": "#933: chore: remove Cyrillic docstring"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/932",
+      "kind": "pull-request",
+      "title": "#932: chore: remove sorries in 4.27.0"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/951",
+      "kind": "pull-request",
+      "title": "#951: chore: remove unused simp lemmas"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/955",
+      "kind": "pull-request",
+      "title": "#955: chore: bump to v4.28.0"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/977",
+      "kind": "pull-request",
+      "title": "#977: chore: move to module system"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1035",
+      "kind": "pull-request",
+      "title": "#1035: chore: lake shake on physlib"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1045",
+      "kind": "pull-request",
+      "title": "#1045: chore: bump to v4.29.1"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1130",
+      "kind": "pull-request",
+      "title": "#1130: chore: bump to v4.30.0"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1150",
+      "kind": "pull-request",
+      "title": "#1150: chore: remove unnecessary transparency options"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1276",
+      "kind": "pull-request",
+      "title": "#1276: chore: remove set_option backward.isDefEq.respectTransparency false"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1493",
+      "kind": "pull-request",
+      "title": "#1493: chore: fix minor typo"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1557",
+      "kind": "pull-request",
+      "title": "#1557: chore: remove 53 defeq set_option"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1685",
+      "kind": "pull-request",
+      "title": "#1685: chore: fix build warnings from the v4.34.0 bump"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1688",
+      "kind": "pull-request",
+      "title": "#1688: feat(scripts): get_cache removes dependency builds left by a toolchain bump"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1701",
+      "kind": "pull-request",
+      "title": "#1701: chore: import cleanup (lake shake, redundant_imports, remove import Mathlib)"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1705",
+      "kind": "pull-request",
+      "title": "#1705: chore: sync rm_set_option with mathlib, fix it on Windows, remove 29 respectTransparency options"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1727",
+      "kind": "pull-request",
+      "title": "#1727: chore(Tensors): replace erw by rw in evalT_permT, evalT_prodT_right, eq_sum_evalT, actionT_coMetric, actionT_contrMetric"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1729",
+      "kind": "pull-request",
+      "title": "#1729: chore(Tensors): replace erw by rw in nine lemmas on metrics, units and contractions"
+    }
+  ],
+  "submittedAt": "2026-10-08T20:12:18Z"
+}
