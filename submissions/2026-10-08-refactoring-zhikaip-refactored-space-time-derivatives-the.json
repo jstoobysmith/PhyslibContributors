@@ -1,0 +1,143 @@
+{
+  "$schema": "https://contributions.physlib.io/schemas/submission.schema.json",
+  "section": "refactoring",
+  "title": "Refactored Space, time derivatives, the electromagnetic field strength and the tensor API, and sped up the slowest files",
+  "summary": "Replaced the Space d.succ convention by Space d throughout the library and simplified the curl and distributional Laplacian definitions. Replaced the field strength matrix by index expressions on the field strength tensor and reworked the tensor API it depends on. Rewrote the slowest declarations after profiling the whole library, and replaced a home-grown number type by its Mathlib equivalent. Introduced derivVec, the time derivative of trajectories into torsors, and switched the rigid-body and pendulum velocities to it; made the differentiability API of the electromagnetic potential and fields usable by fun_prop.",
+  "recipient": {
+    "github": "zhikaip",
+    "name": "Zhi Kai Pong",
+    "orcid": "0009-0004-2642-3981"
+  },
+  "period": {
+    "from": "2026-03",
+    "to": "2026-10"
+  },
+  "evidence": [
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1003",
+      "kind": "pull-request",
+      "title": "#1003: refactor: fix harmonic oscillator issues and TODO"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1012",
+      "kind": "pull-request",
+      "title": "#1012: feat: differentiability lemmas"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1138",
+      "kind": "pull-request",
+      "title": "#1138: feat: distLaplacian and dist operator notations"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1135",
+      "kind": "pull-request",
+      "title": "#1135: refactor: fix dimension of distDiv_inv_pow_eq_dim and remove several transparency options"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1142",
+      "kind": "pull-request",
+      "title": "#1142: refactor: redefine distLaplacian as a LinearMap"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1144",
+      "kind": "pull-request",
+      "title": "#1144: refactor:  curl definition and golfing"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1183",
+      "kind": "pull-request",
+      "title": "#1183: refactor: replace d.succ with d (1 of 2)"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1299",
+      "kind": "pull-request",
+      "title": "#1299: refactor + feat: remove d.succ and add 2D fundamental solution result (2 of 3)"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1303",
+      "kind": "pull-request",
+      "title": "#1303: refactor: change Space.dsucc to Space d in remaining files and surfaces (3 of 3)"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1592",
+      "kind": "pull-request",
+      "title": "#1592: feat: time derivative of trajectories into torsors as derivVec"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1603",
+      "kind": "pull-request",
+      "title": "#1603: refactor(ClassicalMechanics): switch to derivVec for rigid-body velocities and momentum"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1604",
+      "kind": "pull-request",
+      "title": "#1604: refactor(ClassicalMechanics): switch to derivVec for simple-pendulum velocity"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1616",
+      "kind": "pull-request",
+      "title": "#1616: feat(EMPotential): differentiability of derivatives of the electromagnetic potential"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1618",
+      "kind": "pull-request",
+      "title": "#1618: feat(Time): finite-order regularity of the time derivative and a coordinate chain rule"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1678",
+      "kind": "pull-request",
+      "title": "#1678: feat(Space): register NormedSpace ℝ (Space d) as a direct instance"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1610",
+      "kind": "pull-request",
+      "title": "#1610: feat(Lorentz.Vector): mark Vector and CoVector implicit_reducible, add inner_eq_sum"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1611",
+      "kind": "pull-request",
+      "title": "#1611: fix(Tensors): rank the tensor action above the Tensorial action"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1614",
+      "kind": "pull-request",
+      "title": "#1614: refactor(Electromagnetism): replace `fieldStrengthMatrix` with index-evaluation components"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1615",
+      "kind": "pull-request",
+      "title": "#1615: refactor(FieldStrength): remove basis-representation lemmas"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1677",
+      "kind": "pull-request",
+      "title": "#1677: refactor(Tensors): rename Tensor.toField to Tensor.toScalar"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1697",
+      "kind": "pull-request",
+      "title": "#1697: refactor(Electromagnetism): make the field smoothness API usable by `fun_prop`"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1662",
+      "kind": "pull-request",
+      "title": "#1662: perf(WickContraction): avoid casts in the exists_join_singleton lemmas"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1663",
+      "kind": "pull-request",
+      "title": "#1663: docs(PauliMatrices): cite the published source for the three-Pauli identities"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1664",
+      "kind": "pull-request",
+      "title": "#1664: perf(PauliMatrices): evaluate Levi-Civita components as a product of signs"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1682",
+      "kind": "pull-request",
+      "title": "#1682: refactor: replace RatComplexNum by Mathlib's GaussianInt"
+    }
+  ],
+  "submittedAt": "2026-10-08T20:36:29Z"
+}
