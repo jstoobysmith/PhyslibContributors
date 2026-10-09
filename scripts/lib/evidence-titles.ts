@@ -5,6 +5,7 @@
  */
 import type { EvidenceKind } from '../../src/lib/config';
 import { githubEvidenceTitle, githubRef } from '../../src/lib/evidence-titles';
+import type { PullRequestPeople } from '../../src/lib/submission';
 import { API_URL } from './review-record';
 
 /** At most this many links are looked up at once. */
@@ -44,4 +45,34 @@ export async function lookUpEvidenceTitles(evidence: { url: string; kind: Eviden
     }
   }
   return { titles, missing };
+}
+
+/** At most this many pull requests have their author and reviewers looked up (two calls each). */
+const MAX_PEOPLE_LOOKUPS = 60;
+
+/**
+ * Who opened each pull request given as evidence, and who reviewed it, for the
+ * maintainers' summary. Bots are left out of the reviewers.
+ */
+export async function lookUpPullRequestPeople(urls: string[], token = githubToken()): Promise<Map<string, PullRequestPeople>> {
+  const people = new Map<string, PullRequestPeople>();
+  if (!token) return people;
+  const headers = { Accept: 'application/vnd.github+json', Authorization: `Bearer ${token}`, 'X-GitHub-Api-Version': '2022-11-28' };
+  const get = async <T>(path: string): Promise<T | undefined> => {
+    const res = await fetch(`${API_URL}${path}`, { headers, signal: AbortSignal.timeout(15_000) }).catch(() => undefined);
+    return res?.ok ? ((await res.json()) as T) : undefined;
+  };
+  for (const url of [...new Set(urls)].slice(0, MAX_PEOPLE_LOOKUPS)) {
+    const ref = githubRef(url);
+    if (ref?.type !== 'pull') continue;
+    const base = `/repos/${ref.owner}/${ref.repo}/pulls/${ref.id}`;
+    const pr = await get<{ user: { login: string } | null }>(base);
+    if (!pr?.user) continue;
+    const reviews = (await get<{ user: { login: string; type?: string } | null }[]>(`${base}/reviews?per_page=100`)) ?? [];
+    const reviewers = [
+      ...new Set(reviews.filter((r) => r.user && r.user.type !== 'Bot' && !r.user.login.endsWith('[bot]') && r.user.login !== pr.user!.login).map((r) => r.user!.login)),
+    ];
+    people.set(url, { author: pr.user.login, reviewers });
+  }
+  return people;
 }

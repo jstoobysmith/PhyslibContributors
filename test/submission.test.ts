@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { canonicalUrl, evidenceTitle, fitsSlug, parsePullRequestList, formatIssues, githubLoginFromInput, guessEvidenceKind, md, normaliseUrl, submissionMarkdown, submissionSchema, submissionSlug, validOrcid } from '../src/lib/submission';
+import { canonicalUrl, evidenceTitle, fitsSlug, parsePullRequestList, pullRequestPeople, formatIssues, githubLoginFromInput, guessEvidenceKind, md, normaliseUrl, submissionMarkdown, submissionSchema, submissionSlug, validOrcid } from '../src/lib/submission';
 import { loadSubmission } from '../scripts/lib/files';
 import { exampleSubmission } from './fixtures/example';
 
@@ -43,6 +43,14 @@ describe('submission schema', () => {
 });
 
 describe('submission helpers', () => {
+  it('says who opened and reviewed each pull request, without notifying them', () => {
+    expect(pullRequestPeople({ author: 'alice', reviewers: ['bob', 'Example-Reviewer'] }, 'example-reviewer')).toBe('opened by &#64;alice; reviewed by &#64;bob, **&#64;Example\\-Reviewer**');
+    expect(pullRequestPeople({ author: 'example-reviewer', reviewers: [] }, 'example-reviewer')).toBe('opened by **&#64;example\\-reviewer**; no reviews');
+    const url = exampleSubmission.evidence[0].url;
+    const text = submissionMarkdown(exampleSubmission, new Map([[url, { author: 'alice', reviewers: ['example-reviewer'] }]]));
+    expect(text).toContain('— opened by &#64;alice; reviewed by **&#64;example\\-reviewer**');
+  });
+
   it('reads a pasted list of pull requests', () => {
     const repo = 'leanprover-community/physlib';
     expect(parsePullRequestList('12, 34,#56 ;78\n90', repo)).toEqual({ numbers: [12, 34, 56, 78, 90], invalid: [] });
