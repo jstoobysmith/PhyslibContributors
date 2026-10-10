@@ -1,0 +1,45 @@
+{
+  "$schema": "https://contributions.physlib.io/schemas/submission.schema.json",
+  "section": "review",
+  "title": "Reviewed quantum-mechanical operator formalizations",
+  "summary": "Reviewed Physlib’s development of quantum-mechanical operator theory, from its Hilbert-space foundations to the harmonic oscillator’s ladder-operator formalism.",
+  "recipient": {
+    "github": "morrison-daniel",
+    "name": "Daniel Morrison"
+  },
+  "period": {
+    "from": "2026-02",
+    "to": "2026-09"
+  },
+  "evidence": [
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/957",
+      "kind": "pull-request-review"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/963",
+      "kind": "pull-request-review"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/978",
+      "kind": "pull-request-review"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/982",
+      "kind": "pull-request-review"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1090",
+      "kind": "pull-request-review"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1410",
+      "kind": "pull-request-review"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1644",
+      "kind": "pull-request-review"
+    }
+  ],
+  "submittedAt": "2026-10-09T19:26:51Z"
+}
