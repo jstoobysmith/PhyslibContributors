@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { SECTIONS, SITE, urls } from '../lib/config';
 import { asset } from '../site/data';
+import { Content } from './Content';
 import { Container } from './ui';
 
 /** The main menu. Entries with `href` lead off the site (to GitHub). */
@@ -47,7 +48,7 @@ function Header() {
     <header>
       <div className="border-b border-rule bg-white">
         <Container className="flex items-center justify-between gap-4 py-1.5 text-xs text-muted">
-          <span>Reports on contributions to Physlib, reviewed and published openly on GitHub.</span>
+          <Content file="top-strip" inline />
           <a href={SITE.physlib.site} className="shrink-0" aria-label="Physlib">
             <img src={asset('images/physlib-logo.png')} alt="Physlib" width={1600} height={459} className="h-5 w-auto" />
           </a>
@@ -112,8 +113,13 @@ function Footer() {
         </ul>
       </Container>
       <Container className="border-t border-rule py-3 text-xs text-muted">
-        Reports are digitally signed, so anyone can check that they are genuine. <Link to="/verify">How to check a report</Link>.
-        {SITE.beta && <> This site is in beta: its look and process may still change, but reports are signed and permanent.</>}
+        <Content file="footer" inline />
+        {SITE.beta && (
+          <>
+            {' '}
+            <Content file="footer-beta" inline />
+          </>
+        )}
       </Container>
     </footer>
   );

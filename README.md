@@ -68,6 +68,10 @@ cryptographically signed with an OB 3.0 Data Integrity proof, not merely hosted.
 | `config/keys.json` | public signing keys and their status (written by `npm run keygen`) |
 | `config/revocations.json` | revoked reports |
 
+**Page text** (edited by hand): `content/` holds the main blocks of text on
+the site as Markdown, one file each, with `{placeholders}` for values from
+`config/`. See `content/README.md` for which file appears where.
+
 **Records** (written by the signing workflow; never edit by hand)
 
 | Path | Contents |

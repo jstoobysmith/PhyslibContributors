@@ -6,6 +6,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ALL_SECTIONS, EVIDENCE_KINDS, ISSUER_DID, MAINTAINERS, SECTION_IDS, SITE, SITE_URL, type Revocation } from '../../src/lib/config';
+import { CONTENT_FILES, unknownPlaceholders } from '../../src/lib/content';
 import { readJson, ROOT } from '../lib/files';
 import { definePart, fail, listing, pass, plural, skip, warn } from './checks';
 import { github, IN_ACTIONS, REPO } from './context';
@@ -13,7 +14,7 @@ import { github, IN_ACTIONS, REPO } from './context';
 export default definePart({
   number: 2,
   title: 'Configuration',
-  covers: 'The settings in config/ and the code owners in .github/CODEOWNERS.',
+  covers: 'The settings in config/, the page text in content/ and the code owners in .github/CODEOWNERS.',
   file: import.meta.url,
   async run(check) {
     await check('2.1', 'Site address', () => {
@@ -129,5 +130,20 @@ export default definePart({
           : 'The site is not marked as beta.',
       ),
     );
+
+    await check('2.10', 'Page text', () => {
+      const problems: string[] = [];
+      for (const f of CONTENT_FILES) {
+        const path = join(ROOT, 'content', `${f}.md`);
+        if (!existsSync(path)) problems.push(`content/${f}.md is missing`);
+        else {
+          const unknown = unknownPlaceholders(f, readFileSync(path, 'utf8'));
+          if (unknown.length) problems.push(`content/${f}.md uses unknown placeholders ${unknown.map((u) => `{${u}}`).join(', ')}`);
+        }
+      }
+      return problems.length
+        ? fail(`${problems.join('; ')}.`, 'Fix the file (content/README.md lists the placeholders).')
+        : pass(`${plural(CONTENT_FILES.length, 'text file')} in content/, all present, with known placeholders.`);
+    });
   },
 });

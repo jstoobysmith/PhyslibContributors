@@ -6,7 +6,8 @@ import { BadgeImage, Container, ErrorNote, linkButtonClass, OrcidIcon, Spinner }
 import { maintainerByLogin, sectionById, SPECIMEN_SLUG, urls } from '../lib/config';
 import { bakeSvg } from '../lib/baking';
 import { evidenceOf, recipientOf, reviewParticipants, sectionIdOf, titleOf, type OpenBadgeCredential } from '../lib/credential';
-import { citations, linkedInUrl, reportReference, whatItMeans, type ReportEntry } from '../lib/reports';
+import { citations, linkedInUrl, reportReference, type ReportEntry } from '../lib/reports';
+import { Content } from '../components/Content';
 import type { JsonObject } from '../lib/dataIntegrity';
 import { asset, credentialPath, download, formatDate, useReports, useCredential } from '../site/data';
 import { useTitle } from '../site/useTitle';
@@ -248,7 +249,11 @@ export default function Report() {
           ) : (
             <p className="text-muted">{specimen ? 'A real report links the page on GitHub where it was reviewed.' : 'Accepted by the maintainers.'}</p>
           )}
-          <p className="pt-1 text-muted">{whatItMeans(c)}</p>
+          {section?.test ? (
+            <Content file="report/certifies-test" className="pt-1 text-muted" />
+          ) : (
+            <Content file="report/certifies" values={{ sectionPhrase: section ? `the ${section.name} section` : 'this report' }} className="pt-1 text-muted" />
+          )}
         </div>
 
         {section && (

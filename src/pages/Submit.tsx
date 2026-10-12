@@ -1,10 +1,11 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { buttonClass, Container, ErrorNote, Field, Input, inputClass, linkButtonClass, PageTitle } from '../components/ui';
 import { EVIDENCE_KINDS, SECTIONS, SITE, SITE_URL, sectionById, TEST_SECTION, urls, type EvidenceKind, type Section } from '../lib/config';
 import { prefillParams } from '../lib/prefill';
 import { evidenceTitle, githubLoginFromInput, guessEvidenceKind, normaliseUrl, type Submission } from '../lib/submission';
 import { download } from '../site/data';
+import { Content } from '../components/Content';
 import { ImportPullRequests } from '../components/ImportPullRequests';
 import { SendAsIssue, SendWithFork } from '../components/SendOnGitHub';
 import { openSubmissionPullRequest, submissionJson, whoAmI } from '../site/github';
@@ -212,16 +213,11 @@ export default function Submit() {
     <Container className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_17rem]">
       <div className="min-w-0">
         <PageTitle title="Submit a contribution">
-          Describe your work and link to it. The submission becomes an
-          issue on GitHub, where the maintainers check it; you need a free GitHub account. See{' '}
-          <Link to="/about#process">how a report is made</Link>.
+          <Content file="submit/intro" />
         </PageTitle>
 
         {prefilled && (
-          <p className="mb-6 max-w-3xl border border-warning/40 bg-[#fdf8ec] px-3 py-2 text-sm">
-            <strong>This form was filled in from the link you opened.</strong> Check every field, add anything missing, and send
-            it in step 5. Nothing has been sent yet.
-          </p>
+          <Content file="submit/prefilled-notice" className="mb-6 max-w-3xl border border-warning/40 bg-[#fdf8ec] px-3 py-2 text-sm" />
         )}
         <form className="max-w-3xl space-y-8" onSubmit={(e) => e.preventDefault()} noValidate>
           <Step n={1} title="Section">
@@ -237,13 +233,7 @@ export default function Submit() {
             </div>
             {section.test ? (
               <div className="mt-3 border border-warning/40 bg-[#fdf8ec] px-3 py-2 text-sm">
-                <p className="font-bold">Test submission</p>
-                <p className="mt-1">
-                  The form is filled in with example data, except your GitHub username (and ORCID iD, which is optional). It needs
-                  no approvals: once a maintainer accepts it, it is signed like a real report, but marked as a test, not numbered and
-                  not listed with real reports.
-                </p>
-                <p className="mt-1 font-bold">Enter your GitHub username in step 2, then go to step 5 to send it.</p>
+                <Content file="submit/test-notice" className="[&>*+*]:!mt-1" />
               </div>
             ) : (
               <div className="mt-3 border border-rule bg-shade px-3 py-2 text-sm">
@@ -474,15 +464,8 @@ export default function Submit() {
         <Preview d={draft} />
         <div className="panel">
           <div className="panel-title">What happens next</div>
-          <ol className="ml-8 list-decimal space-y-1 py-2 pr-3">
-            <li>An automatic check reads the submission and posts a summary on its issue.</li>
-            <li>The maintainers check the evidence there and may ask questions.</li>
-            <li>When it is accepted, the report is signed and appears on this site.</li>
-          </ol>
-          <p className="border-t border-rule px-3 py-2 text-xs text-muted">
-            Maintainers review as volunteers, so there is no fixed turnaround. Submitting is optional: plenty of good work is
-            never submitted.
-          </p>
+          <Content file="submit/what-happens-next" className="py-2 pr-3 pl-2" />
+          <Content file="submit/what-happens-next-note" className="border-t border-rule px-3 py-2 text-xs text-muted" />
         </div>
         <ShareLink draft={draft} />
         <p>
