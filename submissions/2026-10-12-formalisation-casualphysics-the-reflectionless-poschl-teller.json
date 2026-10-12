@@ -1,0 +1,45 @@
+{
+  "$schema": "https://contributions.physlib.io/schemas/submission.schema.json",
+  "section": "formalisation",
+  "title": "The reflectionless (Pöschl–Teller) potential and its ladder operators, with the analytic properties of tanh they need",
+  "summary": "Formalised the reflectionless potential V(x) ∝ −sech²(κx) as a one-dimensional quantum system, together with its creation and annihilation operators, built from the momentum operator and tanh(κx).\n\nTo make these operators act on Schwartz functions, proved the facts about tanh they rely on: every derivative of tanh is a polynomial in tanh, so all derivatives are bounded; tanh is smooth; and tanh(κx) has temperate growth. With this, the ladder operators are defined as continuous linear maps on Schwartz space. The tanh results are in Mathematics/ForMathlib/Trigonometry/Tanh and are marked for upstreaming to Mathlib; the quantum-mechanics part has since been moved by others into QuantumMechanics/PoschlTeller, where it still builds on this work.",
+  "recipient": {
+    "github": "casualPhysics",
+    "name": "Afiq Hatta"
+  },
+  "period": {
+    "from": "2025-07",
+    "to": "2025-09"
+  },
+  "evidence": [
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/674",
+      "kind": "pull-request"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/680",
+      "kind": "pull-request"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/694",
+      "kind": "pull-request"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/705",
+      "kind": "pull-request"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/726",
+      "kind": "pull-request"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/729",
+      "kind": "pull-request"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/733",
+      "kind": "pull-request"
+    }
+  ],
+  "submittedAt": "2026-10-12T07:21:04Z"
+}
