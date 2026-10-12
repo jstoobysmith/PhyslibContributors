@@ -1,0 +1,133 @@
+{
+  "$schema": "https://contributions.physlib.io/schemas/submission.schema.json",
+  "section": "review",
+  "title": "Reviewed 23 pull requests on electromagnetism, classical mechanics, space and time, and tensors",
+  "summary": "Reviewed pull requests to Physlib over a year, mainly on electromagnetism, vector calculus, classical mechanics, space and time, and tensors. The reviews checked definitions against the physics, suggested names and statements closer to Mathlib conventions, proposed simpler proofs and more uniform designs, and guided new contributors through the project's conventions.",
+  "recipient": {
+    "github": "zhikaip",
+    "name": "Zhi Kai Pong",
+    "orcid": "0009-0004-2642-3981"
+  },
+  "period": {
+    "from": "2025-09",
+    "to": "2026-10"
+  },
+  "evidence": [
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1058",
+      "kind": "pull-request-review",
+      "title": "Review of #1058: feat(VectorCalculus): Add div zero eq curl, curl zero eq grad."
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1063",
+      "kind": "pull-request-review",
+      "title": "Review of #1063: feat: Start split of Distributional EM"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1068",
+      "kind": "pull-request-review",
+      "title": "Review of #1068: feat: Basic field strength equalities"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1101",
+      "kind": "pull-request-review",
+      "title": "Review of #1101: feat: Add EM Potential constructors"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1119",
+      "kind": "pull-request-review",
+      "title": "Review of #1119: feat: Constructive form of curl zero eq grad"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1128",
+      "kind": "pull-request-review",
+      "title": "Review of #1128: feat: EM Potential from E and B field"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1040",
+      "kind": "pull-request-review",
+      "title": "Review of #1040: feat(EM): Rewrite deriv as tensorDeriv"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1123",
+      "kind": "pull-request-review",
+      "title": "Review of #1123: feat: Constructors for Distributional EM"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/737",
+      "kind": "pull-request-review",
+      "title": "Review of #737: feat: update the harmonic oscillator"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/953",
+      "kind": "pull-request-review",
+      "title": "Review of #953: feat: Static EM"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/956",
+      "kind": "pull-request-review",
+      "title": "Review of #956: Initial Commit for Orbital Mechanics"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/959",
+      "kind": "pull-request-review",
+      "title": "Review of #959: feat: Improve docs on space"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1004",
+      "kind": "pull-request-review",
+      "title": "Review of #1004: feat: Adds a diffeormorphism for the harmonic oscillator"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1008",
+      "kind": "pull-request-review",
+      "title": "Review of #1008: feat: Add overview docs for variational calculus"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1053",
+      "kind": "pull-request-review",
+      "title": "Review of #1053: refactor: Tensor basis indices"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1059",
+      "kind": "pull-request-review",
+      "title": "Review of #1059: refactor: fix import error with Mathlib"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1122",
+      "kind": "pull-request-review",
+      "title": "Review of #1122: feat(Mathematics): add Physlib/Mathematics/GoldenRatio.lean"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1175",
+      "kind": "pull-request-review",
+      "title": "Review of #1175: Add odd-dimensional iterated norm Laplacian"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1348",
+      "kind": "pull-request-review",
+      "title": "Review of #1348: refactor: Rising and lowering indices with notation"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1360",
+      "kind": "pull-request-review",
+      "title": "Review of #1360: refactor: Weyl fermions"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1617",
+      "kind": "pull-request-review",
+      "title": "Review of #1617: Released from rest energy quadrature"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1620",
+      "kind": "pull-request-review",
+      "title": "Review of #1620: refactor(Time): make Time an affine space, add time origin to reference frames"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1706",
+      "kind": "pull-request-review",
+      "title": "Review of #1706: feat(PhyslibAlpha/EM): Kirchhoff Current Law"
+    }
+  ],
+  "submittedAt": "2026-10-08T20:09:13Z"
+}
