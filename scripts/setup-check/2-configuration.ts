@@ -6,7 +6,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ALL_SECTIONS, EVIDENCE_KINDS, ISSUER_DID, MAINTAINERS, SECTION_IDS, SITE, SITE_URL, type Revocation } from '../../src/lib/config';
-import { CONTENT_FILES, unknownPlaceholders } from '../../src/lib/content';
+import { CONTENT_FILES, missingHeader, unknownPlaceholders } from '../../src/lib/content';
 import { readJson, ROOT } from '../lib/files';
 import { definePart, fail, listing, pass, plural, skip, warn } from './checks';
 import { github, IN_ACTIONS, REPO } from './context';
@@ -137,13 +137,16 @@ export default definePart({
         const path = join(ROOT, 'content', `${f}.md`);
         if (!existsSync(path)) problems.push(`content/${f}.md is missing`);
         else {
-          const unknown = unknownPlaceholders(f, readFileSync(path, 'utf8'));
+          const text = readFileSync(path, 'utf8');
+          const unknown = unknownPlaceholders(f, text);
           if (unknown.length) problems.push(`content/${f}.md uses unknown placeholders ${unknown.map((u) => `{${u}}`).join(', ')}`);
+          const missing = missingHeader(text);
+          if (missing.length) problems.push(`content/${f}.md has no ${missing.join(' or ')} in its header`);
         }
       }
       return problems.length
         ? fail(`${problems.join('; ')}.`, 'Fix the file (content/README.md lists the placeholders).')
-        : pass(`${plural(CONTENT_FILES.length, 'text file')} in content/, all present, with known placeholders.`);
+        : pass(`${plural(CONTENT_FILES.length, 'text file')} in content/, all present, each saying where it appears and what it is for, with known placeholders.`);
     });
   },
 });

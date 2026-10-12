@@ -1,3 +1,11 @@
+---
+where: >
+  About page: the "Purpose" section, at the top.
+purpose: >
+  Why the site exists: the work papers do not credit, and what a report gives contributors. Then
+  that reports are optional and do not rank people. One or two short paragraphs.
+---
+
 Much of the work that makes [Physlib]({physlibSite}) usable is not credited by papers: reviewing other people’s changes,
 keeping the library building as Lean and Mathlib change, restructuring code, and setting up basic definitions. {siteTitle}
 gives that work a citable record: a short report, much like a technical report, describing the contribution, linking to the

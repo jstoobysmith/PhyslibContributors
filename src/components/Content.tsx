@@ -1,7 +1,7 @@
 import { marked } from 'marked';
 import type { MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { fillPlaceholders, PLACEHOLDERS, type ContentFile } from '../lib/content';
+import { fillPlaceholders, parseContentFile, PLACEHOLDERS, type ContentFile } from '../lib/content';
 
 /** The Markdown files of content/, built into the site. */
 const FILES = import.meta.glob('/content/**/*.md', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
@@ -10,7 +10,8 @@ const BASE = import.meta.env.BASE_URL;
 
 /** A content file as HTML, with its placeholders filled in and links to this site's pages under the site's base path. */
 export function contentHtml(file: ContentFile, values: Record<string, string> = {}, inline = false): string {
-  const text = fillPlaceholders(FILES[`/content/${file}.md`] ?? '', { ...PLACEHOLDERS, ...values }).trim();
+  // Only the text: the header (where it appears, what it should say) is for whoever edits the file.
+  const text = fillPlaceholders(parseContentFile(FILES[`/content/${file}.md`] ?? '').body, { ...PLACEHOLDERS, ...values }).trim();
   const html = (inline ? marked.parseInline(text, { async: false }) : marked.parse(text, { async: false })) as string;
   return html.replace(/href="\/(?!\/)/g, `href="${BASE}`);
 }
