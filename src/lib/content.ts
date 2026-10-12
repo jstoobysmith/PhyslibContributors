@@ -50,6 +50,42 @@ export const LOCAL_PLACEHOLDERS: Partial<Record<ContentFile, string[]>> = {
   'report/certifies': ['sectionPhrase'],
 };
 
+/**
+ * A content file: a short header saying where its text appears and what it
+ * should say (for whoever edits it), then the text itself, in Markdown:
+ *
+ *   ---
+ *   where: >
+ *     Home page: the paragraph at the top, …
+ *   purpose: >
+ *     Introduces the site to a first-time visitor: …
+ *   ---
+ *
+ *   The text …
+ */
+export interface ContentText {
+  where?: string;
+  purpose?: string;
+  /** The text shown on the site. */
+  body: string;
+}
+
+/** Splits a content file into its header and its text. The header's values may be on one line or indented below "key: >". */
+export function parseContentFile(text: string): ContentText {
+  const m = text.replace(/\r\n/g, '\n').match(/^---\n([\s\S]*?)\n---\n?/);
+  if (!m) return { body: text };
+  const fields: Record<string, string> = {};
+  let key: string | undefined;
+  for (const line of m[1].split('\n')) {
+    const top = line.match(/^(\w+):\s*(.*)$/);
+    if (top) {
+      key = top[1];
+      fields[key] = /^[>|]-?$/.test(top[2]) ? '' : top[2].replace(/^(["'])(.*)\1$/, '$2');
+    } else if (key && /^\s+\S/.test(line)) fields[key] = `${fields[key]} ${line.trim()}`.trim();
+  }
+  return { where: fields.where, purpose: fields.purpose, body: text.slice(m[0].length) };
+}
+
 const PLACEHOLDER = /\{([A-Za-z]+)\}/g;
 
 /** The text with each {name} replaced by its value; unknown names are left as they are. */
@@ -57,8 +93,15 @@ export function fillPlaceholders(text: string, values: Record<string, string>): 
   return text.replace(PLACEHOLDER, (whole, name: string) => (name in values ? values[name] : whole));
 }
 
-/** The {names} in a file's text that have no value. */
+/** The {names} in a file's text (not its header) that have no value. */
 export function unknownPlaceholders(file: ContentFile, text: string): string[] {
   const known = new Set([...Object.keys(PLACEHOLDERS), ...(LOCAL_PLACEHOLDERS[file] ?? [])]);
-  return [...new Set([...text.matchAll(PLACEHOLDER)].map((m) => m[1]))].filter((name) => !known.has(name));
+  const { body } = parseContentFile(text);
+  return [...new Set([...body.matchAll(PLACEHOLDER)].map((m) => m[1]))].filter((name) => !known.has(name));
+}
+
+/** What is missing from a file's header: where its text appears, and what it should say. */
+export function missingHeader(text: string): string[] {
+  const { where, purpose } = parseContentFile(text);
+  return [!where && 'where', !purpose && 'purpose'].filter((k): k is string => !!k);
 }
