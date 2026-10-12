@@ -23,6 +23,7 @@
     "@noble/hashes": "^2.4.0",
     "@scure/base": "^2.4.0",
     "jsonld": "^9.0.0",
+    "marked": "^18.1.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "react-router-dom": "^7.18.4",

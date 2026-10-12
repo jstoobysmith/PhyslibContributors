@@ -5,6 +5,7 @@
 /scripts/                @jstoobysmith
 /src/lib/                @jstoobysmith
 /config/                 @jstoobysmith
+/content/                @jstoobysmith
 /package.json            @jstoobysmith
 /package-lock.json       @jstoobysmith
 /public/credentials/     @jstoobysmith

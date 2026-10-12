@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import VerificationPanel, { CheckList } from '../components/VerificationPanel';
+import { Content } from '../components/Content';
 import { buttonClass, Container, ErrorNote, inputClass, linkButtonClass, PageTitle } from '../components/ui';
 import { unbakeSvg } from '../lib/baking';
 import { ISSUER_DID, KEYS, SIGNING_KEY, SITE, SITE_URL, SPECIMEN_SLUG, credentialFile } from '../lib/config';
@@ -123,9 +124,7 @@ export default function Verify() {
     <Container className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_20rem]">
       <div className="min-w-0">
         <PageTitle title="Check a report">
-          Paste a report’s credential, a link to it, or its badge image. This page checks that it was signed by {SITE.issuer.name} with a published key, that it has not been changed since, that it is in date, and that it has not been
-          revoked. The first three are the standard Open Badges 3.0 checks, which any other verifier can repeat; the revocation
-          list is published on this site.
+          <Content file="verify/intro" />
         </PageTitle>
         <form
           onSubmit={(e) => {

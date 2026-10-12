@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
 import { ReportList } from '../components/ReportListing';
+import { Content } from '../components/Content';
 import { Container, Spinner } from '../components/ui';
-import { SECTIONS, SITE, SPECIMEN_SLUG, urls } from '../lib/config';
+import { SECTIONS, SITE, SPECIMEN_SLUG } from '../lib/config';
 import { useReports } from '../site/data';
 import { useTitle } from '../site/useTitle';
 
@@ -14,12 +15,7 @@ export default function Home() {
     <Container className="grid gap-x-10 gap-y-8 lg:grid-cols-[1fr_16rem]">
       <div className="order-1 min-w-0 lg:col-start-1 lg:row-start-1">
         <h1 className="sr-only">{SITE.title}</h1>
-        <p className="max-w-3xl font-serif text-[1.0625rem] leading-relaxed">
-          <strong>{SITE.title}</strong> publishes short, citable reports on work for <a href={SITE.physlib.site}>Physlib</a>{' '}
-          that papers rarely capture: reviewing, maintenance, refactoring, foundational definitions, the many smaller additions, and documentation. Contributors submit
-          their own work. The Physlib maintainers check each submission in public, and accepted
-          reports are digitally signed so that anyone can confirm they are genuine.
-        </p>
+        <Content file="home/intro" className="max-w-3xl font-serif text-[1.0625rem] leading-relaxed" />
         <p className="mt-3 text-sm">
           <Link to="/submit" className="font-bold">
             Submit a contribution
@@ -71,22 +67,8 @@ export default function Home() {
         <div className="panel">
           <div className="panel-title">New to Physlib?</div>
           <div className="space-y-2 px-3 py-2">
-            <p>Physlib is a library of physics written in the Lean 4 proof assistant. To start contributing:</p>
-            <ul className="list-disc space-y-1 pl-5">
-              <li>
-                <a href={SITE.physlib.gettingStarted}>Getting started with Physlib</a>
-              </li>
-              <li>
-                <a href={urls.goodFirstIssues()}>Good first issues</a>
-              </li>
-              <li>
-                <a href={SITE.physlib.zulip}>Ask on Zulip</a>
-              </li>
-            </ul>
-            <p className="text-xs text-muted">
-              Reviewing and maintenance are good ways to start contributing. Done regularly over a few months, they are also what
-              most first reports are about.
-            </p>
+            <Content file="home/new-to-physlib" />
+            <Content file="home/new-to-physlib-note" className="text-xs text-muted" />
           </div>
         </div>
       </aside>

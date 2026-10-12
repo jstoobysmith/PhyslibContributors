@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ACCEPT_COMMAND } from '../lib/issue-submission';
+import { Content } from '../components/Content';
 import { Container, PageTitle } from '../components/ui';
 import { WorkflowDiagram } from '../components/WorkflowDiagram';
 import { ISSUER_DID, MAINTAINERS, SECTIONS, SIGNING_KEY, SITE, SITE_URL, urls } from '../lib/config';
@@ -44,25 +45,12 @@ export default function About() {
           <h2 id="purpose" className="!mt-0 scroll-mt-4">
             Purpose
           </h2>
-          <p>
-            Much of the work that makes <a href={SITE.physlib.site}>Physlib</a> usable is not credited by papers: reviewing other
-            people’s changes, keeping the library building as Lean and Mathlib change, restructuring code, and setting up basic
-            definitions. {SITE.title} gives that work a citable record: a short report, much like a technical report, describing
-            the contribution, linking to the work itself and naming the maintainers who checked it. Contributors can list
-            reports on a CV next to their papers.
-          </p>
-          <p>
-            Reports are optional. Many valuable contributions are never submitted, and the absence of a report says nothing about
-            a person’s work. Reports record work; they do not rank people.
-          </p>
+          <Content file="about/purpose" />
 
           <h2 id="maintainers" className="scroll-mt-4">
             Who reviews reports
           </h2>
-          <p>
-            {SITE.title} is run by the maintainers of its <a href={urls.repo()}>GitHub repository</a>. They review submissions
-            and approve reports:
-          </p>
+          <Content file="about/maintainers" />
           <ul>
             {MAINTAINERS.map((m) => (
               <li key={m.github}>
@@ -93,29 +81,14 @@ export default function About() {
             The one exception is test submissions, made to try the process out: they are signed once a maintainer accepts them,
             without these rules, and their reports say they are tests and are not numbered or listed.
           </p>
-          <p>
-            The workflow can check who is named in a submission, but not other relationships: a maintainer who supervises or
-            works closely with the contributor is trusted not to approve. If every listed maintainer has such a conflict, the
-            submission waits until another maintainer is appointed. Reports on maintainers’ own work follow the same rules and are
-            approved by the other maintainers.
-          </p>
-          <p>
-            Maintainers review submissions as volunteers, with no promised turnaround. They may ask for changes, and may close a
-            submission that does not clearly meet the criteria without giving detailed reasons.
-          </p>
+          <Content file="about/approval-notes" />
 
           <h2 id="process" className="scroll-mt-4">
             How a report is made
           </h2>
-          <p>
-            From submission to a report anyone can check, and where each key is kept. Everything happens in public on GitHub; only
-            the two secret keys are hidden.
-          </p>
+          <Content file="about/process" />
           <WorkflowDiagram />
-          <p>
-            Reports are numbered in the order they are signed, starting from 1, and keep their number permanently. They are
-            cited like other technical reports, for example “{SITE.reportSeries} no. 3 (2026)”.
-          </p>
+          <Content file="about/numbering" />
 
           <h2 id="prefill" className="scroll-mt-4">
             Links that fill in the form
@@ -165,13 +138,7 @@ export default function About() {
           <h2 id="meaning" className="scroll-mt-4">
             What a report certifies
           </h2>
-          <p>
-            For readers such as hiring or promotion committees: a report is like a short technical report about one contribution.
-            Its publication certifies that Physlib maintainers looked at the linked
-            work and agreed that it meets the published criteria of its section. It does not measure the quality of the work
-            beyond that, and it is not peer review of a research result. The linked pull requests are the primary record, and
-            they show the work in full.
-          </p>
+          <Content file="about/meaning" />
 
           <h2 id="sections" className="scroll-mt-4">
             Sections
@@ -190,11 +157,7 @@ export default function About() {
           <h2 id="revocation" className="scroll-mt-4">
             Revoking a report
           </h2>
-          <p>
-            A signed report is never edited. If one has to be withdrawn, because it was published in error or because its contributor
-            asks for it to be removed, the maintainers add it to a public revocation list. The report page and this site’s
-            verifier then show it as revoked.
-          </p>
+          <Content file="about/revocation" />
 
           <h2 id="trust" className="scroll-mt-4">
             Signatures and keys
