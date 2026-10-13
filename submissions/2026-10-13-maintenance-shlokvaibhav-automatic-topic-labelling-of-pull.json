@@ -1,0 +1,22 @@
+{
+  "$schema": "https://contributions.physlib.io/schemas/submission.schema.json",
+  "section": "maintenance",
+  "title": "Automatic topic labelling of pull requests to Physlib",
+  "summary": "Adapted Mathlib's autolabel script to Physlib, and wrote the GitHub workflow that runs it whenever a pull request is opened. The script reads which files a pull request changes and, if exactly one topic label fits, the workflow adds it. The script also checks that every folder in Physlib and QuantumInfo is covered by a label, and flags any new folders not covered by a label.",
+  "recipient": {
+    "github": "ShlokVaibhav",
+    "name": "Shlok Vaibhav Singh",
+    "orcid": "0000-0002-3836-4147"
+  },
+  "period": {
+    "from": "2026-07",
+    "to": "2026-07"
+  },
+  "evidence": [
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1413",
+      "kind": "pull-request"
+    }
+  ],
+  "submittedAt": "2026-10-13T07:24:08Z"
+}
