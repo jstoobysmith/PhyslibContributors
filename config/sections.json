@@ -11,7 +11,7 @@
       "The reviews improved the physics, the Lean code or the documentation of the change.",
       "Links to the reviewed pull requests or review threads are given as evidence."
     ],
-    "guidance": "One report usually covers several substantive reviews over a period of time, or the careful review of one large change. A single short review is not enough.",
+    "guidance": "One report usually covers several substantive reviews over a period of time. A single short review is not enough.",
     "examples": [
       "Reviewed 10 pull requests on quantum mechanics",
       "Reviewed 25 pull requests on special relativity and the Lorentz group",
@@ -30,7 +30,7 @@
     "name": "Maintenance",
     "reportName": "Physlib Maintenance Report",
     "summary": "For keeping Physlib building and up to date.",
-    "description": "For work that keeps Physlib building and usable: updating it when Lean or Mathlib release new versions, fixing what those updates break, and looking after the automatic build checks (CI), linters, documentation and the issue tracker.",
+    "description": "For work that keeps Physlib building and usable: updating it when Lean or Mathlib release new versions, fixing what those updates break, and looking after and developing the automatic build checks (CI), linters, documentation and the issue tracker.",
     "criteria": [
       "The work was maintenance of Physlib or its infrastructure, for example version updates, CI, linting, replacing deprecated lemmas, tooling or issue triage.",
       "The work was merged or otherwise adopted by the project.",
@@ -56,18 +56,17 @@
     "name": "Refactoring",
     "reportName": "Physlib Refactoring Report",
     "summary": "For restructuring existing Physlib code so it is simpler or more general.",
-    "description": "For changing the structure of existing Physlib code without adding new results: generalising definitions, merging duplicate definitions, reorganising files, or speeding up compilation, so that later work is easier.",
+    "description": "For changing the structure of existing Physlib code without adding new results: generalising or improving definitions, merging duplicate definitions, reorganising files, or speeding up compilation, so that later work is easier.",
     "criteria": [
       "The change restructured existing Physlib code rather than adding new results.",
       "The change was merged and leaves the library easier to use or extend.",
       "Links to the relevant pull requests are given as evidence, with a short account of what changed and why."
     ],
-    "guidance": "One report usually covers one refactor that touched many files or removed a significant amount of duplication.",
+    "guidance": "One report usually covers one refactor that touched many files.",
     "examples": [
       "Refactored tensors in Physlib to be easier to use",
       "Unified two competing definitions of the Lorentz group",
-      "Reorganised the quantum mechanics files into a clear module structure",
-      "Generalised the harmonic oscillator from one to n dimensions"
+      "Reorganised the quantum mechanics files into a clear module structure"
     ],
     "evidenceKinds": [
       "pull-request",
@@ -81,7 +80,7 @@
     "numeral": "IV",
     "name": "Foundational Work",
     "reportName": "Physlib Foundations Report",
-    "summary": "For basic definitions that other parts of Physlib build on.",
+    "summary": "For basic foundations that other parts of Physlib build on.",
     "description": "For setting up the basic definitions and first properties of an area of physics in Physlib, such as spacetime, tensors, quantum states or thermodynamic systems, so that other results can be stated and proved.",
     "criteria": [
       "The work introduced or substantially developed basic definitions and their elementary properties in Physlib.",
