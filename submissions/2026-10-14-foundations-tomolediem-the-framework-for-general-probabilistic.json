@@ -1,0 +1,37 @@
+{
+  "$schema": "https://contributions.physlib.io/schemas/submission.schema.json",
+  "section": "foundations",
+  "title": "The framework for general probabilistic theories",
+  "summary": "This work laid the foundation for future formalizations in Physlib by establishing a common mathematical framework for classical, quantum and more general probabilistic theories. It introduces fundamental notions of states, observables and measurements, allowing results to be developed at a level of generality that makes them applicable across widely different fields of physics.",
+  "recipient": {
+    "github": "TomOleDiem",
+    "name": "Tom Diem"
+  },
+  "period": {
+    "from": "2026-09",
+    "to": "2026-10"
+  },
+  "evidence": [
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1667",
+      "kind": "pull-request"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1668",
+      "kind": "pull-request"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1670",
+      "kind": "pull-request"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1671",
+      "kind": "pull-request"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/1672",
+      "kind": "pull-request"
+    }
+  ],
+  "submittedAt": "2026-10-14T06:31:26Z"
+}
