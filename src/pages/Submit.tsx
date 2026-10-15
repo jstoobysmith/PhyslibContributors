@@ -110,10 +110,7 @@ function ShareLink({ draft }: { draft: Draft }) {
     <div className="panel">
       <div className="panel-title">Send this form to someone</div>
       <div className="space-y-2 px-3 py-2">
-        <p className="text-xs text-muted">
-          A link that opens this form already filled in, for example to start a submission for someone to check and
-          send. Notes on links are not included.
-        </p>
+        <Content file="submit/share-link" className="text-xs text-muted" />
         <button type="button" onClick={make} className={buttonClass()}>
           Copy a link to this form
         </button>
@@ -127,6 +124,30 @@ function ShareLink({ draft }: { draft: Draft }) {
         )}
       </div>
     </div>
+  );
+}
+
+/** An evidence link as a web address that can be opened, or undefined while it is not one (only http and https). */
+function linkHref(url: string): string | undefined {
+  const u = normaliseUrl(url.trim());
+  try {
+    const parsed = new URL(u);
+    return /^https?:$/.test(parsed.protocol) && parsed.hostname.includes('.') ? parsed.href : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/** A clickable version of an evidence link, under its box, to check that it goes where it should. */
+function OpenLink({ url }: { url: string }) {
+  const href = linkHref(url);
+  if (!href) return null;
+  return (
+    <a href={href} target="_blank" rel="noopener noreferrer" className="mt-1 block truncate text-xs" title={href}>
+      {href.replace(/^https?:\/\//, '')}
+      <span aria-hidden="true"> ↗</span>
+      <span className="sr-only"> (opens in a new tab)</span>
+    </a>
   );
 }
 
@@ -150,7 +171,14 @@ function Preview({ d }: { d: Draft }) {
           <ol className="mt-2 space-y-0.5 text-xs text-muted">
             {evidence.map((e, i) => (
               <li key={i} className="truncate">
-                [{i + 1}] {e.title || (e.url ? evidenceTitle({ url: e.url, kind: e.kind }) : '')}
+                [{i + 1}]{' '}
+                {linkHref(e.url) ? (
+                  <a href={linkHref(e.url)} target="_blank" rel="noopener noreferrer">
+                    {e.title || evidenceTitle({ url: normaliseUrl(e.url), kind: e.kind })}
+                  </a>
+                ) : (
+                  e.title || (e.url ? evidenceTitle({ url: e.url, kind: e.kind }) : '')
+                )}
               </li>
             ))}
           </ol>
@@ -349,19 +377,22 @@ export default function Submit() {
                     )}
                   </div>
                   <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_11rem]">
-                    <Field label="Link" error={err(`evidence.${i}.url`)}>
-                      <Input
-                        type="url"
-                        value={e.url}
-                        onChange={(ev) => {
-                          const url = ev.target.value;
-                          setEvidence(i, { url, ...(e.kindChosen ? {} : { kind: guessEvidenceKind(normaliseUrl(url), section.evidenceKinds[0]) }) });
-                        }}
-                        onBlur={() => setEvidence(i, { url: normaliseUrl(e.url) })}
-                        placeholder={`https://github.com/${SITE.physlib.repository}/pull/123`}
-                        data-invalid={!!err(`evidence.${i}.url`)}
-                      />
-                    </Field>
+                    <div className="min-w-0">
+                      <Field label="Link" error={err(`evidence.${i}.url`)}>
+                        <Input
+                          type="url"
+                          value={e.url}
+                          onChange={(ev) => {
+                            const url = ev.target.value;
+                            setEvidence(i, { url, ...(e.kindChosen ? {} : { kind: guessEvidenceKind(normaliseUrl(url), section.evidenceKinds[0]) }) });
+                          }}
+                          onBlur={() => setEvidence(i, { url: normaliseUrl(e.url) })}
+                          placeholder={`https://github.com/${SITE.physlib.repository}/pull/123`}
+                          data-invalid={!!err(`evidence.${i}.url`)}
+                        />
+                      </Field>
+                      <OpenLink url={e.url} />
+                    </div>
                     <Field label="Kind">
                       <select value={e.kind} onChange={(ev) => setEvidence(i, { kind: ev.target.value as EvidenceKind, kindChosen: true })} className={inputClass}>
                         {Object.entries(EVIDENCE_KINDS).map(([k, v]) => (

@@ -26,6 +26,7 @@ export const CONTENT_FILES = [
   'submit/test-notice',
   'submit/what-happens-next',
   'submit/what-happens-next-note',
+  'submit/share-link',
   'verify/intro',
   'report/certifies',
   'report/certifies-test',
