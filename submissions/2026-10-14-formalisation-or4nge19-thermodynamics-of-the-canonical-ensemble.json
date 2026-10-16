@@ -1,0 +1,37 @@
+{
+  "$schema": "https://contributions.physlib.io/schemas/submission.schema.json",
+  "section": "formalisation",
+  "title": "Thermodynamics of the canonical ensemble and the fluctuation–dissipation theorem",
+  "summary": "Extended the canonical ensemble in Physlib from its basic definitions to the main thermodynamic results. Added a semi-classical normalisation, with a phase-space unit and a number of degrees of freedom, so that the partition function, Helmholtz free energy and thermodynamic entropy are dimensionless physical quantities, kept alongside their raw mathematical versions. Proved the identity F = U − TS, the mean energy as U = −∂ log Z/∂β, the relation between thermodynamic and differential entropy, and, for finite systems, that the thermodynamic entropy equals the Shannon entropy. Defined energy variance and heat capacity, and proved the fluctuation–dissipation theorem C_V = Var(E)/(k_B T²) for finite canonical ensembles. Made Temperature a structure and added the conversions, limits and derivatives in temperature that these results need.",
+  "recipient": {
+    "github": "or4nge19",
+    "name": "Matteo Cipollina"
+  },
+  "period": {
+    "from": "2025-08",
+    "to": "2025-10"
+  },
+  "evidence": [
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/699",
+      "kind": "pull-request"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/703",
+      "kind": "pull-request"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/707",
+      "kind": "pull-request"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/709",
+      "kind": "pull-request"
+    },
+    {
+      "url": "https://github.com/leanprover-community/physlib/pull/720",
+      "kind": "pull-request"
+    }
+  ],
+  "submittedAt": "2026-10-14T07:39:47Z"
+}
